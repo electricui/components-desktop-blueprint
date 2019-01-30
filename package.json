@@ -37,12 +37,14 @@
     "@electricui/core": "^0.3.18",
     "@electricui/components-core": "^0.3.18",
     "react": ">16.6.0",
+    "@blueprintjs/core": "^3.12.0",
     "react-dom": ">16.6.0"
   },
   "peerDependencies": {
     "react": ">16.6.0",
     "react-dom": ">16.6.0",
     "@electricui/core": "^0.3.18",
+    "@blueprintjs/core": "^3.12.0",
     "@electricui/components-core": "^0.3.18"
   },
   "scripts": {
