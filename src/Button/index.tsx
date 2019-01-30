@@ -14,6 +14,12 @@ type ButtonProps = {
 }
 
 class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
+  static readonly accessorKeys = []
+
+  static generateAccessorsFromProps = (props: ButtonProps) => {
+    return []
+  }
+
   onClick = () => {
     const { write, high } = this.props
 
