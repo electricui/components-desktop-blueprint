@@ -31,12 +31,19 @@
     "rollup-plugin-typescript2": "^0.19.2",
     "sinon": "^7.2.3",
     "ts-node": "^8.0.2",
+    "@types/react": "16.7.20",
     "tslib": "^1.9.3",
-    "typescript": "^3.2.4"
+    "typescript": "^3.2.4",
+    "@electricui/core": "^0.3.18",
+    "@electricui/components-core": "^0.3.18",
+    "react": ">16.6.0",
+    "react-dom": ">16.6.0"
   },
   "peerDependencies": {
     "react": ">16.6.0",
-    "react-dom": ">16.6.0"
+    "react-dom": ">16.6.0",
+    "@electricui/core": "^0.3.18",
+    "@electricui/components-core": "^0.3.18"
   },
   "scripts": {
     "prepack": "npm run build && silversmith prepack",
