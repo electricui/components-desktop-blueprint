@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, ReactNode } from 'react'
 
 import { Button } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
@@ -10,6 +10,7 @@ interface StateTree {
 
 type ButtonProps = {
   high: StateTree
+  children?: ReactNode
 }
 
 class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
