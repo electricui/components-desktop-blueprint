@@ -2,7 +2,11 @@ import React, { Component, ReactNode } from 'react'
 
 import { Button } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
-import { withElectricity, InjectedElectricityProps } from '@electricui/components-core'
+import {
+  removeElectricProps,
+  withElectricity,
+  InjectedElectricityProps,
+} from '@electricui/components-core'
 
 interface StateTree {
   [key: string]: any
@@ -27,7 +31,7 @@ class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
   }
 
   render() {
-    const rest = this.props //  removeElectrifyProps(this.props)
+    const rest = removeElectricProps(this.props, ['high'])
 
     return <Button onClick={this.onClick} {...rest} />
   }
