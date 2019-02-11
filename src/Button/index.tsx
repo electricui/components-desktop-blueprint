@@ -6,14 +6,13 @@ import {
   removeElectricProps,
   withElectricity,
   InjectedElectricityProps,
+  StateTree,
 } from '@electricui/components-core'
 
-interface StateTree {
-  [key: string]: any
-}
+type Writer = StateTree
 
 type ButtonProps = {
-  high: StateTree
+  writer: Writer
   children?: ReactNode
 }
 
@@ -25,13 +24,13 @@ class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
   }
 
   onClick = () => {
-    const { write, high } = this.props
+    const { write, writer } = this.props
 
-    write(high, true)
+    write(writer, true)
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['high'])
+    const rest = removeElectricProps(this.props, ['writer'])
 
     return <Button onClick={this.onClick} {...rest} />
   }
