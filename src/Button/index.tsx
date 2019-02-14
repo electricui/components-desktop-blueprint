@@ -14,6 +14,7 @@ type Writer = StateTree
 type ButtonProps = {
   writer: Writer
   children?: ReactNode
+  noAck?: boolean
 }
 
 class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
@@ -24,13 +25,13 @@ class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
   }
 
   onClick = () => {
-    const { write, writer } = this.props
+    const { write, writer, noAck } = this.props
 
-    write(writer, true)
+    write(writer, !noAck)
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['writer'])
+    const rest = removeElectricProps(this.props, ['writer', 'noAck'])
 
     return <Button onClick={this.onClick} {...rest} />
   }
