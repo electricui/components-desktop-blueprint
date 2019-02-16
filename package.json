@@ -16,7 +16,8 @@
     "registry": "http://127.0.0.1:7001"
   },
   "dependencies": {
-    "lodash.debounce": "^4.0.8"
+    "lodash.debounce": "^4.0.8",
+    "classnames": "^2.2.6"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -26,6 +27,8 @@
     "@types/node": "^10.12.19",
     "@types/sinon": "^7.0.5",
     "@types/lodash.debounce": "^4.0.5",
+    "@types/classnames": "^2.2.7",
+    "@types/react": "^16.8.3",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "mocha": "^5.2.0",
@@ -33,9 +36,9 @@
     "rollup": "^1.1.2",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-typescript2": "^0.19.2",
+    "rollup-plugin-css-only": "^1.0.0",
     "sinon": "^7.2.3",
     "ts-node": "^8.0.2",
-    "@types/react": "16.7.20",
     "tslib": "^1.9.3",
     "typescript": "^3.2.4",
     "@electricui/core": "^0.3.18",
