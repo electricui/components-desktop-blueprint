@@ -40,6 +40,7 @@ type Writer = (sliderValues: SliderValues) => StateTree
 interface ExtendedSliderProps extends IMultiSliderProps {
   children: React.ReactElement<HandleProps>[] | React.ReactElement<HandleProps>
   writer?: Writer
+  sendOnlyOnRelease?: boolean
 }
 
 // Remove the props that we will handle
@@ -121,11 +122,17 @@ class Slider extends React.Component<SliderProps> {
   }
 
   handleChange = (values: number[]) => {
-    const { write } = this.props
+    const { commit, write, sendOnlyOnRelease } = this.props
+
     const sliderValues = this.convertArrayValuesToHashmap(values)
 
     const writer = this.getWriter()
     const toWrite = writer(sliderValues)
+
+    if (sendOnlyOnRelease) {
+      commit(toWrite)
+      return
+    }
 
     write(toWrite, false)
   }
