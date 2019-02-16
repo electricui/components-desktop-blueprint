@@ -10,7 +10,7 @@ import {
   StateTree,
 } from '@electricui/components-core'
 
-import { isElementOfType } from './utils'
+import { isElementOfType } from '../utils'
 
 interface ExtendedSliderHandleProps extends IHandleProps {
   accessor: Accessor
