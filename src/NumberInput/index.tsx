@@ -98,6 +98,10 @@ class ElectricNumberInput extends Component<
 
     const value = this.getValue()
 
+    if (typeof value !== 'number') {
+      return <NumericInput {...rest} disabled={true} value="" />
+    }
+
     return (
       <NumericInput onValueChange={this.onChange} {...rest} value={value} />
     )
