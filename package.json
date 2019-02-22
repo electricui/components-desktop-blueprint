@@ -12,9 +12,6 @@
     "lib/*",
     "manifest.json"
   ],
-  "publishConfig": {
-    "registry": "http://127.0.0.1:4873"
-  },
   "dependencies": {
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8"
