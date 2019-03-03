@@ -121,6 +121,33 @@
     classnames "^2.2"
     tslib "^1.9.0"
 
+"@emotion/is-prop-valid@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.npmjs.org/@emotion/is-prop-valid/-/is-prop-valid-0.7.3.tgz#a6bf4fa5387cbba59d44e698a4680f481a8da6cc"
+  integrity sha512-uxJqm/sqwXw3YPA5GXX365OBcJGFtxUVkB6WyezqFHlNe9jqUWH5ur2O2M8dGBz61kn1g3ZBlzUunFQXQIClhA==
+  dependencies:
+    "@emotion/memoize" "0.7.1"
+
+"@emotion/memoize@0.7.1":
+  version "0.7.1"
+  resolved "https://registry.npmjs.org/@emotion/memoize/-/memoize-0.7.1.tgz#e93c13942592cf5ef01aa8297444dc192beee52f"
+  integrity sha512-Qv4LTqO11jepd5Qmlp3M1YEjBumoTHcHFdgPTQ+sFlIL5myi/7xu/POwP7IRu6odBdmLXdtIs1D6TuW6kbwbbg==
+
+"@popmotion/easing@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@popmotion/easing/-/easing-1.0.1.tgz#48336aea29542113df10aeb81b4fd10f0b95f937"
+  integrity sha512-NbIEz9mZAem0F0sjg2v57LbU9Y2Xc50QEX434jYrwEQzXJuJipyUV48Qz4hjHqbB/8xiUj0JMQfRvP8K9nUbxg==
+
+"@popmotion/popcorn@^0.3.0":
+  version "0.3.1"
+  resolved "https://registry.npmjs.org/@popmotion/popcorn/-/popcorn-0.3.1.tgz#f0f33fbf7ff66f2cd0bf28be24bee0b1d46b65e8"
+  integrity sha512-TRhDPxfzM4CrUff2ELyzDj6xSEp5fcmbnrTO0VkmrN/TxJrAzP2H/VfIDRQQy82Yn65Vwn1ohrIi8eZLqzrCMA==
+  dependencies:
+    "@popmotion/easing" "^1.0.1"
+    framesync "^4.0.1"
+    hey-listen "^1.0.5"
+    style-value-types "^3.0.7"
+
 "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.3.0.tgz#50a2754016b6f30a994ceda6d9a0a8c36adda849"
@@ -176,6 +203,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
+"@types/invariant@^2.2.29":
+  version "2.2.29"
+  resolved "https://registry.npmjs.org/@types/invariant/-/invariant-2.2.29.tgz#aa845204cd0a289f65d47e0de63a6a815e30cc66"
+  integrity sha512-lRVw09gOvgviOfeUrKc/pmTiRZ7g7oDOU6OAutyuSHpm1/o2RaBQvRhgK8QEdu+FFuw/wnWb29A/iuxv9i8OpQ==
+
 "@types/lodash.debounce@^4.0.5":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@types/lodash.debounce/-/lodash.debounce-4.0.5.tgz#ded4e8c242c3c8f0851915b5e355db278bea472a"
@@ -197,6 +229,11 @@
   version "11.9.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.9.4.tgz#ceb0048a546db453f6248f2d1d95e937a6f00a14"
   integrity sha512-Zl8dGvAcEmadgs1tmSPcvwzO1YRsz38bVJQvH1RvRqSR9/5n61Q1ktcDL0ht3FXWR+ZpVmXVwN1LuH4Ax23NsA==
+
+"@types/node@^10.0.5":
+  version "10.12.29"
+  resolved "https://registry.npmjs.org/@types/node/-/node-10.12.29.tgz#c2c8d2d27bb55649fbafe8ea1731658421f38acf"
+  integrity sha512-J/tnbnj8HcsBgCe2apZbdUpQ7hs4d7oZNTYA5bekWdP0sr2NGsOpI/HRdDroEi209tEvTcTtxhD0FfED3DhEcw==
 
 "@types/prop-types@*":
   version "15.5.9"
@@ -916,6 +953,13 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
+framesync@^4.0.0, framesync@^4.0.1:
+  version "4.0.2"
+  resolved "https://registry.npmjs.org/framesync/-/framesync-4.0.2.tgz#b03b62852f12b0d80086b60834b089718f03cda5"
+  integrity sha512-hQLD5NURHmzB4Symo6JJ5HDw2TWwhr6T3gw9aChNMsZvkxcD8U8Gcz/hllAOOMGE+HO3ScpRPahpXDQRgF19JQ==
+  dependencies:
+    hey-listen "^1.0.5"
+
 fs-extra@7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
@@ -1088,6 +1132,11 @@ he@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
   integrity sha1-k0EP0hsAlzUVH4howvJx80J+I/0=
+
+hey-listen@^1.0.4, hey-listen@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/hey-listen/-/hey-listen-1.0.5.tgz#6d0a3a2f60177f65bc4404d571a00025bf5dc20e"
+  integrity sha512-O2iCNxBBGb4hOxL9tUdnoPwDYmZhQ29t5xKV74BVZNdvwCDXCpVYTJ4yoaibc1V0I8Yw3K3nwmvDpoyjnCqUaw==
 
 hosted-git-info@^2.1.4:
   version "2.7.1"
@@ -2022,10 +2071,46 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
+popmotion-pose@^3.4.0:
+  version "3.4.6"
+  resolved "https://registry.npmjs.org/popmotion-pose/-/popmotion-pose-3.4.6.tgz#872ceb776204164a5f6492acd36ca5dc96671b91"
+  integrity sha512-ZlRj4dWlJcZvr/84Xh+P+w9lxZVfTU3pJ+u1TkYu+y7Mq4yDXgPlarjgth2qeI4U5VylvTfWSvzwSjEXy8OPxg==
+  dependencies:
+    "@popmotion/easing" "^1.0.1"
+    hey-listen "^1.0.5"
+    popmotion "^8.6.2"
+    pose-core "^2.1.0"
+    style-value-types "^3.0.6"
+    ts-essentials "^1.0.3"
+    tslib "^1.9.1"
+
+popmotion@^8.6.2:
+  version "8.6.3"
+  resolved "https://registry.npmjs.org/popmotion/-/popmotion-8.6.3.tgz#4fcf47a92e53c4daf80d4973493f8636cc6dd74a"
+  integrity sha512-+KbWUBBow6ynoG/N1Ny2aqc6ZDaoBtkeEmpl3LfhmLqOo/WKYMY/HF4t9QmXwv/gJRqkUKmzS6NKDkkAodghAA==
+  dependencies:
+    "@popmotion/easing" "^1.0.1"
+    "@popmotion/popcorn" "^0.3.0"
+    framesync "^4.0.0"
+    hey-listen "^1.0.5"
+    style-value-types "^3.0.6"
+    stylefire "^2.3.4"
+    tslib "^1.9.1"
+
 popper.js@^1.14.1, popper.js@^1.14.4:
   version "1.14.7"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.7.tgz#e31ec06cfac6a97a53280c3e55e4e0c860e7738e"
   integrity sha512-4q1hNvoUre/8srWsH7hnoSJ5xVmIL4qgz+s4qf2TnJIMyZFUFMGH+9vE7mXynAlHSZ/NdTmmow86muD0myUkVQ==
+
+pose-core@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/pose-core/-/pose-core-2.1.0.tgz#653c85a9a06f924611b909b4a2180ce102bbb258"
+  integrity sha512-36mVAnIgbM6jfyRug8EqqFbazHUAk9dxwVRpX61FlVw3amI/j7AFegtVU56N0Dht2aYDJIhgYPUYraT1CzjHDw==
+  dependencies:
+    "@types/invariant" "^2.2.29"
+    "@types/node" "^10.0.5"
+    hey-listen "^1.0.5"
+    tslib "^1.9.1"
 
 posix-character-classes@^0.1.0:
   version "0.1.1"
@@ -2044,7 +2129,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.8, prop-types@^15.6.1, prop-types@^15.6.2:
+prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -2116,6 +2201,16 @@ react-popper@^1.0.0:
     prop-types "^15.6.1"
     typed-styles "^0.0.7"
     warning "^4.0.2"
+
+react-pose@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.npmjs.org/react-pose/-/react-pose-4.0.7.tgz#8573b7d1bc3d03d0b758e5fa07d841484ad8d25d"
+  integrity sha512-cv6/dMhMYSblyrV181I9Tf050kK5B/x0269PN041Thzut95JIluxLJRoAlwWJT2J0jBjG6ZfpXdqRxAqoEbvTQ==
+  dependencies:
+    "@emotion/is-prop-valid" "^0.7.3"
+    hey-listen "^1.0.5"
+    popmotion-pose "^3.4.0"
+    tslib "^1.9.1"
 
 react-transition-group@^2.2.1:
   version "2.5.3"
@@ -2576,6 +2671,27 @@ strip-eof@^1.0.0:
   resolved "https://registry.yarnpkg.com/strip-eof/-/strip-eof-1.0.0.tgz#bb43ff5598a6eb05d89b59fcd129c983313606bf"
   integrity sha1-u0P/VZim6wXYm1n80SnJgzE2Br8=
 
+style-value-types@^3.0.6, style-value-types@^3.0.7:
+  version "3.0.7"
+  resolved "https://registry.npmjs.org/style-value-types/-/style-value-types-3.0.7.tgz#6e7a22cc8b1a4465193268ed66ad5f2a82579054"
+  integrity sha512-7vzeicDiPNnJjvTYfJbQhZ7P3OCkXfvkJOJQ+ifFnXNTA/7KBxMZacHLvlRjM5/TtXbVdrZE6u+2nzSUSPrbSQ==
+
+styled-css-grid@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.npmjs.org/styled-css-grid/-/styled-css-grid-1.2.1.tgz#dbaff2c159745002bc590f0fe3414675f1a15945"
+  integrity sha512-ileif/si3F62bfTD6f9yPe2SwNXfMdaaiIL9DYuw7TPMqle1sQBEjXUaIbYCzMpsHklF/xctgGUhBb3+thlZsQ==
+  dependencies:
+    prop-types "^15.6.0"
+
+stylefire@^2.3.4:
+  version "2.4.3"
+  resolved "https://registry.npmjs.org/stylefire/-/stylefire-2.4.3.tgz#1b39847251000bda86ebf82fa2bb4be7dafe6bc4"
+  integrity sha512-8rckFzuDlVWSyrkmnyTg8avadQavk2t6YkFKUUocsXoj/8NScOjb+/avbB4nrmoPtzD0kN7IyuhKq8jimIBTBQ==
+  dependencies:
+    framesync "^4.0.0"
+    hey-listen "^1.0.4"
+    style-value-types "^3.0.6"
+
 supports-color@5.4.0:
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-5.4.0.tgz#1c6b337402c2137605efe19f10fec390f6faab54"
@@ -2659,6 +2775,11 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
+ts-essentials@^1.0.3:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/ts-essentials/-/ts-essentials-1.0.4.tgz#ce3b5dade5f5d97cf69889c11bf7d2da8555b15a"
+  integrity sha512-q3N1xS4vZpRouhYHDPwO0bDW3EZ6SK9CrrDHxi/D6BPReSjpVgWIOpLS2o0gSBZm+7q/wyKp6RVM1AeeW7uyfQ==
+
 ts-node@^8.0.2:
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.0.2.tgz#9ecdf8d782a0ca4c80d1d641cbb236af4ac1b756"
@@ -2670,7 +2791,7 @@ ts-node@^8.0.2:
     source-map-support "^0.5.6"
     yn "^3.0.0"
 
-tslib@1.9.3, tslib@^1.9.0, tslib@^1.9.3:
+tslib@1.9.3, tslib@^1.9.0, tslib@^1.9.1, tslib@^1.9.3:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.3.tgz#d7e4dd79245d85428c4d7e4822a79917954ca286"
   integrity sha512-4krF8scpejhaOgqzBEcGM7yDIEfi0/8+8zDRZhNZZ2kjmHJ4hv3zCbQWxoJGz1iw5U0Jl0nma13xzHXcncMavQ==
