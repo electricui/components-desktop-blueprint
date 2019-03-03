@@ -46,6 +46,9 @@ const DeviceInnerCard = posed.div({
   DISCONNECTED: {
     borderRight: '2px solid rgba(61, 204, 145, 0)',
   },
+  DISCOVERING: {
+    borderRight: '2px solid rgba(194, 116, 194, 0.5)',
+  },
 })
 
 type ConnectionsProps = {
@@ -135,81 +138,100 @@ class Connections extends React.Component<ConnectionsProps> {
                 deviceManagerReady,
               ) => (
                 <Disconnect deviceID={deviceID}>
-                  {disconnectOnClick => (
-                    <DeviceInnerCard
-                      className={
-                        connectionHashes.length === 0
-                          ? 'bp3-card bp3-elevation-0 disabled-card'
-                          : 'bp3-card bp3-interactive bp3-elevation-1'
-                      }
-                      onClick={
-                        connectionRequested ? disconnectOnClick : connectOnClick
-                      }
-                      pose={connectionState}
-                    >
-                      <Grid columns={2} alignItems="end">
-                        <Cell>{this.renderDeviceInternal(deviceID)}</Cell>
-                        {connectionHashes.length === 0 ? null : (
-                          <Cell
-                            style={{
-                              textAlign: 'right',
-                            }}
-                          >
-                            <div
+                  {disconnectOnClick => {
+                    let deviceInnerCardPose
+
+                    if (
+                      !connectionRequested &&
+                      (connectionState === CONNECTION_STATE.CONNECTED ||
+                        connectionState === CONNECTION_STATE.CONNECTING)
+                    ) {
+                      deviceInnerCardPose = 'DISCOVERING'
+                    } else {
+                      deviceInnerCardPose = connectionState
+                    }
+
+                    return (
+                      <DeviceInnerCard
+                        className={
+                          connectionHashes.length === 0
+                            ? 'bp3-card bp3-elevation-0 disabled-card'
+                            : 'bp3-card bp3-interactive bp3-elevation-1'
+                        }
+                        onClick={
+                          connectionRequested
+                            ? disconnectOnClick
+                            : connectOnClick
+                        }
+                        pose={deviceInnerCardPose}
+                      >
+                        <Grid columns={2} alignItems="end">
+                          <Cell>{this.renderDeviceInternal(deviceID)}</Cell>
+                          {connectionHashes.length === 0 ? null : (
+                            <Cell
                               style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                flexDirection: 'column',
-                                height: '100%',
+                                textAlign: 'right',
                               }}
                             >
-                              <div>
-                                {connectionHashes.map(connectionHash => (
-                                  <ConnectionState
-                                    connectionHash={connectionHash}
-                                    key={connectionHash}
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  flexDirection: 'column',
+                                  height: '100%',
+                                }}
+                              >
+                                <div>
+                                  {connectionHashes.map(connectionHash => (
+                                    <ConnectionState
+                                      connectionHash={connectionHash}
+                                      key={connectionHash}
+                                    >
+                                      {connectionState => (
+                                        <ConnectionMetadata
+                                          connectionHash={connectionHash}
+                                        >
+                                          {metadata => (
+                                            <Tag
+                                              round
+                                              intent={
+                                                connectionRequested &&
+                                                connectionState === 'CONNECTED'
+                                                  ? 'primary'
+                                                  : 'none'
+                                              }
+                                              style={{ marginLeft: 4 }}
+                                            >
+                                              {metadata.name}
+                                            </Tag>
+                                          )}
+                                        </ConnectionMetadata>
+                                      )}
+                                    </ConnectionState>
+                                  ))}
+                                </div>
+                                <div>
+                                  <Tag
+                                    intent={
+                                      connectionRequested &&
+                                      connectionState === 'CONNECTED'
+                                        ? 'danger'
+                                        : 'primary'
+                                    }
                                   >
-                                    {connectionState => (
-                                      <ConnectionMetadata
-                                        connectionHash={connectionHash}
-                                      >
-                                        {metadata => (
-                                          <Tag
-                                            round
-                                            intent={
-                                              connectionState === 'CONNECTED'
-                                                ? 'primary'
-                                                : 'none'
-                                            }
-                                            style={{ marginLeft: 4 }}
-                                          >
-                                            {metadata.name}
-                                          </Tag>
-                                        )}
-                                      </ConnectionMetadata>
-                                    )}
-                                  </ConnectionState>
-                                ))}
-                              </div>
-                              <div>
-                                <Tag
-                                  intent={
+                                    {connectionRequested &&
                                     connectionState === 'CONNECTED'
-                                      ? 'danger'
-                                      : 'primary'
-                                  }
-                                >
-                                  {connectionState === 'CONNECTED'
-                                    ? 'Disconnect'
-                                    : 'Connect'}
-                                </Tag>
+                                      ? 'Disconnect'
+                                      : 'Connect'}
+                                  </Tag>
+                                </div>
                               </div>
-                            </div>
-                          </Cell>
-                        )}
-                      </Grid>
-                    </DeviceInnerCard>
-                  )}
+                            </Cell>
+                          )}
+                        </Grid>
+                      </DeviceInnerCard>
+                    )
+                  }}
                 </Disconnect>
               )}
             </Connect>
