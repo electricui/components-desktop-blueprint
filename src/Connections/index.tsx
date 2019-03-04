@@ -18,7 +18,7 @@ import {
   DisconnectRenderProp,
   Poll,
 } from '@electricui/components-core'
-import { CONNECTION_STATE } from '@electricui/core'
+import { CONNECTION_STATE, DeviceMetadata as DeviceMetadataType } from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -84,7 +84,7 @@ class Connections extends React.Component<ConnectionsProps> {
   renderDeviceInternal = (deviceID: string) => {
     return (
       <DeviceMetadata deviceID={deviceID}>
-        {metadata => {
+        {(metadata: DeviceMetadataType) => {
           if (metadata.name) {
             return (
               <React.Fragment>
@@ -191,7 +191,7 @@ class Connections extends React.Component<ConnectionsProps> {
                                         <ConnectionMetadata
                                           connectionHash={connectionHash}
                                         >
-                                          {metadata => (
+                                          {(metadata: DeviceMetadataType) => (
                                             <Tag
                                               round
                                               intent={
