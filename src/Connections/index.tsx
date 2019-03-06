@@ -1,23 +1,20 @@
-import React, { Component } from 'react'
+import React from 'react'
 import posed, { PoseGroup } from 'react-pose'
 import { Cell, Grid } from 'styled-css-grid'
 
-import { Button, Callout, Card, Classes, Elevation, NonIdealState, Tag } from '@blueprintjs/core'
+import { Button, Classes, NonIdealState, Tag } from '@blueprintjs/core'
 import {
   Connect,
   ConnectionMetadata,
   ConnectionState,
-  ConnectionUsageRequests,
-  ConnectRenderProp,
   ConsecutivePollFailureMessage,
   DeviceConnectionHashes,
   DeviceIDList,
   DeviceMetadata,
   Disconnect,
-  DisconnectRenderProp,
   Poll,
 } from '@electricui/components-core'
-import { CONNECTION_STATE, DeviceMetadata as DeviceMetadataType } from '@electricui/core'
+import { CONNECTION_STATE } from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
