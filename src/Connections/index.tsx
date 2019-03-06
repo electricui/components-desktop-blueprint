@@ -124,7 +124,7 @@ class Connections extends React.Component<ConnectionsProps> {
         style={{ maxWidth: maxWidth, margin: '0 auto' }}
       >
         <DeviceConnectionHashes deviceID={deviceID}>
-          {connectionHashes => (
+          {(connectionHashes: string[]) => (
             <Connect
               deviceID={deviceID}
               onConnect={() => {
