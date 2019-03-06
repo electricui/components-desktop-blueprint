@@ -48,7 +48,7 @@
     "@electricui/core": "*",
     "react": "*",
     "react-dom": "*",
-    "react-pose": "^*",
+    "react-pose": "*",
     "styled-css-grid": "*"
   },
   "scripts": {
