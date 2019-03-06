@@ -3,7 +3,6 @@ import posed, { PoseGroup } from 'react-pose'
 import { Cell, Grid } from 'styled-css-grid'
 
 import { Button, Callout, Card, Classes, Elevation, NonIdealState, Tag } from '@blueprintjs/core'
-import { TAG } from '@blueprintjs/icons/lib/esm/generated/iconContents'
 import {
   Connect,
   ConnectionMetadata,
@@ -84,7 +83,7 @@ class Connections extends React.Component<ConnectionsProps> {
   renderDeviceInternal = (deviceID: string) => {
     return (
       <DeviceMetadata deviceID={deviceID}>
-        {(metadata: DeviceMetadataType) => {
+        {metadata => {
           if (metadata.name) {
             return (
               <React.Fragment>
@@ -124,7 +123,7 @@ class Connections extends React.Component<ConnectionsProps> {
         style={{ maxWidth: maxWidth, margin: '0 auto' }}
       >
         <DeviceConnectionHashes deviceID={deviceID}>
-          {(connectionHashes: string[]) => (
+          {connectionHashes => (
             <Connect
               deviceID={deviceID}
               onConnect={() => {
@@ -191,7 +190,7 @@ class Connections extends React.Component<ConnectionsProps> {
                                         <ConnectionMetadata
                                           connectionHash={connectionHash}
                                         >
-                                          {(metadata: DeviceMetadataType) => (
+                                          {metadata => (
                                             <Tag
                                               round
                                               intent={
