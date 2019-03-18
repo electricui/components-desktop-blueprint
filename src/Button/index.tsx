@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react'
+import { Omit } from 'utility-types'
 
-import { Button } from '@blueprintjs/core'
+import { Button, IButtonProps } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
 import {
   removeElectricProps,
@@ -11,16 +12,34 @@ import {
 
 type Writer = StateTree
 
-type ButtonProps = {
+/**
+ * Remove the IButtonProps ones we don't want to show in the documentation
+ * @remove type
+ * @remove onClick
+ * @remove loading
+ * @remove elementRef
+ */
+interface ElectricButtonProps extends IButtonProps {
+  /** A writer */
   writer: Writer
+  /** Potential overwriting of button child nodes */
   children?: ReactNode
+  /** whether to ack the writes when clicked */
   noAck?: boolean
 }
 
-class ElectricButton extends Component<ButtonProps & InjectedElectricityProps> {
+/**
+ * Button
+ * @module components-desktop-blueprint
+ * @name Button
+ * @props ElectricButtonProps
+ */
+class ElectricButton extends Component<
+  ElectricButtonProps & InjectedElectricityProps
+> {
   static readonly accessorKeys = []
 
-  static generateAccessorsFromProps = (props: ButtonProps) => {
+  static generateAccessorsFromProps = (props: ElectricButtonProps) => {
     return []
   }
 

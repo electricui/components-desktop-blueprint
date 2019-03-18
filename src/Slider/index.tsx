@@ -12,22 +12,35 @@ import {
 
 import { isElementOfType } from '../utils'
 
+/**
+ * Slider Props
+ * @remove onChange
+ * @remove onRelease
+ */
 interface ExtendedSliderHandleProps extends IHandleProps {
   accessor: Accessor
   name?: string
 }
 
+/**
+ * Slider Props
+ * @remove onChange
+ * @remove onRelease
+ */
 type HandleProps = Omit<
   ExtendedSliderHandleProps,
   'onChange' | 'onRelease' | 'value'
 >
 
 /**
- * SFC used to pass slider handle props to a Slider.
- * This element is not rendered directly.
+ * A Slider handle
+ * @module components-desktop-blueprint
+ * @name Slider.SliderHandle
+ * @props ExtendedSliderHandleProps
  */
-export const SliderHandle: React.SFC<HandleProps> = () => null
-SliderHandle.displayName = 'SliderHandle'
+export class SliderHandle extends React.Component<HandleProps> {
+  static readonly displayName = 'SliderHandle'
+}
 
 type SliderValues = {
   [key: string]: number
@@ -35,9 +48,17 @@ type SliderValues = {
 
 type Writer = (sliderValues: SliderValues) => StateTree
 
-// We want to try to force only Handles to be our children
-// But I'm pretty sure this doesn't actually work?
+/**
+ * Slider Props
+ * @remove onChange
+ * @remove onRelease
+ * @grab ExtendedSliderHandleProps
+ */
 interface ExtendedSliderProps extends IMultiSliderProps {
+  /**
+   * A Slider handle or an array of slider handles.
+   * @type <SliderHandle /> | <SliderHandle />[]
+   */
   children: React.ReactElement<HandleProps>[] | React.ReactElement<HandleProps>
   writer?: Writer
   sendOnlyOnRelease?: boolean
@@ -73,6 +94,12 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   })
 }
 
+/**
+ * Slider
+ * @module components-desktop-blueprint
+ * @name Slider
+ * @props ExtendedSliderProps
+ */
 class Slider extends React.Component<SliderProps> {
   public static readonly displayName = 'Slider'
   static readonly accessorKeys = []
