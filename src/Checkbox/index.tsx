@@ -21,11 +21,30 @@ type UpstreamCheckboxProps = Omit<
   | 'defaultChecked'
 >
 
+/**
+ * Remove the ICheckboxProps ones we don't want to show in the documentation
+ * @remove defaultIndeterminate
+ * @remove indeterminate
+ * @remove onChange
+ * @remove defaultChecked
+ */
 interface CheckboxProps extends UpstreamCheckboxProps {
+  /**
+   * The state tree to match when the checkbox is checked. Checking the checkbox sets this statetree.
+   */
   checked: StateTree
+  /**
+   * The state tree to match when the checkbox is unchecked. Unchecking the checkbox sets this statetree.
+   */
   unchecked: StateTree
 }
 
+/**
+ * Checkbox
+ * @module components-desktop-blueprint
+ * @name Checkbox
+ * @props CheckboxProps
+ */
 class ElectricCheckbox extends Component<
   CheckboxProps & InjectedElectricityProps
 > {
