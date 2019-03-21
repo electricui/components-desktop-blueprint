@@ -19,12 +19,32 @@ type UpstreamNumberInputProps = Omit<
 
 type Writer = (value: number) => StateTree
 
+/**
+ * Remove the INumericInputProps ones we don't want to show in the documentation
+ * @remove onValueChange
+ * @remove value
+ */
 interface NumberInputProps extends UpstreamNumberInputProps {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the NumberInput.
+   */
   accessor: Accessor
+  /**
+   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the NumberInput into a StateTree for writing to the device.
+   */
   writer?: Writer
+  /**
+   * With this many milliseconds until no changes have occurred before writing them.
+   */
   debounceDuration?: number
 }
 
+/**
+ * NumberInput
+ * @module components-desktop-blueprint
+ * @name NumberInput
+ * @props NumberInputProps
+ */
 class ElectricNumberInput extends Component<
   NumberInputProps & InjectedElectricityProps
 > {
