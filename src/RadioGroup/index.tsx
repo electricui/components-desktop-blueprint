@@ -4,7 +4,7 @@ import { Omit } from 'utility-types'
 import {
   IRadioGroupProps,
   IRadioProps,
-  Radio as BlueprintRadio,
+  Radio,
   RadioGroup,
 } from '@blueprintjs/core'
 import {
@@ -17,21 +17,33 @@ import {
 
 import { isElementOfType } from '../utils'
 
-interface ExtendedRadioProps extends IRadioProps {
-  value: string | number
-}
-
-type RadioProps = Omit<
-  ExtendedRadioProps,
+type UpstreamRadioProps = Omit<
+  IRadioProps,
   'checked' | 'defaultChecked' | 'onChange'
 >
 
 /**
- * SFC used to pass radio handle props to a RadioGroup.
- * This element is not rendered directly.
+ * Remove the IRadioProps ones we don't want to show in the documentation
+ * @remove checked
+ * @remove defaultChecked
+ * @remove onChange
  */
-export const Radio: React.SFC<RadioProps> = () => null
-Radio.displayName = 'Radio'
+interface RadioProps extends UpstreamRadioProps {
+  /**
+   * The value that will be used to match against which Radio button is selected, and the value that will be written when this Radio button is selected.
+   */
+  value: string | number
+}
+
+/**
+ * A Radio button
+ * @module components-desktop-blueprint
+ * @name RadioGroup.Radio
+ * @props RadioProps
+ */
+export class ElectricRadio extends React.Component<RadioProps> {
+  static readonly displayName = 'Radio'
+}
 
 type RadioValue = string | number
 
@@ -39,31 +51,50 @@ type Writer = (value: RadioValue) => StateTree
 
 // We want to try to force only Radios to be our children
 // But I'm pretty sure this doesn't actually work?
-interface ExtendedRadioGroupProps extends IRadioGroupProps {
-  children: React.ReactElement<RadioProps>[] | React.ReactElement<RadioProps>
-  accessor: Accessor
-  writer?: Writer
-}
 
 // Remove the props that we will handle
-type RadioGroupProps = Omit<
-  ExtendedRadioGroupProps,
-  'onChange' | 'options' | 'selectedValue'
-> &
-  InjectedElectricityProps
-
-type RadioGroupPropsPublic = Omit<
-  ExtendedRadioGroupProps,
+type UpstreamRadioGroupProps = Omit<
+  IRadioGroupProps,
   'onChange' | 'options' | 'selectedValue'
 >
 
+/**
+ * RadioGroup Props
+ * @remove onChange
+ * @remove options
+ * @remove selectedValue
+ */
+interface RadioGroupProps extends UpstreamRadioGroupProps {
+  /**
+   * A radio button or an array of radio button.
+   * @type <RadioGroup.Radio /> | <RadioGroup.Radio />[]
+   */
+  children: React.ReactElement<RadioProps>[] | React.ReactElement<RadioProps>
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string or number for use in the RadioGroup.
+   */
+  accessor: Accessor
+  /**
+   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the Radio button selected into a StateTree for writing to the device.
+   */
+  writer?: Writer
+}
+
 function propsToRadioProps(props: RadioGroupProps) {
   return React.Children.map(props.children, child =>
-    isElementOfType(child, Radio) ? child.props : null,
+    isElementOfType(child, ElectricRadio) ? child.props : null,
   ).filter(child => child !== null) as Array<RadioProps>
 }
 
-class ElectricRadioGroup extends React.Component<RadioGroupProps> {
+/**
+ * RadioGroup
+ * @module components-desktop-blueprint
+ * @name RadioGroup
+ * @props RadioGroupProps
+ */
+class ElectricRadioGroup extends React.Component<
+  RadioGroupProps & InjectedElectricityProps
+> {
   public static readonly displayName = 'RadioGroup'
   static readonly accessorKeys = ['accessor']
 
@@ -148,7 +179,7 @@ class ElectricRadioGroup extends React.Component<RadioGroupProps> {
         selectedValue={this.getSelectedValue()}
       >
         {radioProps.map((radioPropList, index) => {
-          return <BlueprintRadio {...radioPropList} key={radioPropList.value} />
+          return <Radio {...radioPropList} key={radioPropList.value} />
         })}
       </RadioGroup>
     )
@@ -159,10 +190,10 @@ const RadioGroupWithElectricity = withElectricity(ElectricRadioGroup)
 // The withElectricity HOC strips static methods that aren't part of react
 // So we need to add the Radio manually and coax the types back to what we want
 const RadioGroupWithRadio = RadioGroupWithElectricity as React.ComponentClass<
-  RadioGroupPropsPublic
+  RadioGroupProps
 > & {
-  Radio: typeof Radio
+  Radio: typeof ElectricRadio
 }
-RadioGroupWithRadio.Radio = Radio
+RadioGroupWithRadio.Radio = ElectricRadio
 
 export default RadioGroupWithRadio

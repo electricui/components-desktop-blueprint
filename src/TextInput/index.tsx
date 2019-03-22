@@ -19,12 +19,33 @@ type UpstreamTextInputProps = Omit<
 
 type Writer = (value: string) => StateTree
 
+/**
+ * Remove the IInputGroupProps ones we don't want to show in the documentation
+ * @remove defaultValue
+ * @remove onChange
+ * @remove value
+ */
 interface TextInputProps extends UpstreamTextInputProps {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the TextInput.
+   */
   accessor: Accessor
+  /**
+   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the TextInput into a StateTree for writing to the device.
+   */
   writer?: Writer
+  /**
+   * Wait this many milliseconds until no changes have occurred before writing them.
+   */
   debounceDuration?: number
 }
 
+/**
+ * TextInput
+ * @module components-desktop-blueprint
+ * @name TextInput
+ * @props TextInputProps
+ */
 class ElectricTextInput extends Component<
   TextInputProps & InjectedElectricityProps
 > {

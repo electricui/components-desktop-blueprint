@@ -30,11 +30,11 @@ type UpstreamCheckboxProps = Omit<
  */
 interface CheckboxProps extends UpstreamCheckboxProps {
   /**
-   * The state tree to match when the checkbox is checked. Checking the checkbox sets this statetree.
+   * The state tree to match when the checkbox is checked. Checking the checkbox sets this StateTree.
    */
   checked: StateTree
   /**
-   * The state tree to match when the checkbox is unchecked. Unchecking the checkbox sets this statetree.
+   * The state tree to match when the checkbox is unchecked. Unchecking the checkbox sets this StateTree.
    */
   unchecked: StateTree
 }

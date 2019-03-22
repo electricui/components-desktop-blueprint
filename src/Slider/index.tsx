@@ -18,7 +18,15 @@ import { isElementOfType } from '../utils'
  * @remove onRelease
  */
 interface ExtendedSliderHandleProps extends IHandleProps {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the SliderHandle.
+   */
   accessor: Accessor
+  /**
+   * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
+   * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
+   * This name will be used as the key of a hashmap passed to the Slider's Writer, to convert the combination of all SliderHandle values into a StateTree to write to the device.
+   */
   name?: string
 }
 
@@ -38,7 +46,7 @@ type HandleProps = Omit<
  * @name Slider.SliderHandle
  * @props ExtendedSliderHandleProps
  */
-export class SliderHandle extends React.Component<HandleProps> {
+export class ElectricSliderHandle extends React.Component<HandleProps> {
   static readonly displayName = 'SliderHandle'
 }
 
@@ -52,15 +60,21 @@ type Writer = (sliderValues: SliderValues) => StateTree
  * Slider Props
  * @remove onChange
  * @remove onRelease
- * @grab ExtendedSliderHandleProps
  */
 interface ExtendedSliderProps extends IMultiSliderProps {
   /**
    * A Slider handle or an array of slider handles.
-   * @type <SliderHandle /> | <SliderHandle />[]
+   * @type <Slider.SliderHandle /> | <Slider.SliderHandle />[]
    */
   children: React.ReactElement<HandleProps>[] | React.ReactElement<HandleProps>
+  /**
+   * If all the SliderHandles' Accessors are merely messageIDs, this writer is optional.
+   * If any Accessor is functional, then this Writer must be used to transform the hashmap of accessor names and values to a StateTree to write to the device.
+   */
   writer?: Writer
+  /**
+   * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the StateTree will be written to the device.
+   */
   sendOnlyOnRelease?: boolean
 }
 
@@ -72,7 +86,7 @@ type SliderPropsPublic = Omit<ExtendedSliderProps, 'onChange' | 'onRelease'>
 
 function propsToHandleProps(props: SliderProps) {
   return React.Children.map(props.children, child =>
-    isElementOfType(child, SliderHandle) ? child.props : null,
+    isElementOfType(child, ElectricSliderHandle) ? child.props : null,
   ).filter(child => child !== null) as Array<HandleProps>
 }
 
@@ -100,7 +114,7 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
  * @name Slider
  * @props ExtendedSliderProps
  */
-class Slider extends React.Component<SliderProps> {
+class ElectricSlider extends React.Component<SliderProps> {
   public static readonly displayName = 'Slider'
   static readonly accessorKeys = []
 
@@ -196,7 +210,7 @@ class Slider extends React.Component<SliderProps> {
 
   getChildProps = () => {
     return React.Children.map(this.props.children, child =>
-      isElementOfType(child, SliderHandle) ? child.props : null,
+      isElementOfType(child, ElectricSliderHandle) ? child.props : null,
     ).filter(child => child !== null)
   }
 
@@ -244,14 +258,14 @@ class Slider extends React.Component<SliderProps> {
   }
 }
 
-const SliderWithElectricity = withElectricity(Slider)
+const SliderWithElectricity = withElectricity(ElectricSlider)
 // The withElectricity HOC strips static methods that aren't part of react
 // So we need to add the Handle manually and coax the types back to what we want
 const SliderWithHandle = SliderWithElectricity as React.ComponentClass<
   SliderPropsPublic
 > & {
-  Handle: typeof SliderHandle
+  Handle: typeof ElectricSliderHandle
 }
-SliderWithHandle.Handle = SliderHandle
+SliderWithHandle.Handle = ElectricSliderHandle
 
 export default SliderWithHandle

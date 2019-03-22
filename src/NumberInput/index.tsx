@@ -34,7 +34,7 @@ interface NumberInputProps extends UpstreamNumberInputProps {
    */
   writer?: Writer
   /**
-   * With this many milliseconds until no changes have occurred before writing them.
+   * Wait this many milliseconds until no changes have occurred before writing them.
    */
   debounceDuration?: number
 }

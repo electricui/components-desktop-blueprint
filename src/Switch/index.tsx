@@ -20,11 +20,29 @@ type UpstreamSwitchProps = Omit<
   'checked' | 'onChange' | 'defaultChecked'
 >
 
+/**
+ * Remove the ISwitchProps ones we don't want to show in the documentation
+ * @remove checked
+ * @remove onChange
+ * @remove defaultChecked
+ */
 interface SwitchProps extends UpstreamSwitchProps {
+  /**
+   * The state tree to match when the switch is on. Switching the switch on sets this StateTree.
+   */
   checked: StateTree
+  /**
+   * The state tree to match when the switch is off. Switching the switch off sets this StateTree.
+   */
   unchecked: StateTree
 }
 
+/**
+ * Switch
+ * @module components-desktop-blueprint
+ * @name Switch
+ * @props SwitchProps
+ */
 class ElectricSwitch extends Component<SwitchProps & InjectedElectricityProps> {
   static readonly accessorKeys = []
 
