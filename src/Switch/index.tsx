@@ -22,7 +22,6 @@ type UpstreamSwitchProps = Omit<
 
 /**
  * Remove the ISwitchProps ones we don't want to show in the documentation
- * @remove checked
  * @remove onChange
  * @remove defaultChecked
  */
