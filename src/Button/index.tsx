@@ -10,8 +10,6 @@ import {
   StateTree,
 } from '@electricui/components-core'
 
-type Writer = StateTree
-
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation
  * @remove type
@@ -20,11 +18,13 @@ type Writer = StateTree
  * @remove elementRef
  */
 interface ElectricButtonProps extends IButtonProps {
-  /** A writer */
-  writer: Writer
-  /** Potential overwriting of button child nodes */
+  /** A function that returns a StateTree or just a StateTree to write to the device upon clicking */
+  writer: (() => StateTree) | StateTree
+
+  /** Action text. Can be any single React renderable. */
   children?: ReactNode
-  /** whether to ack the writes when clicked */
+
+  /** Whether to request acknowledgement of packets sent upon clicking. */
   noAck?: boolean
 }
 
@@ -45,6 +45,11 @@ class ElectricButton extends Component<
 
   onClick = () => {
     const { write, writer, noAck } = this.props
+
+    if (typeof writer === 'function') {
+      write(writer(), !noAck)
+      return
+    }
 
     write(writer, !noAck)
   }
