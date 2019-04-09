@@ -59,7 +59,9 @@ const DeviceInnerCard = posed.div({
 
 type ConnectionsProps = {
   maxWidth: number
-  onConnect: (deviceID: string) => void
+  preConnect: (deviceID: string) => void
+  postHandshake: (deviceID: string) => void
+  onFailure: (deviceID: string) => void
 }
 
 class Connections extends React.Component<ConnectionsProps> {
@@ -91,34 +93,54 @@ class Connections extends React.Component<ConnectionsProps> {
     return (
       <DeviceMetadata deviceID={deviceID}>
         {metadata => {
+          let header = (
+            <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
+              Placeholder name
+            </h3>
+          )
+
           if (metadata.name) {
-            return (
-              <React.Fragment>
-                <h3 className={Classes.HEADING}>{metadata.name}</h3>
-                <p>Device ID: {deviceID}</p>
-              </React.Fragment>
-            )
+            header = <h3 className={Classes.HEADING}>{metadata.name}</h3>
           }
           if (metadata.type) {
-            return (
-              <React.Fragment>
-                <h3 className={Classes.HEADING}>{metadata.type}</h3>
-                <p>Device ID: {deviceID}</p>
-              </React.Fragment>
-            )
+            header = <h3 className={Classes.HEADING}>{metadata.type}</h3>
           }
 
           return (
             <React.Fragment>
-              <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
-                Placeholder name
-              </h3>
-              <p className={Classes.SKELETON}>Device ID: deviceID</p>
+              {header}
+              <p>Device ID: {deviceID}</p>
             </React.Fragment>
           )
         }}
       </DeviceMetadata>
     )
+  }
+
+  cardClick = (
+    deviceID: string,
+    numConnectionHashes: number,
+    connectionRequested: boolean,
+    connectToDevice: () => void,
+  ) => {
+    if (numConnectionHashes === 0) {
+      // we're a ghost card, don't do anything
+      return
+    }
+
+    if (!connectionRequested) {
+      // we haven't requested a connection yet, so do so.
+      this.props.preConnect(deviceID)
+      connectToDevice()
+    }
+
+    if (connectionRequested) {
+      // we've already requested a connection
+      this.props.postHandshake(deviceID)
+    }
+
+    console.error('cardClick weird state')
+    return
   }
 
   renderDeviceID = (deviceID: string) => {
@@ -133,8 +155,14 @@ class Connections extends React.Component<ConnectionsProps> {
           {connectionHashes => (
             <Connect
               deviceID={deviceID}
-              onConnect={() => {
-                this.props.onConnect(deviceID)
+              preConnect={() => {
+                this.props.preConnect(deviceID)
+              }}
+              postHandshake={() => {
+                this.props.postHandshake(deviceID)
+              }}
+              onFailure={() => {
+                this.props.onFailure(deviceID)
               }}
             >
               {(
@@ -159,39 +187,6 @@ class Connections extends React.Component<ConnectionsProps> {
 
                     return (
                       <React.Fragment>
-                        <Overlay
-                          isOpen={
-                            connectionRequested &&
-                            connectionState !== 'CONNECTED'
-                          }
-                          onClose={disconnectOnClick}
-                          autoFocus={true}
-                          canEscapeKeyClose={true}
-                          canOutsideClickClose={true}
-                          enforceFocus={true}
-                          hasBackdrop={true}
-                          usePortal={true}
-                        >
-                          <div
-                            style={{
-                              width: '100vw',
-                              height: '100vh',
-                              display: 'flex',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Card
-                              elevation={Elevation.FOUR}
-                              style={{
-                                margin: '0 auto',
-                              }}
-                            >
-                              <p>Loading connection to {deviceID}</p>
-                              <ProgressBar intent="primary" />
-                            </Card>
-                          </div>
-                        </Overlay>
-
                         <DeviceInnerCard
                           className={
                             connectionHashes.length === 0
@@ -199,6 +194,9 @@ class Connections extends React.Component<ConnectionsProps> {
                               : 'bp3-card bp3-interactive bp3-elevation-1'
                           }
                           pose={deviceInnerCardPose}
+                          style={{
+                            padding: 0,
+                          }}
                         >
                           {/* The disconnect button */}
                           {connectionRequested &&
@@ -218,70 +216,70 @@ class Connections extends React.Component<ConnectionsProps> {
                           ) : null}
 
                           {/* The connection card */}
-                          <Grid
-                            columns={2}
-                            alignItems="end"
-                            onClick={
-                              connectionRequested
-                                ? () => this.props.onConnect(deviceID)
-                                : connectOnClick
+                          <div
+                            onClick={() =>
+                              this.cardClick(
+                                deviceID,
+                                connectionHashes.length,
+                                connectionRequested,
+                                connectOnClick,
+                              )
                             }
+                            style={{
+                              padding: 20,
+                            }}
                           >
-                            <Cell>{this.renderDeviceInternal(deviceID)}</Cell>
-                            {connectionHashes.length === 0 ? null : (
-                              <Cell
-                                style={{
-                                  textAlign: 'right',
-                                }}
-                              >
-                                <div
+                            <Grid columns={2} alignItems="end">
+                              <Cell>{this.renderDeviceInternal(deviceID)}</Cell>
+                              {connectionHashes.length === 0 ? null : (
+                                <Cell
                                   style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    flexDirection: 'column',
-                                    height: '100%',
+                                    textAlign: 'right',
                                   }}
                                 >
-                                  <div>
-                                    {connectionHashes.map(connectionHash => (
-                                      <ConnectionState
-                                        connectionHash={connectionHash}
-                                        key={connectionHash}
-                                      >
-                                        {connectionState => (
-                                          <ConnectionMetadata
-                                            connectionHash={connectionHash}
-                                          >
-                                            {metadata => (
-                                              <Tag
-                                                round
-                                                intent={
-                                                  connectionRequested &&
-                                                  connectionState ===
-                                                    'CONNECTED'
-                                                    ? 'success'
-                                                    : 'none'
-                                                }
-                                                style={{ marginLeft: 4 }}
-                                              >
-                                                {metadata.name}
-                                              </Tag>
-                                            )}
-                                          </ConnectionMetadata>
-                                        )}
-                                      </ConnectionState>
-                                    ))}
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      flexDirection: 'column',
+                                      height: '100%',
+                                    }}
+                                  >
+                                    <div>
+                                      {connectionHashes.map(connectionHash => (
+                                        <ConnectionState
+                                          connectionHash={connectionHash}
+                                          key={connectionHash}
+                                        >
+                                          {connectionState => (
+                                            <ConnectionMetadata
+                                              connectionHash={connectionHash}
+                                            >
+                                              {metadata => (
+                                                <Tag
+                                                  round
+                                                  intent={
+                                                    connectionRequested &&
+                                                    connectionState ===
+                                                      'CONNECTED'
+                                                      ? 'success'
+                                                      : 'none'
+                                                  }
+                                                  style={{ marginLeft: 4 }}
+                                                >
+                                                  {metadata.name}
+                                                </Tag>
+                                              )}
+                                            </ConnectionMetadata>
+                                          )}
+                                        </ConnectionState>
+                                      ))}
+                                    </div>
                                   </div>
-                                  <div>
-                                    {connectionRequested &&
-                                    connectionState !== 'CONNECTED' ? (
-                                      <ProgressBar intent={'primary'} />
-                                    ) : null}
-                                  </div>
-                                </div>
-                              </Cell>
-                            )}
-                          </Grid>
+                                </Cell>
+                              )}
+                            </Grid>
+                          </div>
                         </DeviceInnerCard>
                       </React.Fragment>
                     )
