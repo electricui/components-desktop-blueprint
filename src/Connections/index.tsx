@@ -132,15 +132,11 @@ class Connections extends React.Component<ConnectionsProps> {
       // we haven't requested a connection yet, so do so.
       this.props.preConnect(deviceID)
       connectToDevice()
+      return
     }
 
-    if (connectionRequested) {
-      // we've already requested a connection
-      this.props.postHandshake(deviceID)
-    }
-
-    console.error('cardClick weird state')
-    return
+    // we've already requested a connection
+    this.props.postHandshake(deviceID)
   }
 
   renderDeviceID = (deviceID: string) => {
