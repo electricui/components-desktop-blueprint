@@ -3,15 +3,15 @@
     "module": "ESNext",
     "esModuleInterop": true,
     "target": "ES2018",
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "declaration": true,
     "baseUrl": ".",
-    "jsx": "react",
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "jsx": "react"
   },
-  "include": ["src/**/*", "test/**/*"]
+  "include": ["./src/**/*"]
 }

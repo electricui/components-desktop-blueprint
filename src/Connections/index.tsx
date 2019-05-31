@@ -15,16 +15,20 @@ import {
 } from '@blueprintjs/core'
 import {
   Connect,
-  ConnectionMetadata,
+  ConnectionMetadata as ConnectionMetadataComponent,
   ConnectionState,
   ConsecutivePollFailureMessage,
   DeviceConnectionHashes,
   DeviceIDList,
-  DeviceMetadata,
+  DeviceMetadata as DeviceMetadataComponent,
   Disconnect,
   Poll,
 } from '@electricui/components-core'
-import { CONNECTION_STATE } from '@electricui/core'
+import {
+  CONNECTION_STATE,
+  DeviceMetadata,
+  ConnectionMetadata,
+} from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -91,8 +95,8 @@ class Connections extends React.Component<ConnectionsProps> {
 
   renderDeviceInternal = (deviceID: string) => {
     return (
-      <DeviceMetadata deviceID={deviceID}>
-        {metadata => {
+      <DeviceMetadataComponent deviceID={deviceID}>
+        {(metadata: DeviceMetadata) => {
           let header = (
             <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
               Placeholder name
@@ -113,7 +117,7 @@ class Connections extends React.Component<ConnectionsProps> {
             </React.Fragment>
           )
         }}
-      </DeviceMetadata>
+      </DeviceMetadataComponent>
     )
   }
 
@@ -148,7 +152,7 @@ class Connections extends React.Component<ConnectionsProps> {
         style={{ maxWidth: maxWidth, margin: '0 auto' }}
       >
         <DeviceConnectionHashes deviceID={deviceID}>
-          {connectionHashes => (
+          {(connectionHashes: Array<string>) => (
             <Connect
               deviceID={deviceID}
               preConnect={() => {
@@ -162,13 +166,13 @@ class Connections extends React.Component<ConnectionsProps> {
               }}
             >
               {(
-                connectOnClick,
-                connectionRequested,
-                connectionState,
-                deviceManagerReady,
+                connectOnClick: () => void,
+                connectionRequested: boolean,
+                connectionState: CONNECTION_STATE,
+                deviceManagerReady: boolean,
               ) => (
                 <Disconnect deviceID={deviceID}>
-                  {disconnectOnClick => {
+                  {(disconnectOnClick: () => void) => {
                     let deviceInnerCardPose
 
                     if (
@@ -247,11 +251,15 @@ class Connections extends React.Component<ConnectionsProps> {
                                           connectionHash={connectionHash}
                                           key={connectionHash}
                                         >
-                                          {connectionState => (
-                                            <ConnectionMetadata
+                                          {(
+                                            connectionState: CONNECTION_STATE,
+                                          ) => (
+                                            <ConnectionMetadataComponent
                                               connectionHash={connectionHash}
                                             >
-                                              {metadata => (
+                                              {(
+                                                metadata: ConnectionMetadata,
+                                              ) => (
                                                 <Tag
                                                   round
                                                   intent={
@@ -266,7 +274,7 @@ class Connections extends React.Component<ConnectionsProps> {
                                                   {metadata.name}
                                                 </Tag>
                                               )}
-                                            </ConnectionMetadata>
+                                            </ConnectionMetadataComponent>
                                           )}
                                         </ConnectionState>
                                       ))}
@@ -304,7 +312,7 @@ class Connections extends React.Component<ConnectionsProps> {
         }}
       >
         <DeviceIDList>
-          {deviceIDs => (
+          {(deviceIDs: Array<string>) => (
             <React.Fragment>
               <PoseGroup>
                 {deviceIDs.length === 0
