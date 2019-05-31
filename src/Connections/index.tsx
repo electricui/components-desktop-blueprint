@@ -208,7 +208,6 @@ class Connections extends React.Component<ConnectionsProps> {
                                 position: 'absolute',
                                 right: 0,
                                 marginRight: '-2em',
-                                marginTop: '-1.5em',
                               }}
                             >
                               <Icon icon={IconNames.CROSS} />
