@@ -13,6 +13,9 @@
     "manifest.json"
   ],
   "dependencies": {
+    "@blueprintjs/core": "^3.15.1",
+    "@electricui/components-core": "^0.5.6-prerelease.17",
+    "@electricui/core": "^0.5.6-prerelease.17",
     "@electricui/components-desktop-charts": "^0.5.6-prerelease.17",
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8"
@@ -53,9 +56,6 @@
     "utility-types": "^3.5.0"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "*",
-    "@electricui/components-core": "*",
-    "@electricui/core": "*",
     "electron": "*",
     "react": ">=16.8.0",
     "react-dom": ">16.8.0",
