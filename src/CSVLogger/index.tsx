@@ -8,17 +8,31 @@ import { remote } from 'electron'
 
 const { dialog } = remote
 
-const CSVLogger = () => {
-  const [loggerInfo, setPath, setLogging] = useEventLogger('temps', {
-    timestampColumnFormat: 'hh:mm:ss.SSS',
-  })
+type CSVLoggerProps = {
+  dataSourceName: string
+  timestampColumnName?: string
+  timestampColumnFormat?: string
+  startLoggingText?: string
+  stopLoggingText?: string
+  selectSaveLocationText?: string
+  selectSaveLocationMessage?: string
+}
+
+const CSVLogger = (props: CSVLoggerProps) => {
+  const [loggerInfo, setPath, setLogging] = useEventLogger(
+    props.dataSourceName,
+    {
+      timestampColumnName: props.timestampColumnName,
+      timestampColumnFormat: props.timestampColumnFormat,
+    },
+  )
 
   let writeButton
 
   if (loggerInfo.isLogging) {
     writeButton = (
       <Button color="red" onClick={() => setLogging(false)}>
-        Stop Logging
+        {props.stopLoggingText ? props.stopLoggingText : 'Stop Logging'}
       </Button>
     )
   } else {
@@ -28,7 +42,7 @@ const CSVLogger = () => {
         onClick={() => setLogging(true)}
         disabled={!loggerInfo.ready}
       >
-        Start Logging
+        {props.startLoggingText ? props.startLoggingText : 'Start Logging'}
       </Button>
     )
   }
@@ -36,7 +50,9 @@ const CSVLogger = () => {
   const pathPicker = () => {
     const filepath = dialog.showSaveDialog({
       filters: [{ name: '.csv', extensions: ['csv'] }],
-      message: 'Select a Save Location',
+      message: props.selectSaveLocationMessage
+        ? props.selectSaveLocationMessage
+        : 'Select a Save Location',
     })
 
     if (filepath === undefined) {
@@ -48,9 +64,11 @@ const CSVLogger = () => {
 
   return (
     <React.Fragment>
-      {writeButton}
+      {writeButton}{' '}
       <Button onClick={pathPicker} disabled={loggerInfo.isLogging}>
-        Select Save Location
+        {props.selectSaveLocationText
+          ? props.selectSaveLocationText
+          : 'Select Save Location'}
       </Button>
     </React.Fragment>
   )
