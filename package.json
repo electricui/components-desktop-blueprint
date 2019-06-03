@@ -50,9 +50,9 @@
     "rollup-plugin-typescript2": "^0.20.1",
     "sinon": "^7.2.7",
     "styled-css-grid": "^1.2.1",
-    "ts-node": "^8.0.3",
+    "ts-node": "^8.2.0",
     "tslib": "^1.9.3",
-    "typescript": "^3.4.3",
+    "typescript": "^3.5.1",
     "utility-types": "^3.5.0"
   },
   "peerDependencies": {
