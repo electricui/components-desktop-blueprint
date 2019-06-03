@@ -7,4 +7,7 @@ export { default as NumberInput } from './src/NumberInput'
 export { default as Switch } from './src/Switch'
 export { default as Connections } from './src/Connections'
 export { default as DisconnectionModal } from './src/DisconnectionModal'
+export {
+  default as DeviceManagerStatusModal,
+} from './src/DeviceManagerStatusModal'
 export { default as CSVLogger } from './src/CSVLogger'
