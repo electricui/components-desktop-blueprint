@@ -11,3 +11,4 @@ export {
   default as DeviceManagerStatusModal,
 } from './src/DeviceManagerStatusModal'
 export { default as CSVLogger } from './src/CSVLogger'
+export { default as ProgressBar } from './src/ProgressBar'
