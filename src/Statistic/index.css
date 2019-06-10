@@ -1,0 +1,316 @@
+/*!
+ * # Semantic UI 2.4.1 - Statistic
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ */
+
+/*******************************
+           Statistic
+*******************************/
+
+/* Standalone */
+.eui.statistic {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 1em 0em;
+  max-width: auto;
+}
+
+.eui.statistics .eui.statistic + .eui.statistic {
+  margin: 0;
+}
+
+.eui.statistic + .eui.statistic {
+  margin: 0em 0em 0em 1.5em;
+}
+
+.eui.statistic:first-child {
+  margin-top: 0em;
+}
+.eui.statistic:last-child {
+  margin-bottom: 0em;
+}
+
+/*******************************
+              Group
+  *******************************/
+
+/* Grouped */
+.eui.statistics {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.eui.statistics > .statistic {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 0em 1.5em 1em;
+  max-width: auto;
+}
+.eui.statistics {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 1em -1.5em -1em;
+}
+
+/* Clearing */
+.eui.statistics:after {
+  display: block;
+  content: ' ';
+  height: 0px;
+  clear: both;
+  overflow: hidden;
+  visibility: hidden;
+}
+.eui.statistics:first-child {
+  margin-top: 0em;
+}
+
+/*******************************
+              Content
+  *******************************/
+
+/*--------------
+        Value
+  ---------------*/
+
+.eui.statistics .statistic > .value,
+.eui.statistic > .value {
+  font-size: 4rem;
+  font-weight: normal;
+  line-height: 1em;
+  text-align: center;
+}
+
+/*--------------
+       Label
+  ---------------*/
+
+.eui.statistics .statistic > .label,
+.eui.statistic > .label {
+  font-size: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Top Label */
+.eui.statistics .statistic > .label ~ .value,
+.eui.statistic > .label ~ .value {
+  margin-top: 0rem;
+}
+
+/* Bottom Label */
+.eui.statistics .statistic > .value ~ .label,
+.eui.statistic > .value ~ .label {
+  margin-top: 0rem;
+}
+
+/*******************************
+               Types
+  *******************************/
+
+/*--------------
+     Text Value
+  ---------------*/
+
+.eui.statistics .statistic > .text.value,
+.eui.statistic > .text.value {
+  line-height: 1em;
+  min-height: 2em;
+  font-weight: bold;
+  text-align: center;
+}
+.eui.statistics .statistic > .text.value + .label,
+.eui.statistic > .text.value + .label {
+  text-align: center;
+}
+
+/*******************************
+              Variations
+  *******************************/
+
+.eui.statistics {
+  margin: 0em 0em -1em;
+}
+.eui.statistics .statistic {
+  margin: 0em 0em 1em;
+}
+
+/*--------------
+     Horizontal
+  ---------------*/
+
+.eui.horizontal.statistic {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.eui.horizontal.statistics {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  margin: 0em;
+  max-width: none;
+}
+.eui.horizontal.statistics .statistic {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  max-width: none;
+  margin: 1em 0em;
+}
+.eui.horizontal.statistic > .text.value,
+.eui.horizontal.statistics > .statistic > .text.value {
+  min-height: 0em !important;
+}
+.eui.horizontal.statistics .statistic > .value .icon,
+.eui.horizontal.statistic > .value .icon {
+  width: 1.18em;
+}
+.eui.horizontal.statistics .statistic > .value,
+.eui.horizontal.statistic > .value {
+  display: inline-block;
+  vertical-align: middle;
+}
+.eui.horizontal.statistics .statistic > .label,
+.eui.horizontal.statistic > .label {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0em 0em 0em 0.75em;
+}
+
+/*--------------
+      Floated
+  ---------------*/
+
+.eui[class*='left floated'].statistic {
+  float: left;
+  margin: 0em 2em 1em 0em;
+}
+.eui[class*='right floated'].statistic {
+  float: right;
+  margin: 0em 0em 1em 2em;
+}
+.eui.floated.statistic:last-child {
+  margin-bottom: 0em;
+}
+
+/*--------------
+       Sizes
+  ---------------*/
+
+/* Mini */
+.eui.mini.statistics .statistic > .value,
+.eui.mini.statistic > .value {
+  font-size: 1.5rem !important;
+}
+.eui.mini.horizontal.statistics .statistic > .value,
+.eui.mini.horizontal.statistic > .value {
+  font-size: 1.5rem !important;
+}
+.eui.mini.statistics .statistic > .text.value,
+.eui.mini.statistic > .text.value {
+  font-size: 1rem !important;
+}
+
+/* Tiny */
+.eui.tiny.statistics .statistic > .value,
+.eui.tiny.statistic > .value {
+  font-size: 2rem !important;
+}
+.eui.tiny.horizontal.statistics .statistic > .value,
+.eui.tiny.horizontal.statistic > .value {
+  font-size: 2rem !important;
+}
+.eui.tiny.statistics .statistic > .text.value,
+.eui.tiny.statistic > .text.value {
+  font-size: 1rem !important;
+}
+
+/* Small */
+.eui.small.statistics .statistic > .value,
+.eui.small.statistic > .value {
+  font-size: 3rem !important;
+}
+.eui.small.horizontal.statistics .statistic > .value,
+.eui.small.horizontal.statistic > .value {
+  font-size: 2rem !important;
+}
+.eui.small.statistics .statistic > .text.value,
+.eui.small.statistic > .text.value {
+  font-size: 1rem !important;
+}
+
+/* Medium */
+.eui.statistics .statistic > .value,
+.eui.statistic > .value {
+  font-size: 4rem !important;
+}
+.eui.horizontal.statistics .statistic > .value,
+.eui.horizontal.statistic > .value {
+  font-size: 3rem !important;
+}
+.eui.statistics .statistic > .text.value,
+.eui.statistic > .text.value {
+  font-size: 2rem !important;
+}
+
+/* Large */
+.eui.large.statistics .statistic > .value,
+.eui.large.statistic > .value {
+  font-size: 5rem !important;
+}
+.eui.large.horizontal.statistics .statistic > .value,
+.eui.large.horizontal.statistic > .value {
+  font-size: 4rem !important;
+}
+.eui.large.statistics .statistic > .text.value,
+.eui.large.statistic > .text.value {
+  font-size: 2.5rem !important;
+}
+
+/* Huge */
+.eui.huge.statistics .statistic > .value,
+.eui.huge.statistic > .value {
+  font-size: 6rem !important;
+}
+.eui.huge.horizontal.statistics .statistic > .value,
+.eui.huge.horizontal.statistic > .value {
+  font-size: 5rem !important;
+}
+.eui.huge.statistics .statistic > .text.value,
+.eui.huge.statistic > .text.value {
+  font-size: 2.5rem !important;
+}

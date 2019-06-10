@@ -12,3 +12,12 @@ export {
 } from './src/DeviceManagerStatusModal'
 export { default as CSVLogger } from './src/CSVLogger'
 export { default as ProgressBar } from './src/ProgressBar'
+export { isElementOfType } from './src/utils'
+export {
+  StatisticsProps,
+  StatisticProps,
+  StatisticLabelProps,
+  StatisticValueProps,
+  Statistics,
+  default as Statistic,
+} from './src/Statistic'
