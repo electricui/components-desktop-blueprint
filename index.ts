@@ -10,7 +10,8 @@ export { default as DisconnectionModal } from './src/DisconnectionModal'
 export {
   default as DeviceManagerStatusModal,
 } from './src/DeviceManagerStatusModal'
-export { default as CSVLogger } from './src/CSVLogger'
+export { default as EventCSVLogger } from './src/EventCSVLogger'
+export { default as PolledCSVLogger } from './src/PolledCSVLogger'
 export { default as ProgressBar } from './src/ProgressBar'
 export { isElementOfType } from './src/utils'
 export {
