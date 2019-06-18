@@ -39,6 +39,11 @@ interface NumberInputProps extends UpstreamNumberInputProps {
   debounceDuration?: number
 }
 
+interface MutableReaderState {
+  mutableValue: number
+  focused: boolean
+}
+
 /**
  * NumberInput
  * @module components-desktop-blueprint
@@ -46,9 +51,14 @@ interface NumberInputProps extends UpstreamNumberInputProps {
  * @props NumberInputProps
  */
 class ElectricNumberInput extends Component<
-  NumberInputProps & InjectedElectricityProps
+  NumberInputProps & InjectedElectricityProps,
+  MutableReaderState
 > {
   static readonly accessorKeys = ['accessor']
+  state: MutableReaderState = {
+    mutableValue: 0,
+    focused: false,
+  }
 
   static generateAccessorsFromProps = (props: NumberInputProps) => []
 
@@ -96,6 +106,21 @@ class ElectricNumberInput extends Component<
     return access('accessor')
   }
 
+  getLocalValue = () => {
+    return this.state.mutableValue
+  }
+
+  getFocused = () => {
+    return this.state.focused
+  }
+
+  /**
+   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
+   */
+  setLocalValue = (value: number) => {
+    this.setState({ mutableValue: value })
+  }
+
   push(keysToWrite: string[]) {
     const { push } = this.props
     push(keysToWrite, true)
@@ -110,20 +135,39 @@ class ElectricNumberInput extends Component<
 
     commit(toWrite)
 
+    this.setLocalValue(value)
+
     this.debouncedPush(Object.keys(toWrite))
+  }
+
+  /**
+   * On focus, enter user input mode and just in time override our mutable value with the hardware state
+   */
+  onFocus = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ focused: true, mutableValue: this.getValue() })
+  }
+
+  onBlur = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ focused: false })
   }
 
   render() {
     const rest = removeElectricProps(this.props, ['accessor'])
 
-    const value = this.getValue()
+    const value = this.getFocused() ? this.getLocalValue() : this.getValue()
 
     if (typeof value !== 'number') {
       return <NumericInput {...rest} disabled={true} value="" />
     }
 
     return (
-      <NumericInput onValueChange={this.onChange} {...rest} value={value} />
+      <NumericInput
+        onValueChange={this.onChange}
+        {...rest}
+        value={value}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+      />
     )
   }
 }

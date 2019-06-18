@@ -40,6 +40,11 @@ interface TextInputProps extends UpstreamTextInputProps {
   debounceDuration?: number
 }
 
+interface MutableReaderState {
+  mutableValue: string
+  focused: boolean
+}
+
 /**
  * TextInput
  * @module components-desktop-blueprint
@@ -47,9 +52,14 @@ interface TextInputProps extends UpstreamTextInputProps {
  * @props TextInputProps
  */
 class ElectricTextInput extends Component<
-  TextInputProps & InjectedElectricityProps
+  TextInputProps & InjectedElectricityProps,
+  MutableReaderState
 > {
   static readonly accessorKeys = ['accessor']
+  state: MutableReaderState = {
+    mutableValue: '',
+    focused: false,
+  }
 
   static generateAccessorsFromProps = (props: TextInputProps) => []
 
@@ -97,6 +107,21 @@ class ElectricTextInput extends Component<
     return access('accessor')
   }
 
+  getLocalValue = () => {
+    return this.state.mutableValue
+  }
+
+  getFocused = () => {
+    return this.state.focused
+  }
+
+  /**
+   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
+   */
+  setLocalValue = (value: string) => {
+    this.setState({ mutableValue: value })
+  }
+
   push(keysToWrite: string[]) {
     const { push } = this.props
     push(keysToWrite, true)
@@ -111,15 +136,36 @@ class ElectricTextInput extends Component<
 
     commit(toWrite)
 
+    this.setLocalValue(value)
+
     this.debouncedPush(Object.keys(toWrite))
+  }
+
+  /**
+   * On focus, enter user input mode and just in time override our mutable value with the hardware state
+   */
+  onFocus = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ focused: true, mutableValue: this.getValue() })
+  }
+
+  onBlur = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ focused: false })
   }
 
   render() {
     const rest = removeElectricProps(this.props, ['accessor'])
 
-    const value = this.getValue()
+    const value = this.getFocused() ? this.getLocalValue() : this.getValue()
 
-    return <InputGroup onChange={this.onChange} {...rest} value={value} />
+    return (
+      <InputGroup
+        onChange={this.onChange}
+        {...rest}
+        value={value}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+      />
+    )
   }
 }
 

@@ -84,6 +84,11 @@ type SliderProps = Omit<ExtendedSliderProps, 'onChange' | 'onRelease'> &
 
 type SliderPropsPublic = Omit<ExtendedSliderProps, 'onChange' | 'onRelease'>
 
+interface MutableReaderState {
+  mutableValues: number[]
+  focused: boolean
+}
+
 function propsToHandleProps(props: SliderProps) {
   return React.Children.map(props.children, child =>
     isElementOfType(child, ElectricSliderHandle) ? child.props : null,
@@ -114,9 +119,13 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
  * @name Slider
  * @props ExtendedSliderProps
  */
-class ElectricSlider extends React.Component<SliderProps> {
+class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
   public static readonly displayName = 'Slider'
   static readonly accessorKeys = []
+  state: MutableReaderState = {
+    mutableValues: [],
+    focused: false,
+  }
 
   static generateAccessorsFromProps = (props: SliderProps) => {
     // Iterate over this components children
@@ -162,6 +171,21 @@ class ElectricSlider extends React.Component<SliderProps> {
     return sliderValues
   }
 
+  getLocalValue = () => {
+    return this.state.mutableValues
+  }
+
+  getFocused = () => {
+    return this.state.focused
+  }
+
+  /**
+   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
+   */
+  setLocalValue = (values: number[]) => {
+    this.setState({ mutableValues: values, focused: true })
+  }
+
   handleChange = (values: number[]) => {
     const { commit, write, sendOnlyOnRelease } = this.props
 
@@ -176,6 +200,8 @@ class ElectricSlider extends React.Component<SliderProps> {
     }
 
     write(toWrite, false)
+
+    this.setLocalValue(values)
   }
 
   handleRelease = (values: number[]) => {
@@ -186,6 +212,8 @@ class ElectricSlider extends React.Component<SliderProps> {
     const toWrite = writer(sliderValues)
 
     write(toWrite, true)
+
+    this.setState({ focused: false })
   }
 
   getValues = () => {
@@ -198,12 +226,9 @@ class ElectricSlider extends React.Component<SliderProps> {
     const sliderValues: { [key: string]: number } = {}
 
     // For each handle, get the value
-    const values = handleProps.forEach(
-      (props, index) =>
-        (sliderValues[childAccessorKeys[index]] = access(
-          childAccessorKeys[index],
-        )),
-    )
+    handleProps.forEach((props, index) => {
+      sliderValues[childAccessorKeys[index]] = access(childAccessorKeys[index])
+    })
 
     return sliderValues
   }
@@ -213,6 +238,33 @@ class ElectricSlider extends React.Component<SliderProps> {
       isElementOfType(child, ElectricSliderHandle) ? child.props : null,
     ).filter(child => child !== null)
   }
+
+  /**
+   * Get the initial state
+   */
+  static getDerivedStateFromProps(
+    props: SliderProps,
+    state: MutableReaderState,
+  ) {
+    const handleProps = propsToHandleProps(props)
+    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
+
+    const { access } = props
+
+    const sliderValues: { [key: string]: number } = {}
+
+    // For each handle, get the value
+    handleProps.forEach((props, index) => {
+      sliderValues[childAccessorKeys[index]] = access(childAccessorKeys[index])
+    })
+
+    return {
+      focused: false,
+      mutableValues: sliderValues,
+    }
+  }
+
+  // onTouchStart onTouchEnd
 
   render() {
     const { access } = this.props
@@ -244,7 +296,9 @@ class ElectricSlider extends React.Component<SliderProps> {
       >
         {handleProps.map((handlePropList, index) => {
           const key = childAccessorKeys[index]
-          const value = access(key)
+          const value = this.getFocused()
+            ? this.getValues()[index]
+            : access(key)
 
           if (typeof value !== 'number') {
             return null
