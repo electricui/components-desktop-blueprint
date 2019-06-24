@@ -30,6 +30,8 @@ import {
   ConnectionMetadata,
 } from '@electricui/core'
 
+import './connection-page.css'
+
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
   exit: { y: 0, opacity: 0 },
@@ -66,6 +68,7 @@ type ConnectionsProps = {
   preConnect: (deviceID: string) => void
   postHandshake: (deviceID: string) => void
   onFailure: (deviceID: string) => void
+  style: React.CSSProperties
 }
 
 class Connections extends React.Component<ConnectionsProps> {
@@ -297,17 +300,15 @@ class Connections extends React.Component<ConnectionsProps> {
   }
 
   render() {
-    const { maxWidth } = this.props
+    const { maxWidth, style } = this.props
 
     return (
       <div
         style={{
           margin: '0 auto',
-          height: '80vh',
-          paddingTop: '10vh',
-          paddingBottom: '10vh',
           maxWidth: maxWidth + 50,
           position: 'relative',
+          ...style,
         }}
       >
         <DeviceIDList>
