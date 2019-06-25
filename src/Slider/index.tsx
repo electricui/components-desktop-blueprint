@@ -16,6 +16,7 @@ import { isElementOfType } from '../utils'
  * Slider Props
  * @remove onChange
  * @remove onRelease
+ * @remove value
  */
 interface ExtendedSliderHandleProps extends IHandleProps {
   /**
@@ -34,6 +35,7 @@ interface ExtendedSliderHandleProps extends IHandleProps {
  * Slider Props
  * @remove onChange
  * @remove onRelease
+ * @remove value
  */
 type HandleProps = Omit<
   ExtendedSliderHandleProps,
