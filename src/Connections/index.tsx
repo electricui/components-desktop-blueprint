@@ -80,7 +80,6 @@ class Connections extends React.Component<ConnectionsProps> {
     return (
       <NoFoundDiv key="nodevices">
         <NonIdealState
-          icon="satellite"
           title="No devices found"
           description={
             <ConsecutivePollFailureMessage>
