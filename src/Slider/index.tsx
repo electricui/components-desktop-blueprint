@@ -31,12 +31,6 @@ interface ExtendedSliderHandleProps extends IHandleProps {
   name?: string
 }
 
-/**
- * Slider Props
- * @remove onChange
- * @remove onRelease
- * @remove value
- */
 type HandleProps = Omit<
   ExtendedSliderHandleProps,
   'onChange' | 'onRelease' | 'value'
