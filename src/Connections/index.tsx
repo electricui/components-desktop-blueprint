@@ -329,6 +329,7 @@ class Connections extends React.Component<ConnectionsProps> {
                       width: maxWidth,
                       margin: '2em auto 0 auto',
                     }}
+                    loading={polling}
                   >
                     Refresh
                   </Button>
