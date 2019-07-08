@@ -23,3 +23,4 @@ export {
   default as Statistic,
 } from './src/Statistic'
 export { DarkModeWrapper, DarkModeWrapperProps } from './src/DarkModeWrapper'
+export { SetDarkModeButtons } from './src/SetDarkModeButtons'
