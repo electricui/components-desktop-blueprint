@@ -13,7 +13,7 @@
     "manifest.json"
   ],
   "dependencies": {
-    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/core": "^3.17.1",
     "@electricui/components-core": "^0.6.1-prerelease.28",
     "@electricui/components-desktop": "^0.6.1-prerelease.29",
     "@electricui/components-desktop-charts": "^0.6.1-prerelease.28",

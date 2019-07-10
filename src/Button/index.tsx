@@ -24,7 +24,7 @@ interface ElectricButtonProps extends IButtonProps {
   /** Action text. Can be any single React renderable. */
   children?: ReactNode
 
-  /** Whether to request acknowledgement of packets sent upon clicking. */
+  /** Whether to not request acknowledgement of packets sent upon clicking. */
   noAck?: boolean
 }
 
