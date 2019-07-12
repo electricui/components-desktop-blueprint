@@ -51,6 +51,12 @@ class ElectricButton extends Component<
       return
     }
 
+    if (Array.isArray(writer)) {
+      for (const w of writer) {
+        write(w, !noAck)
+      }
+    }
+
     write(writer, !noAck)
   }
 
