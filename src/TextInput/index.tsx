@@ -153,7 +153,7 @@ class ElectricTextInput extends Component<
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['accessor'])
+    const rest = removeElectricProps(this.props, ['accessor', 'writer'])
 
     const value = this.getFocused() ? this.getLocalValue() : this.getValue()
 
