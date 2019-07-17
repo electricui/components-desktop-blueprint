@@ -10,7 +10,7 @@ import {
   StateTree,
 } from '@electricui/components-core'
 
-import { isSubset } from '../utils'
+import { isSubset } from '@electricui/core'
 
 type UpstreamCheckboxProps = Omit<
   ICheckboxProps,
