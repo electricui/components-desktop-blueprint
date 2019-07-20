@@ -67,4 +67,6 @@ class ElectricProgressBar extends Component<
   }
 }
 
-export default withElectricity(ElectricProgressBar)
+export default withElectricity(ElectricProgressBar) as React.ComponentType<
+  ProgressBarProps
+>

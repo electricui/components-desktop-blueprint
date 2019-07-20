@@ -114,4 +114,6 @@ class ElectricCheckbox extends Component<
   }
 }
 
-export default withElectricity(ElectricCheckbox)
+export default withElectricity(ElectricCheckbox) as React.ComponentType<
+  CheckboxProps
+>

@@ -172,4 +172,6 @@ class ElectricNumberInput extends Component<
   }
 }
 
-export default withElectricity(ElectricNumberInput)
+export default withElectricity(ElectricNumberInput) as React.ComponentType<
+  NumberInputProps
+>

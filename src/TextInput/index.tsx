@@ -169,4 +169,6 @@ class ElectricTextInput extends Component<
   }
 }
 
-export default withElectricity(ElectricTextInput)
+export default withElectricity(ElectricTextInput) as React.ComponentType<
+  TextInputProps
+>

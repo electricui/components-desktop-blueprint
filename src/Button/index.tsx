@@ -67,4 +67,6 @@ class ElectricButton extends Component<
   }
 }
 
-export default withElectricity(ElectricButton)
+export default withElectricity(ElectricButton) as React.ComponentType<
+  ElectricButtonProps
+>

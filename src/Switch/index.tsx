@@ -119,4 +119,6 @@ class ElectricSwitch extends Component<SwitchProps & InjectedElectricityProps> {
   }
 }
 
-export default withElectricity(ElectricSwitch)
+export default withElectricity(ElectricSwitch) as React.ComponentType<
+  SwitchProps
+>
