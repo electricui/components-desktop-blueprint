@@ -2,6 +2,8 @@ import React, { ReactNode } from 'react'
 import { isElementOfType } from '../utils'
 import './index.css'
 
+import { useHardwareState, Accessor } from '@electricui/components-core'
+
 /*
   <Statistics>
     <Statistic>
@@ -30,6 +32,7 @@ export type StatisticsProps = {
 export type StatisticProps = {
   children?: ReactNode | ReactNode[]
   value?: string | number | ReactNode
+  accessor?: Accessor
   label?: string | number | ReactNode
   prefix?: string | ReactNode
   suffix?: string | ReactNode
@@ -43,7 +46,8 @@ export type StatisticLabelProps = {
 }
 
 export type StatisticValueProps = {
-  children: string | number | ReactNode
+  children?: string | number | ReactNode
+  accessor?: Accessor
   prefix?: string | ReactNode
   suffix?: string | ReactNode
 }
@@ -54,10 +58,15 @@ const Label = (props: StatisticLabelProps) => {
 const Value = (props: StatisticValueProps) => {
   const { children, suffix, prefix, ...rest } = props
 
+  let val = props.children
+  if (props.accessor) {
+    val = useHardwareState(props.accessor)
+  }
+
   return (
     <div className="value" {...rest}>
       {prefix}
-      {children}
+      {val}
       {suffix}
     </div>
   )
@@ -72,6 +81,11 @@ const Statistic = (props: StatisticProps) => {
 
   mixedStyle.color = props.color
 
+  let val = props.value
+  if (props.accessor) {
+    val = useHardwareState(props.accessor)
+  }
+
   if (props.children) {
     const { children, ...rest } = props
     return (
@@ -82,9 +96,12 @@ const Statistic = (props: StatisticProps) => {
   } else {
     return (
       <div className="eui statistic" style={mixedStyle}>
-        <Value suffix={props.suffix} prefix={props.prefix}>
-          {props.value || <span>&nbsp;</span>}
-        </Value>
+        <Value
+          suffix={props.suffix}
+          prefix={props.prefix}
+          accessor={props.accessor}
+          children={val || undefined}
+        />
         <Label>{props.label}</Label>
       </div>
     )
