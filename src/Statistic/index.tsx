@@ -2,7 +2,8 @@ import React, { ReactNode } from 'react'
 import { isElementOfType } from '../utils'
 import './index.css'
 
-import { useHardwareState, Accessor } from '@electricui/components-core'
+import { Accessor } from '@electricui/components-core'
+import { Printer } from '@electricui/components-desktop'
 
 /*
   <Statistics>
@@ -60,7 +61,7 @@ const Value = (props: StatisticValueProps) => {
 
   let val = props.children
   if (props.accessor) {
-    val = useHardwareState(props.accessor)
+    val = <Printer accessor={props.accessor} />
   }
 
   return (
@@ -83,7 +84,7 @@ const Statistic = (props: StatisticProps) => {
 
   let val = props.value
   if (props.accessor) {
-    val = useHardwareState(props.accessor)
+    val = <Printer accessor={props.accessor} />
   }
 
   if (props.children) {
