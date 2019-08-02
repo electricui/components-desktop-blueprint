@@ -24,39 +24,89 @@ import { Printer } from '@electricui/components-desktop'
   </Statistics>
  */
 
-export type StatisticsProps = {
+export interface StatisticsProps {
+  /** The Statistic components to evenly space. If the Statistic components are not direct children, remember to set their inGroupOf prop so that they are spaced evenly.*/
   children:
     | React.ReactElement<StatisticProps>[]
     | React.ReactElement<StatisticProps>
+
+    /** The css compatible colour for the statistics. */
   color?: string
 }
-export type StatisticProps = {
+
+export interface StatisticProps {
+  /**
+   * The <Statistic.Value /> and <Statistic.Label /> components.
+   */
   children?: ReactNode | ReactNode[]
+
+  /**
+   * The number value to display. Takes precedence over <Statistic.Value /> and <Statistic.Label /> component children.
+   */
   value?: string | number | ReactNode
+
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number. Takes precedence over the value prop.
+   */
   accessor?: Accessor
+
+  /** The label text. */
   label?: string | number | ReactNode
+
+  /** An optional prefix for the value. */
   prefix?: string | ReactNode
+
+  /** An optional suffix for the value. */
   suffix?: string | ReactNode
+
+  /** Any custom styling to apply to the component. */
   style?: React.CSSProperties
+
+  /** The css compatible colour for the statistic. */
   color?: string
+
+  /** The amount of Statistic children of a Statistics wrapper in a line to evenly space them apart. */
   inGroupOf?: number
 }
 
-export type StatisticLabelProps = {
+export interface StatisticLabelProps {
+  /** The label text. */
   children: ReactNode
 }
 
-export type StatisticValueProps = {
+export interface StatisticValueProps {
+  /** The value text. */
   children?: string | number | ReactNode
+  
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number. Takes precedence over children.
+   */
   accessor?: Accessor
+
+  /** An optional prefix for the value. */
   prefix?: string | ReactNode
+
+  /** An optional suffix for the value. */
   suffix?: string | ReactNode
 }
 
-const Label = (props: StatisticLabelProps) => {
+/**
+ * Statistic Label
+ * @module components-desktop-blueprint
+ * @name Statistic.Label
+ * @props StatisticLabelProps
+ */
+const StatisticLabel = (props: StatisticLabelProps) => {
   return <div className="label" {...props} />
 }
-const Value = (props: StatisticValueProps) => {
+
+/**
+ * Statistic Value
+ * @module components-desktop-blueprint
+ * @name Statistic.Value
+ * @props StatisticValueProps
+ */
+const StatisticValue = (props: StatisticValueProps) => {
   const { children, suffix, prefix, ...rest } = props
 
   let val = props.children
@@ -73,6 +123,12 @@ const Value = (props: StatisticValueProps) => {
   )
 }
 
+/**
+ * Statistic
+ * @module components-desktop-blueprint
+ * @name Statistic
+ * @props StatisticProps
+ */
 const Statistic = (props: StatisticProps) => {
   const mixedStyle = props.style || {}
 
@@ -97,20 +153,20 @@ const Statistic = (props: StatisticProps) => {
   } else {
     return (
       <div className="eui statistic" style={mixedStyle}>
-        <Value
+        <StatisticValue
           suffix={props.suffix}
           prefix={props.prefix}
           accessor={props.accessor}
           children={val || undefined}
         />
-        <Label>{props.label}</Label>
+        <StatisticLabel>{props.label}</StatisticLabel>
       </div>
     )
   }
 }
 
-Statistic.Label = Label
-Statistic.Value = Value
+Statistic.Label = StatisticLabel
+Statistic.Value = StatisticValue
 Statistic.displayName = 'Statistic'
 
 /*
@@ -119,6 +175,13 @@ Statistic.displayName = 'Statistic'
 
   In which case the Statistic will need to include its own minWidth style prop to make them spaced evenly.
 */
+
+/**
+ * Statistics
+ * @module components-desktop-blueprint
+ * @name Statistics
+ * @props StatisticsProps
+ */
 export const Statistics = (props: StatisticsProps) => {
   if (!hasStatisticChildren(props)) {
     return <div className="eui statistics">{props.children}</div>
