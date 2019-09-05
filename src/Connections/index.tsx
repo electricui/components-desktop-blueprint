@@ -67,7 +67,7 @@ type ConnectionsProps = {
   maxWidth: number
   preConnect: (deviceID: string) => void
   postHandshake: (deviceID: string) => void
-  onFailure: (deviceID: string) => void
+  onFailure: (deviceID: string, err: Error) => void
   style: React.CSSProperties
 }
 
@@ -163,8 +163,13 @@ class Connections extends React.Component<ConnectionsProps> {
               postHandshake={() => {
                 this.props.postHandshake(deviceID)
               }}
-              onFailure={() => {
-                this.props.onFailure(deviceID)
+              onFailure={err => {
+                console.log(
+                  'Connections component class got err',
+                  err,
+                  deviceID,
+                )
+                this.props.onFailure(deviceID, err)
               }}
             >
               {(
