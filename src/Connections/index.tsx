@@ -1,36 +1,23 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import posed, { PoseGroup } from 'react-pose'
 import { Cell, Grid } from 'styled-css-grid'
 import { IconNames } from '@blueprintjs/icons'
+import { Button, Classes, NonIdealState, Tag, Icon } from '@blueprintjs/core'
 import {
-  Button,
-  Classes,
-  NonIdealState,
-  Tag,
-  Icon,
-  ProgressBar,
-  Overlay,
-  Card,
-  Elevation,
-} from '@blueprintjs/core'
-import {
-  Connect,
-  ConnectionMetadata as ConnectionMetadataComponent,
-  ConnectionState,
   ConsecutivePollFailureMessage,
-  DeviceConnectionHashes,
-  DeviceIDList,
-  DeviceMetadata as DeviceMetadataComponent,
-  Disconnect,
   Poll,
+  useDeviceIDList,
+  useDeviceConnectionHashes,
+  useDeviceConnect,
+  useDeviceDisconnect,
+  useDeviceConnectionRequested,
+  useDeviceConnectionState,
+  useConnectionState,
+  useConnectionMetadataKey,
+  useDeviceHandshakeState,
+  useDeviceMetadataKey,
 } from '@electricui/components-core'
-import {
-  CONNECTION_STATE,
-  DeviceMetadata,
-  ConnectionMetadata,
-} from '@electricui/core'
-
-import './connection-page.css'
+import { DeviceIDContextProvider } from '@electricui/components-core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -63,289 +50,316 @@ const DeviceInnerCard = posed.div({
   },
 })
 
-type ConnectionsProps = {
-  maxWidth: number
+export type ConnectionsProps = {
+  maxWidth?: number
   preConnect: (deviceID: string) => void
   postHandshake: (deviceID: string) => void
   onFailure: (deviceID: string, err: Error) => void
   style: React.CSSProperties
+  internalCardComponent: React.ReactNode
 }
 
-class Connections extends React.Component<ConnectionsProps> {
-  static defaultProps = {
-    maxWidth: 400,
+const NoDevices = () => {
+  return (
+    <NoFoundDiv key="nodevices">
+      <NonIdealState
+        title="No devices found"
+        description={
+          <ConsecutivePollFailureMessage>
+            {noIncreases =>
+              noIncreases >= 3 ? <div>Hey maybe try something else?</div> : null
+            }
+          </ConsecutivePollFailureMessage>
+        }
+      />
+    </NoFoundDiv>
+  )
+}
+
+export type DeviceLineProps = {
+  deviceID: string
+  maxWidth: number
+  preConnect: (deviceID: string) => void
+  postHandshake: (deviceID: string) => void
+  onFailure: (deviceID: string, err: Error) => void
+  internalCardComponent?: React.ReactNode
+}
+
+const useConnectWithTimeout = (
+  deviceID: string,
+  preConnect: (deviceID: string) => void,
+  postHandshake: (deviceID: string) => void,
+  onFailure: (deviceID: string, err: Error) => void,
+) => {
+  const connect = useDeviceConnect(deviceID)
+  const disconnect = useDeviceDisconnect(deviceID)
+
+  const timeoutTime = 10000
+
+  const connectWithCBs = useCallback(() => {
+    preConnect(deviceID)
+
+    console.log('hook connection start')
+
+    connect()
+      .then(() => {
+        postHandshake(deviceID)
+      })
+      .catch(err => {
+        console.log('caught error in connections page', err)
+        onFailure(deviceID, err)
+        disconnect()
+      })
+
+    /*
+    // our timeout
+    useEffect(() => {
+      const timeout = setTimeout(() => {}, timeoutTime)
+
+      return () => {
+        clearTimeout(timeout)
+      }
+    })*/
+  }, [deviceID])
+
+  return connectWithCBs
+}
+
+export type CardInternalsProps = {
+  deviceID: string
+}
+
+const CardInternals = (props: CardInternalsProps) => {
+  const deviceID = props.deviceID
+
+  const metadataName = useDeviceMetadataKey('name', deviceID)
+  const metadataType = useDeviceMetadataKey('type', deviceID)
+
+  let header = (
+    <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
+      Placeholder name
+    </h3>
+  )
+
+  if (metadataName) {
+    header = <h3 className={Classes.HEADING}>{metadataName}</h3>
   }
 
-  renderNoDevices = () => {
-    return (
-      <NoFoundDiv key="nodevices">
-        <NonIdealState
-          title="No devices found"
-          description={
-            <ConsecutivePollFailureMessage>
-              {noIncreases =>
-                noIncreases >= 3 ? (
-                  <div>Hey maybe try something else?</div>
-                ) : null
-              }
-            </ConsecutivePollFailureMessage>
-          }
-        />
-      </NoFoundDiv>
-    )
+  if (metadataType) {
+    header = <h3 className={Classes.HEADING}>{metadataType}</h3>
   }
 
-  renderDeviceInternal = (deviceID: string) => {
-    return (
-      <DeviceMetadataComponent deviceID={deviceID}>
-        {(metadata: DeviceMetadata) => {
-          let header = (
-            <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
-              Placeholder name
-            </h3>
-          )
+  return (
+    <React.Fragment>
+      {header}
+      <p>Device ID: {deviceID}</p>
+    </React.Fragment>
+  )
+}
 
-          if (metadata.name) {
-            header = <h3 className={Classes.HEADING}>{metadata.name}</h3>
-          }
-          if (metadata.type) {
-            header = <h3 className={Classes.HEADING}>{metadata.type}</h3>
-          }
+type ConnectionHashProps = {
+  deviceID: string
+  connectionHash: string
+}
 
-          return (
-            <React.Fragment>
-              {header}
-              <p>Device ID: {deviceID}</p>
-            </React.Fragment>
-          )
-        }}
-      </DeviceMetadataComponent>
-    )
-  }
+const ConnectionHash = (props: ConnectionHashProps) => {
+  const deviceID = props.deviceID
+  const connectionHash = props.connectionHash
 
-  cardClick = (
-    deviceID: string,
-    numConnectionHashes: number,
-    connectionRequested: boolean,
-    connectToDevice: () => void,
-  ) => {
-    if (numConnectionHashes === 0) {
+  const connectionState = useConnectionState(connectionHash)
+  const connectionRequested = useDeviceConnectionRequested(deviceID)
+  const connectionName = useConnectionMetadataKey(connectionHash, 'name')
+
+  return (
+    <Tag
+      round
+      intent={
+        connectionRequested && connectionState === 'CONNECTED'
+          ? 'success'
+          : 'none'
+      }
+      style={{ marginLeft: 4 }}
+    >
+      {connectionName}
+    </Tag>
+  )
+}
+
+const DeviceLine = (props: DeviceLineProps) => {
+  const deviceID = props.deviceID
+  const maxWidth = props.maxWidth
+
+  // If they provide an internal card component, wrap it in a device ID context and render it, otherwise provide defaults
+  const InternalCard = props.internalCardComponent ? (
+    <DeviceIDContextProvider deviceID={deviceID}>
+      {props.internalCardComponent}
+    </DeviceIDContextProvider>
+  ) : (
+    <CardInternals deviceID={deviceID} />
+  )
+
+  const connectionHashes = useDeviceConnectionHashes(deviceID)
+  const disconnect = useDeviceDisconnect(deviceID)
+  const connectionRequested = useDeviceConnectionRequested(deviceID)
+  const connectionState = useDeviceConnectionState(deviceID)
+
+  const handshakeState = useDeviceHandshakeState(deviceID)
+
+  const connect = useConnectWithTimeout(
+    deviceID,
+    props.preConnect,
+    props.postHandshake,
+    props.onFailure,
+  )
+
+  const cardClick = useCallback(() => {
+    if (connectionHashes.length === 0) {
       // we're a ghost card, don't do anything
       return
     }
 
     if (!connectionRequested) {
       // we haven't requested a connection yet, so do so.
-      this.props.preConnect(deviceID)
-      connectToDevice()
+      connect()
       return
     }
+  }, [connectionHashes.length, connectionRequested])
 
-    // we've already requested a connection
-    this.props.postHandshake(deviceID)
+  // Device Card Pose
+  let deviceInnerCardPose: string = connectionState
+  if (
+    !connectionRequested &&
+    (connectionState === 'CONNECTED' || connectionState === 'CONNECTING')
+  ) {
+    deviceInnerCardPose = 'DISCOVERING'
   }
 
-  renderDeviceID = (deviceID: string) => {
-    const { maxWidth } = this.props
+  // Handshake errors
 
-    return (
-      <DeviceCard
-        key={deviceID}
-        style={{ maxWidth: maxWidth, margin: '0 auto' }}
-      >
-        <DeviceConnectionHashes deviceID={deviceID}>
-          {(connectionHashes: Array<string>) => (
-            <Connect
-              deviceID={deviceID}
-              preConnect={() => {
-                this.props.preConnect(deviceID)
-              }}
-              postHandshake={() => {
-                this.props.postHandshake(deviceID)
-              }}
-              onFailure={err => {
-                console.log(
-                  'Connections component class got err',
-                  err,
-                  deviceID,
-                )
-                this.props.onFailure(deviceID, err)
-              }}
-            >
-              {(
-                connectOnClick: () => void,
-                connectionRequested: boolean,
-                connectionState: CONNECTION_STATE,
-                deviceManagerReady: boolean,
-              ) => (
-                <Disconnect deviceID={deviceID}>
-                  {(disconnectOnClick: () => void) => {
-                    let deviceInnerCardPose
+  let errorMessage = null
 
-                    if (
-                      !connectionRequested &&
-                      (connectionState === 'CONNECTED' ||
-                        connectionState === 'CONNECTING')
-                    ) {
-                      deviceInnerCardPose = 'DISCOVERING'
-                    } else {
-                      deviceInnerCardPose = connectionState
-                    }
-
-                    return (
-                      <React.Fragment>
-                        <DeviceInnerCard
-                          className={
-                            connectionHashes.length === 0
-                              ? 'bp3-card bp3-elevation-0 disabled-card'
-                              : 'bp3-card bp3-interactive bp3-elevation-1'
-                          }
-                          pose={deviceInnerCardPose}
-                          style={{
-                            padding: 0,
-                          }}
-                        >
-                          {/* The disconnect button */}
-                          {connectionRequested &&
-                          connectionState === 'CONNECTED' ? (
-                            <Button
-                              intent="danger"
-                              onClick={disconnectOnClick}
-                              style={{
-                                position: 'absolute',
-                                right: 0,
-                                marginRight: '-2em',
-                              }}
-                            >
-                              <Icon icon={IconNames.CROSS} />
-                            </Button>
-                          ) : null}
-
-                          {/* The connection card */}
-                          <div
-                            onClick={() =>
-                              this.cardClick(
-                                deviceID,
-                                connectionHashes.length,
-                                connectionRequested,
-                                connectOnClick,
-                              )
-                            }
-                            style={{
-                              padding: 20,
-                            }}
-                          >
-                            <Grid columns={2} alignItems="end">
-                              <Cell>{this.renderDeviceInternal(deviceID)}</Cell>
-                              {connectionHashes.length === 0 ? null : (
-                                <Cell
-                                  style={{
-                                    textAlign: 'right',
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      flexDirection: 'column',
-                                      height: '100%',
-                                    }}
-                                  >
-                                    <div>
-                                      {connectionHashes.map(connectionHash => (
-                                        <ConnectionState
-                                          connectionHash={connectionHash}
-                                          key={connectionHash}
-                                        >
-                                          {(
-                                            connectionState: CONNECTION_STATE,
-                                          ) => (
-                                            <ConnectionMetadataComponent
-                                              connectionHash={connectionHash}
-                                            >
-                                              {(
-                                                metadata: ConnectionMetadata,
-                                              ) => (
-                                                <Tag
-                                                  round
-                                                  intent={
-                                                    connectionRequested &&
-                                                    connectionState ===
-                                                      'CONNECTED'
-                                                      ? 'success'
-                                                      : 'none'
-                                                  }
-                                                  style={{ marginLeft: 4 }}
-                                                >
-                                                  {metadata.name}
-                                                </Tag>
-                                              )}
-                                            </ConnectionMetadataComponent>
-                                          )}
-                                        </ConnectionState>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </Cell>
-                              )}
-                            </Grid>
-                          </div>
-                        </DeviceInnerCard>
-                      </React.Fragment>
-                    )
-                  }}
-                </Disconnect>
-              )}
-            </Connect>
-          )}
-        </DeviceConnectionHashes>
-      </DeviceCard>
-    )
+  if (handshakeState === 'failed') {
+    errorMessage = <Tag intent="danger">A handshake error occurred</Tag>
   }
 
-  render() {
-    const { maxWidth, style } = this.props
-
-    return (
-      <div
+  return (
+    <DeviceCard key={deviceID} style={{ maxWidth: maxWidth, margin: '0 auto' }}>
+      <DeviceInnerCard
+        className={
+          connectionHashes.length === 0
+            ? 'bp3-card bp3-elevation-0 disabled-card'
+            : 'bp3-card bp3-interactive bp3-elevation-1'
+        }
+        pose={deviceInnerCardPose}
         style={{
-          margin: '0 auto',
-          maxWidth: maxWidth + 50,
-          position: 'relative',
-          ...style,
+          padding: 0,
         }}
       >
-        <DeviceIDList>
-          {(deviceIDs: Array<string>) => (
-            <React.Fragment>
-              <PoseGroup>
-                {deviceIDs.length === 0
-                  ? this.renderNoDevices() // render no devices found, otherwise render each of them
-                  : deviceIDs.map(deviceID => this.renderDeviceID(deviceID))}
-              </PoseGroup>
+        {/* The disconnect button */}
+        {connectionRequested && connectionState === 'CONNECTED' ? (
+          <Button
+            intent="danger"
+            onClick={() => disconnect()}
+            style={{
+              position: 'absolute',
+              right: 0,
+              marginRight: '-2em',
+            }}
+          >
+            <Icon icon={IconNames.CROSS} />
+          </Button>
+        ) : null}
 
-              <Poll>
-                {(onClick, polling, deviceManagerReady) => (
-                  <Button
-                    onClick={onClick}
-                    disabled={polling || !deviceManagerReady}
-                    fill
-                    style={{
-                      width: maxWidth,
-                      margin: '2em auto 0 auto',
-                    }}
-                    loading={polling}
-                  >
-                    Refresh
-                  </Button>
-                )}
-              </Poll>
-            </React.Fragment>
-          )}
-        </DeviceIDList>
-      </div>
-    )
-  }
+        {/* The connection card */}
+        <div
+          onClick={() => cardClick()}
+          style={{
+            padding: 20,
+          }}
+        >
+          <Grid columns={2} alignItems="end">
+            <Cell>{InternalCard}</Cell>
+            <Cell
+              style={{
+                textAlign: 'right',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexDirection: 'column',
+                  height: '100%',
+                }}
+              >
+                <div>
+                  {connectionHashes.map(connectionHash => (
+                    <ConnectionHash
+                      deviceID={deviceID}
+                      connectionHash={connectionHash}
+                      key={connectionHash}
+                    />
+                  ))}
+                </div>
+                <div>{errorMessage}</div>
+              </div>
+            </Cell>
+          </Grid>
+        </div>
+      </DeviceInnerCard>
+    </DeviceCard>
+  )
+}
+
+const Connections = (props: ConnectionsProps) => {
+  const deviceIDs = useDeviceIDList()
+
+  const { maxWidth, style } = props
+
+  const maxWidthWithDefault = maxWidth || 400
+
+  const list = deviceIDs.map(deviceID => (
+    <DeviceLine
+      key={deviceID}
+      deviceID={deviceID}
+      maxWidth={maxWidthWithDefault}
+      preConnect={props.preConnect}
+      postHandshake={props.postHandshake}
+      onFailure={props.onFailure}
+      internalCardComponent={props.internalCardComponent}
+    />
+  ))
+
+  return (
+    <div
+      style={{
+        margin: '0 auto',
+        maxWidth: maxWidthWithDefault + 50,
+        position: 'relative',
+        ...style,
+      }}
+    >
+      {deviceIDs.length === 0 ? <NoDevices /> : null}
+      <PoseGroup>{list}</PoseGroup>
+
+      <Poll>
+        {(onClick, polling, deviceManagerReady) => (
+          <Button
+            onClick={onClick}
+            disabled={polling || !deviceManagerReady}
+            fill
+            style={{
+              width: maxWidth,
+              margin: '2em auto 0 auto',
+            }}
+            loading={polling}
+          >
+            Refresh
+          </Button>
+        )}
+      </Poll>
+    </div>
+  )
 }
 
 export default Connections
