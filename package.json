@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.6.1-prerelease.55",
+  "version": "0.6.1",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -14,10 +14,10 @@
   ],
   "dependencies": {
     "@blueprintjs/core": "^3.17.1",
-    "@electricui/components-core": "^0.6.1-prerelease.55",
-    "@electricui/components-desktop": "^0.6.1-prerelease.55",
-    "@electricui/components-desktop-charts": "^0.6.1-prerelease.55",
-    "@electricui/core": "^0.6.1-prerelease.55",
+    "@electricui/components-core": "^0.6.1",
+    "@electricui/components-desktop": "^0.6.1",
+    "@electricui/components-desktop-charts": "^0.6.1",
+    "@electricui/core": "^0.6.1",
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8"
   },
