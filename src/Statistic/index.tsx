@@ -4,6 +4,8 @@ import './index.css'
 
 import { Accessor } from '@electricui/components-core'
 import { Printer } from '@electricui/components-desktop'
+import { INTENT_COLOR_MAP } from './../colors'
+import { Intent } from '@blueprintjs/core'
 
 /*
   <Statistics>
@@ -30,7 +32,10 @@ export interface StatisticsProps {
     | React.ReactElement<StatisticProps>[]
     | React.ReactElement<StatisticProps>
 
-    /** The css compatible colour for the statistics. */
+  /** The intent for the statistics, is overwritten by color. */
+  intent?: Exclude<Intent, 'none'>
+
+  /** The css compatible colour for the statistics, overwrites color. */
   color?: string
 }
 
@@ -62,7 +67,10 @@ export interface StatisticProps {
   /** Any custom styling to apply to the component. */
   style?: React.CSSProperties
 
-  /** The css compatible colour for the statistic. */
+  /** The intent for the statistics, is overwritten by color. */
+  intent?: Exclude<Intent, 'none'>
+
+  /** The css compatible colour for the statistics, overwrites color. */
   color?: string
 
   /** The amount of Statistic children of a Statistics wrapper in a line to evenly space them apart. */
@@ -77,7 +85,7 @@ export interface StatisticLabelProps {
 export interface StatisticValueProps {
   /** The value text. */
   children?: string | number | ReactNode
-  
+
   /**
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number. Takes precedence over children.
    */
@@ -136,7 +144,13 @@ const Statistic = (props: StatisticProps) => {
     mixedStyle.minWidth = `${100 / props.inGroupOf}%`
   }
 
-  mixedStyle.color = props.color
+  if (props.intent) {
+    mixedStyle.color = INTENT_COLOR_MAP[props.intent]
+  }
+
+  if (props.color) {
+    mixedStyle.color = props.color
+  }
 
   let val = props.value
   if (props.accessor) {
