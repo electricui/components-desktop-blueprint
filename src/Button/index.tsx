@@ -73,8 +73,8 @@ class ElectricButton extends Component<
   allOnClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     const { write, onClick, callback, noAck, disabled } = this.props
 
-    if (disabled) { 
-      return 
+    if (disabled) {
+      return
     }
 
     this.onClick()
@@ -89,9 +89,10 @@ class ElectricButton extends Component<
   }
 
   render() {
+    const disabled = this.props.disabled
     const rest = removeElectricProps(this.props, ['writer', 'noAck'])
 
-    return <Button onClick={this.allOnClick} {...rest} />
+    return <Button onClick={this.allOnClick} {...rest} disabled={disabled} />
   }
 }
 
