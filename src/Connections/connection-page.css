@@ -37,3 +37,8 @@
 .bp3-dark .disabled-card.bp3-card {
   background: rgba(48, 64, 77, 0.25);
 }
+
+/* On hover, make it darker */
+.bp3-dark .bp3-card.bp3-interactive:hover {
+  background: rgba(48, 64, 77, 0.8);
+}
