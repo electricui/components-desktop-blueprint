@@ -223,6 +223,9 @@ const DeviceLine = (props: DeviceLineProps) => {
       connect()
       return
     }
+
+    // otherwise a connection is requested, so do the post handshake hook
+    props.postHandshake(deviceID)
   }, [connectionHashes.length, connectionRequested])
 
   // Device Card Pose
