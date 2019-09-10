@@ -24,3 +24,16 @@
 .bp3-button.bp3-disabled.bp3-loading {
   cursor: progress;
 }
+
+/* Dark mode colours */
+.bp3-dark .disabled-card {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.bp3-dark .disabled-card h3 {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.bp3-dark .disabled-card.bp3-card {
+  background: rgba(48, 64, 77, 0.25);
+}

@@ -18,6 +18,7 @@ import {
   useDeviceMetadataKey,
 } from '@electricui/components-core'
 import { DeviceIDContextProvider } from '@electricui/components-core'
+import './connection-page.css'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
