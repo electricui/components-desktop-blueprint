@@ -13,16 +13,16 @@
     "manifest.json"
   ],
   "dependencies": {
-    "@blueprintjs/core": "^3.17.1",
+    "@blueprintjs/core": "^3.19.0",
     "@electricui/components-core": "^0.6.4",
     "@electricui/components-desktop": "^0.6.4",
     "@electricui/components-desktop-charts": "^0.6.4",
     "@electricui/core": "^0.6.4",
     "classnames": "^2.2.6",
-    "lodash.debounce": "^4.0.8"
+    "lodash.debounce": "^4.0.8",
+    "@blueprintjs/icons": "^3.11.0"
   },
   "devDependencies": {
-    "@blueprintjs/icons": "^3.9.0",
     "@types/chai": "^4.1.7",
     "@types/chai-subset": "^1.3.2",
     "@types/classnames": "^2.2.7",
@@ -30,8 +30,8 @@
     "@types/lodash.debounce": "^4.0.5",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.4",
-    "@types/react": "^16.9.1",
-    "@types/react-dom": "^16.8.5",
+    "@types/react": "^16.9.5",
+    "@types/react-dom": "^16.9.1",
     "@types/sinon": "^7.0.6",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
@@ -39,10 +39,10 @@
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
     "nyc": "^13.3.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-pose": "^4.0.8",
-    "rollup": "^1.17.0",
+    "rollup": "^1.23.1",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-css-only": "^1.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
@@ -55,8 +55,8 @@
   },
   "peerDependencies": {
     "electron": "*",
-    "react": ">=16.9.0",
-    "react-dom": ">16.9.0",
+    "react": ">=16.10.0",
+    "react-dom": ">16.10.0",
     "react-pose": "*",
     "styled-css-grid": "*"
   },
