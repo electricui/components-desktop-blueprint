@@ -1,16 +1,16 @@
-import debounce from 'lodash.debounce'
-import React, { Component, ReactNode } from 'react'
-import { Omit } from 'utility-types'
-
-import { INumericInputProps, NumericInput } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
   Accessor,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import { INumericInputProps, NumericInput } from '@blueprintjs/core'
+import React, { Component, ReactNode } from 'react'
+
+import { Omit } from 'utility-types'
+import debounce from 'lodash.debounce'
 
 type UpstreamNumberInputProps = Omit<
   INumericInputProps,
@@ -152,7 +152,10 @@ class ElectricNumberInput extends Component<
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['accessor'])
+    const rest = removeElectricProps(this.props, [
+      'accessor',
+      'debounceDuration',
+    ])
 
     const value = this.getFocused() ? this.getLocalValue() : this.getValue()
 
