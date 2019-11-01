@@ -1,16 +1,16 @@
-import debounce from 'lodash.debounce'
-import React, { Component, ReactNode } from 'react'
-import { Omit } from 'utility-types'
-
-import { InputGroup, IInputGroupProps } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
   Accessor,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
+import React, { Component, ReactNode } from 'react'
+
+import { Omit } from 'utility-types'
+import debounce from 'lodash.debounce'
 
 type UpstreamTextInputProps = Omit<
   IInputGroupProps,
@@ -153,7 +153,11 @@ class ElectricTextInput extends Component<
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['accessor', 'writer'])
+    const rest = removeElectricProps(this.props, [
+      'accessor',
+      'writer',
+      'debounceDuration',
+    ])
 
     const value = this.getFocused() ? this.getLocalValue() : this.getValue()
 
