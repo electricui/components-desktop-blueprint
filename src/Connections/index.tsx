@@ -1,24 +1,26 @@
-import React, { useCallback } from 'react'
-import posed, { PoseGroup } from 'react-pose'
+import './connection-page.css'
+
+import { Button, Classes, Icon, NonIdealState, Tag } from '@blueprintjs/core'
 import { Cell, Grid } from 'styled-css-grid'
-import { IconNames } from '@blueprintjs/icons'
-import { Button, Classes, NonIdealState, Tag, Icon } from '@blueprintjs/core'
 import {
   ConsecutivePollFailureMessage,
   Poll,
-  useDeviceIDList,
-  useDeviceConnectionHashes,
+  useConnectionMetadataKey,
+  useConnectionState,
   useDeviceConnect,
-  useDeviceDisconnect,
+  useDeviceConnectionHashes,
   useDeviceConnectionRequested,
   useDeviceConnectionState,
-  useConnectionState,
-  useConnectionMetadataKey,
+  useDeviceDisconnect,
   useDeviceHandshakeState,
+  useDeviceIDList,
   useDeviceMetadataKey,
 } from '@electricui/components-core'
+import React, { useCallback } from 'react'
+import posed, { PoseGroup } from 'react-pose'
+
 import { DeviceIDContextProvider } from '@electricui/components-core'
-import './connection-page.css'
+import { IconNames } from '@blueprintjs/icons'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -342,6 +344,7 @@ const Connections = (props: ConnectionsProps) => {
         position: 'relative',
         ...style,
       }}
+      className="eui-connections-list"
     >
       {deviceIDs.length === 0 ? <NoDevices /> : null}
       <PoseGroup>{list}</PoseGroup>
