@@ -1,10 +1,8 @@
-import React, { useContext, useState, useEffect, useRef, useMemo } from 'react'
-
-import { useEventLogger } from '@electricui/components-desktop-charts'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '@blueprintjs/core'
-
 import { remote } from 'electron'
+import { useEventLogger } from '@electricui/components-desktop-charts'
 
 const { dialog } = remote
 
@@ -52,7 +50,7 @@ const EventCSVLogger = (props: EventCSVLoggerProps) => {
     )
   }
 
-  const foundPath = (filepath: string, bookmark: string) => {
+  const foundPath = (filepath: string | undefined) => {
     if (filepath === undefined) {
       return
     }
@@ -61,15 +59,16 @@ const EventCSVLogger = (props: EventCSVLoggerProps) => {
   }
 
   const pathPicker = async () => {
-    dialog.showSaveDialog(
-      {
+    dialog
+      .showSaveDialog({
         filters: [{ name: '.csv', extensions: ['csv'] }],
         message: props.selectSaveLocationMessage
           ? props.selectSaveLocationMessage
           : 'Select a Save Location',
-      },
-      foundPath,
-    )
+      })
+      .then(p => {
+        foundPath(p.filePath)
+      })
   }
 
   return (
