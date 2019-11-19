@@ -20,6 +20,7 @@
     "@electricui/components-desktop-charts": "^0.6.6-prerelease.2",
     "@electricui/core": "^0.6.6-prerelease.2",
     "classnames": "^2.2.6",
+    "atomic-layout": "^0.10.2",
     "lodash.debounce": "^4.0.8"
   },
   "devDependencies": {
@@ -47,7 +48,6 @@
     "rollup-plugin-css-only": "^1.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
     "sinon": "^7.2.7",
-    "styled-css-grid": "^1.2.1",
     "ts-node": "^8.3.0",
     "tslib": "^1.10.0",
     "typescript": "^3.7.2",
@@ -57,8 +57,7 @@
     "electron": "*",
     "react": ">=16.11.0",
     "react-dom": ">16.10.0",
-    "react-pose": "*",
-    "styled-css-grid": "*"
+    "react-pose": "*"
   },
   "scripts": {
     "prepack": "silversmith prepack",

@@ -1,7 +1,7 @@
 import './connection-page.css'
 
+import { Box, Composition } from 'atomic-layout'
 import { Button, Classes, Icon, NonIdealState, Tag } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
 import {
   ConsecutivePollFailureMessage,
   Poll,
@@ -283,9 +283,9 @@ const DeviceLine = (props: DeviceLineProps) => {
             padding: 20,
           }}
         >
-          <Grid columns={2} alignItems="end">
-            <Cell>{InternalCard}</Cell>
-            <Cell
+          <Composition templateCols="repeat(2, 1fr)">
+            <Box>{InternalCard}</Box>
+            <Box
               style={{
                 textAlign: 'right',
               }}
@@ -309,8 +309,8 @@ const DeviceLine = (props: DeviceLineProps) => {
                 </div>
                 <div>{errorMessage}</div>
               </div>
-            </Cell>
-          </Grid>
+            </Box>
+          </Composition>
         </div>
       </DeviceInnerCard>
     </DeviceCard>
