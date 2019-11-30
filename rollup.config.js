@@ -1,9 +1,11 @@
 import autoExternal from 'rollup-plugin-auto-external'
+import copy from 'rollup-plugin-copy'
+import css from 'rollup-plugin-css-only'
+import license from 'rollup-plugin-license'
 import path from 'path'
 import typescript from 'rollup-plugin-typescript2'
-import css from 'rollup-plugin-css-only'
 
-export default async a => {
+export default async () => {
   return {
     input: 'index.ts',
     output: [
@@ -16,8 +18,29 @@ export default async a => {
         packagePath: path.resolve(__dirname, 'package.json'),
         peerDependencies: true,
       }),
+      typescript({
+        objectHashIgnoreUnknownHack: true, // Using the copy plugin (which uses async functions), we need to invalidate the cache on every build
+        clean: true,
+      }),
       css({ output: path.resolve(__dirname, 'lib', `bundle.css`) }),
-      typescript(),
+      license({
+        sourcemap: true,
+        banner: {
+          commentStyle: 'ignored',
+          content: {
+            file: path.join(__dirname, '..', '..', 'LICENCE_TEMPLATE'),
+          },
+        },
+      }),
+      copy({
+        targets: [
+          {
+            src: path.join(__dirname, '..', '..', 'LICENCE_TEMPLATE'),
+            dest: '.',
+            rename: () => 'LICENCE',
+          },
+        ],
+      }),
     ],
   }
 }
