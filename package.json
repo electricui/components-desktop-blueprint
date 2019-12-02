@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.6.6",
+  "version": "0.6.8-prerelease.0",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -15,10 +15,10 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.0",
     "@blueprintjs/icons": "^3.12.0",
-    "@electricui/components-core": "^0.6.6",
-    "@electricui/components-desktop": "^0.6.6",
-    "@electricui/components-desktop-charts": "^0.6.6",
-    "@electricui/core": "^0.6.6",
+    "@electricui/components-core": "^0.6.8-prerelease.0",
+    "@electricui/components-desktop": "^0.6.8-prerelease.0",
+    "@electricui/components-desktop-charts": "^0.6.8-prerelease.0",
+    "@electricui/core": "^0.6.8-prerelease.0",
     "atomic-layout": "^0.10.2",
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8"
@@ -45,9 +45,9 @@
     "react-pose": "^4.0.8",
     "rollup": "^1.27.5",
     "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-license": "^0.12.1",
     "rollup-plugin-copy": "^3.1.0",
     "rollup-plugin-css-only": "^1.0.0",
+    "rollup-plugin-license": "^0.12.1",
     "rollup-plugin-typescript2": "^0.20.1",
     "sinon": "^7.2.7",
     "ts-node": "^8.3.0",
