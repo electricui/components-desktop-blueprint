@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet'
 import React from 'react'
 import { useDarkMode } from '@electricui/components-desktop'
 
@@ -8,5 +9,13 @@ export type DarkModeWrapperProps = {
 export const DarkModeWrapper = (props: DarkModeWrapperProps) => {
   const isDark = useDarkMode()
 
-  return <div className={isDark ? 'bp3-dark' : ''}>{props.children}</div>
+  return (
+    <React.Fragment>
+      <Helmet>
+        <body className={isDark ? 'bp3-dark' : ''} />
+      </Helmet>
+
+      {props.children}
+    </React.Fragment>
+  )
 }
