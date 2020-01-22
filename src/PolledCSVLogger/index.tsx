@@ -1,14 +1,19 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '@blueprintjs/core'
+import { DataSourceReference } from '@electricui/core-timeseries'
 import { remote } from 'electron'
 import { usePolledLogger } from '@electricui/components-desktop-charts'
 
 const { dialog } = remote
 
 type PolledCSVLoggerProps = {
-  dataSourceNames: Array<string>
+  dataSource: Array<DataSourceReference> | DataSourceReference
   interval: number
+  /**
+   * All columns from all events must be statically declared in this prop.
+   */
+  columns: string[]
   timestampColumnName?: string
   timestampColumnFormat?: string
   startLoggingText?: string
@@ -17,7 +22,7 @@ type PolledCSVLoggerProps = {
   selectSaveLocationMessage?: string
 }
 
-const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
+export const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
   const memoisedOptions = useMemo(
     () => ({
       timestampColumnName: props.timestampColumnName,
@@ -27,8 +32,9 @@ const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
   )
 
   const [loggerInfo, setPath, setLogging] = usePolledLogger(
-    props.dataSourceNames,
+    props.dataSource,
     props.interval,
+    props.columns,
     memoisedOptions,
   )
 
@@ -84,5 +90,3 @@ const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
     </React.Fragment>
   )
 }
-
-export default PolledCSVLogger

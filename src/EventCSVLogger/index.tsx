@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '@blueprintjs/core'
+import { DataSourceReference } from '@electricui/core-timeseries'
 import { remote } from 'electron'
 import { useEventLogger } from '@electricui/components-desktop-charts'
 
 const { dialog } = remote
 
 type EventCSVLoggerProps = {
-  dataSourceName: string
+  dataSource: DataSourceReference
   timestampColumnName?: string
   timestampColumnFormat?: string
   startLoggingText?: string
@@ -16,7 +17,7 @@ type EventCSVLoggerProps = {
   selectSaveLocationMessage?: string
 }
 
-const EventCSVLogger = (props: EventCSVLoggerProps) => {
+export const EventCSVLogger = (props: EventCSVLoggerProps) => {
   const memoisedOptions = useMemo(
     () => ({
       timestampColumnName: props.timestampColumnName,
@@ -26,7 +27,7 @@ const EventCSVLogger = (props: EventCSVLoggerProps) => {
   )
 
   const [loggerInfo, setPath, setLogging] = useEventLogger(
-    props.dataSourceName,
+    props.dataSource,
     memoisedOptions,
   )
 
@@ -82,5 +83,3 @@ const EventCSVLogger = (props: EventCSVLoggerProps) => {
     </React.Fragment>
   )
 }
-
-export default EventCSVLogger
