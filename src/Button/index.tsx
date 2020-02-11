@@ -1,15 +1,15 @@
-import React, { Component, ReactNode } from 'react'
-import { Omit } from 'utility-types'
-
 import { Button, IButtonProps } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import React, { Component, ReactNode } from 'react'
+
 import { CALL_CALLBACK } from '@electricui/core'
+import { Draft } from 'immer'
 
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation
@@ -18,8 +18,8 @@ import { CALL_CALLBACK } from '@electricui/core'
  * @remove elementRef
  */
 interface ElectricButtonProps extends IButtonProps {
-  /** A function that returns a StateTree or just a StateTree to write to the device upon clicking */
-  writer?: (() => StateTree) | StateTree
+  /** A functional writer that mutates state or a StateTree object for merging. */
+  writer?: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree
 
   /** A callback messageID to call upon clicking */
   callback?: string
@@ -50,21 +50,17 @@ class ElectricButton extends Component<
   }
 
   onClick = () => {
-    const { write, writer, noAck } = this.props
+    const { generateStaging, writeStaged, writer, write, noAck } = this.props
 
     if (!writer) {
       return
     }
 
     if (typeof writer === 'function') {
-      write(writer(), !noAck)
+      const staging = generateStaging()
+      const staged = writer(staging)
+      writeStaged(staged, !noAck)
       return
-    }
-
-    if (Array.isArray(writer)) {
-      for (const w of writer) {
-        write(w, !noAck)
-      }
     }
 
     write(writer, !noAck)
