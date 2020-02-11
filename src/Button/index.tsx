@@ -58,8 +58,8 @@ class ElectricButton extends Component<
 
     if (typeof writer === 'function') {
       const staging = generateStaging()
-      const staged = writer(staging)
-      writeStaged(staged, !noAck)
+      writer(staging)
+      writeStaged(staging, !noAck)
       return
     }
 

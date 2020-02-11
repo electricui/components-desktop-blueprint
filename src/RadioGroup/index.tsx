@@ -74,7 +74,7 @@ interface RadioGroupProps extends UpstreamRadioGroupProps {
   accessor: Accessor
   /**
    * If the accessor is merely a messageID, this Writer is optional.
-   * If the Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
+   * If the accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
   writer?: (staging: Draft<ElectricUIDeveloperState>, value: RadioValue) => void
 }

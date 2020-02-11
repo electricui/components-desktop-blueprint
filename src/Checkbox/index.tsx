@@ -94,8 +94,8 @@ class ElectricCheckbox extends Component<
     const { generateStaging, writeStaged, write } = this.props
     if (typeof writer === 'function') {
       const staging = generateStaging()
-      const staged = writer(staging)
-      writeStaged(staged, true)
+      writer(staging) // mutate with the writer
+      writeStaged(staging, true)
       return
     }
 
