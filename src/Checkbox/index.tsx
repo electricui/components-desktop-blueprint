@@ -1,16 +1,15 @@
-import React, { Component, ReactNode } from 'react'
-import { Omit } from 'utility-types'
-
-import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
-// import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
+  Accessor,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
+import React, { Component } from 'react'
 
-import { isSubset } from '@electricui/core'
+import { Draft } from 'immer'
+import { Omit } from 'utility-types'
 
 type UpstreamCheckboxProps = Omit<
   ICheckboxProps,
@@ -30,13 +29,25 @@ type UpstreamCheckboxProps = Omit<
  */
 interface CheckboxProps extends UpstreamCheckboxProps {
   /**
-   * The state tree to match when the checkbox is checked. Checking the checkbox sets this StateTree.
+   * An accessor to determine if the checkbox is in a 'checked' state.
+   * If the result is truthy, the checkbox is considered 'checked'.
    */
-  checked: StateTree
+  checked: Accessor
   /**
-   * The state tree to match when the checkbox is unchecked. Unchecking the checkbox sets this StateTree.
+   * An accessor to determine if the checkbox is in an 'uchecked' state.
+   * If the result is truthy, the checkbox is considered 'uchecked'.
    */
-  unchecked: StateTree
+  unchecked: Accessor
+  /**
+   * A writer to write the Checked state.
+   */
+  writeChecked: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree
+  /**
+   * A writer to write the Unchecked state.
+   */
+  writeUnchecked:
+    | ((staging: Draft<ElectricUIDeveloperState>) => void)
+    | StateTree
 }
 
 /**
@@ -48,38 +59,23 @@ interface CheckboxProps extends UpstreamCheckboxProps {
 class ElectricCheckbox extends Component<
   CheckboxProps & InjectedElectricityProps
 > {
-  static readonly accessorKeys = []
+  static readonly accessorKeys = ['checked', 'unchecked']
 
   static generateAccessorsFromProps = (props: CheckboxProps) => {
-    const keySet = new Set<string>()
-
-    for (const key of Object.keys(props.checked)) {
-      keySet.add(key)
-    }
-
-    for (const key of Object.keys(props.unchecked)) {
-      keySet.add(key)
-    }
-
-    return Array.from(keySet.values()).map(key => ({
-      accessorKey: key,
-      accessor: key,
-    }))
+    return []
   }
 
   getValue = () => {
-    const { getState, checked, unchecked } = this.props
+    const { access } = this.props
 
-    const state = getState()
-
-    if (isSubset(state, checked)) {
+    if (access('checked')) {
       return {
         checked: true,
         indeterminate: false,
       }
     }
 
-    if (isSubset(state, unchecked)) {
+    if (access('unchecked')) {
       return {
         checked: false,
         indeterminate: false,
@@ -92,17 +88,31 @@ class ElectricCheckbox extends Component<
     }
   }
 
+  handleWriting = (
+    writer: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree,
+  ) => {
+    const { generateStaging, writeStaged, write } = this.props
+    if (typeof writer === 'function') {
+      const staging = generateStaging()
+      const staged = writer(staging)
+      writeStaged(staged, true)
+      return
+    }
+
+    write(writer, true)
+  }
+
   onChange = () => {
-    const { write, checked, unchecked } = this.props
+    const { writeChecked, writeUnchecked } = this.props
 
     // If we're checked, write the unchecked values
     if (this.getValue().checked) {
-      write(unchecked, true)
+      this.handleWriting(writeUnchecked)
       return
     }
 
     // Otherwise write the checked values
-    write(checked, true)
+    this.handleWriting(writeChecked)
   }
 
   render() {
