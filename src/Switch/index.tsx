@@ -1,18 +1,19 @@
 import './index.css'
 
-import classnames from 'classnames'
-import React, { Component, ReactNode } from 'react'
-import { Omit } from 'utility-types'
-
-import { ISwitchProps, Switch } from '@blueprintjs/core'
 // import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
+  Accessor,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import { ISwitchProps, Switch } from '@blueprintjs/core'
+import React, { Component, ReactNode } from 'react'
 
+import { Draft } from 'immer'
+import { Omit } from 'utility-types'
+import classnames from 'classnames'
 import { isSubset } from '@electricui/core'
 
 type UpstreamSwitchProps = Omit<
@@ -27,13 +28,25 @@ type UpstreamSwitchProps = Omit<
  */
 interface SwitchProps extends UpstreamSwitchProps {
   /**
-   * The state tree to match when the switch is on. Switching the switch on sets this StateTree.
+   * An accessor to determine if the switch is in a 'on' state.
+   * If the result is truthy, the switch is considered 'on'.
    */
-  checked: StateTree
+  checked: Accessor
   /**
-   * The state tree to match when the switch is off. Switching the switch off sets this StateTree.
+   * An accessor to determine if the switch is in an 'off' state.
+   * If the result is truthy, the switch is considered 'off'.
    */
-  unchecked: StateTree
+  unchecked: Accessor
+  /**
+   * A writer to write the Checked state.
+   */
+  writeChecked: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree
+  /**
+   * A writer to write the Unchecked state.
+   */
+  writeUnchecked:
+    | ((staging: Draft<ElectricUIDeveloperState>) => void)
+    | StateTree
 }
 
 /**
@@ -43,38 +56,23 @@ interface SwitchProps extends UpstreamSwitchProps {
  * @props SwitchProps
  */
 class ElectricSwitch extends Component<SwitchProps & InjectedElectricityProps> {
-  static readonly accessorKeys = []
+  static readonly accessorKeys = ['checked', 'unchecked']
 
   static generateAccessorsFromProps = (props: SwitchProps) => {
-    const keySet = new Set<string>()
-
-    for (const key of Object.keys(props.checked)) {
-      keySet.add(key)
-    }
-
-    for (const key of Object.keys(props.unchecked)) {
-      keySet.add(key)
-    }
-
-    return Array.from(keySet.values()).map(key => ({
-      accessorKey: key,
-      accessor: key,
-    }))
+    return []
   }
 
   getValue = () => {
-    const { getState, checked, unchecked } = this.props
+    const { access } = this.props
 
-    const state = getState()
-
-    if (isSubset(state, checked)) {
+    if (access('checked')) {
       return {
         checked: true,
         indeterminate: false,
       }
     }
 
-    if (isSubset(state, unchecked)) {
+    if (access('unchecked')) {
       return {
         checked: false,
         indeterminate: false,
@@ -87,21 +85,40 @@ class ElectricSwitch extends Component<SwitchProps & InjectedElectricityProps> {
     }
   }
 
+  handleWriting = (
+    writer: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree,
+  ) => {
+    const { generateStaging, writeStaged, write } = this.props
+    if (typeof writer === 'function') {
+      const staging = generateStaging()
+      const staged = writer(staging)
+      writeStaged(staged, true)
+      return
+    }
+
+    write(writer, true)
+  }
+
   onChange = () => {
-    const { write, checked, unchecked } = this.props
+    const { writeChecked, writeUnchecked } = this.props
 
     // If we're checked, write the unchecked values
     if (this.getValue().checked) {
-      write(unchecked, true)
+      this.handleWriting(writeUnchecked)
       return
     }
 
     // Otherwise write the checked values
-    write(checked, true)
+    this.handleWriting(writeChecked)
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['checked', 'unchecked'])
+    const rest = removeElectricProps(this.props, [
+      'checked',
+      'unchecked',
+      'writeChecked',
+      'writeUnchecked',
+    ])
 
     const { className } = this.props
     const { checked, indeterminate } = this.getValue()
