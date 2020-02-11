@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.6.15-prerelease.12",
+  "version": "0.6.15-prerelease.13",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -15,11 +15,11 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.0",
     "@blueprintjs/icons": "^3.12.0",
-    "@electricui/components-core": "^0.6.15-prerelease.0",
-    "@electricui/components-desktop": "^0.6.15-prerelease.9",
-    "@electricui/components-desktop-charts": "^0.6.15-prerelease.12",
-    "@electricui/core": "^0.6.15-prerelease.0",
-    "@electricui/core-timeseries": "^0.6.15-prerelease.9",
+    "@electricui/components-core": "^0.6.15-prerelease.13",
+    "@electricui/components-desktop": "^0.6.15-prerelease.13",
+    "@electricui/components-desktop-charts": "^0.6.15-prerelease.13",
+    "@electricui/core": "^0.6.15-prerelease.13",
+    "@electricui/core-timeseries": "^0.6.15-prerelease.13",
     "atomic-layout": "^0.10.2",
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8",
@@ -40,6 +40,7 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "electron": "^7.1.1",
+    "immer": "^5.3.5",
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
     "nyc": "^13.3.0",
@@ -56,15 +57,14 @@
     "ts-node": "^8.5.4",
     "tslib": "^1.10.0",
     "typescript": "^3.7.2",
-    "utility-types": "^3.5.0",
-    "immer": "^5.3.5"
+    "utility-types": "^3.5.0"
   },
   "peerDependencies": {
     "electron": "*",
+    "immer": "*",
     "react": ">=16.12.0",
     "react-dom": ">16.10.0",
-    "react-pose": "*",
-    "immer": "*"
+    "react-pose": "*"
   },
   "scripts": {
     "prepack": "silversmith prepack",
