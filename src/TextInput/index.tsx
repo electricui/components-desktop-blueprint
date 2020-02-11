@@ -9,6 +9,7 @@ import {
 import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
 import React, { Component, ReactNode } from 'react'
 
+import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
 
@@ -16,8 +17,6 @@ type UpstreamTextInputProps = Omit<
   IInputGroupProps,
   'defaultValue' | 'onChange' | 'value'
 >
-
-type Writer = (value: string) => StateTree
 
 /**
  * Remove the IInputGroupProps ones we don't want to show in the documentation
@@ -31,9 +30,10 @@ interface TextInputProps extends UpstreamTextInputProps {
    */
   accessor: Accessor
   /**
-   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the TextInput into a StateTree for writing to the device.
+   * If the accessor is merely a messageID, this Writer is optional.
+   * If the accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: Writer
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: string) => void
   /**
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
@@ -77,18 +77,17 @@ class ElectricTextInput extends Component<
     this.debouncedPush = this.debouncedPush.bind(this)
   }
 
-  defaultWriter = (value: string) => {
+  defaultWriter = (staging: Draft<ElectricUIDeveloperState>, value: string) => {
     const { accessor } = this.props
 
     if (typeof accessor !== 'string') {
       throw new Error(
-        "The text input needs a writer since the accessor isn't simple",
+        "The text input needs a writer since the accessor isn't simply a MessageID",
       )
     }
 
-    return {
-      [accessor]: value,
-    }
+    // Perform the mutation
+    staging[accessor] = value
   }
 
   getWriter = () => {
@@ -128,17 +127,19 @@ class ElectricTextInput extends Component<
   }
 
   onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const { commit } = this.props
+    const { commitStaged, generateStaging } = this.props
 
     const value = event.currentTarget.value
     const writer = this.getWriter()
-    const toWrite = writer(value)
 
-    commit(toWrite)
+    const staging = generateStaging() // Generate the staging
+    writer(staging, value) // The writer mutates the staging into a 'staged'
+
+    const messageIDsModified = commitStaged(staging)
 
     this.setLocalValue(value)
 
-    this.debouncedPush(Object.keys(toWrite))
+    this.debouncedPush(Object.keys(messageIDsModified))
   }
 
   /**
