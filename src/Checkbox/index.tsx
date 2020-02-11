@@ -32,12 +32,12 @@ interface CheckboxProps extends UpstreamCheckboxProps {
    * An accessor to determine if the checkbox is in a 'checked' state.
    * If the result is truthy, the checkbox is considered 'checked'.
    */
-  checked: Accessor
+  checked: Accessor<boolean>
   /**
    * An accessor to determine if the checkbox is in an 'uchecked' state.
    * If the result is truthy, the checkbox is considered 'uchecked'.
    */
-  unchecked: Accessor
+  unchecked: Accessor<boolean>
   /**
    * A writer to write the Checked state.
    */

@@ -31,12 +31,12 @@ interface SwitchProps extends UpstreamSwitchProps {
    * An accessor to determine if the switch is in a 'on' state.
    * If the result is truthy, the switch is considered 'on'.
    */
-  checked: Accessor
+  checked: Accessor<boolean>
   /**
    * An accessor to determine if the switch is in an 'off' state.
    * If the result is truthy, the switch is considered 'off'.
    */
-  unchecked: Accessor
+  unchecked: Accessor<boolean>
   /**
    * A writer to write the Checked state.
    */
