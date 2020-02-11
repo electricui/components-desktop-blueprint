@@ -9,6 +9,7 @@ import {
 import { INumericInputProps, NumericInput } from '@blueprintjs/core'
 import React, { Component, ReactNode } from 'react'
 
+import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
 
@@ -30,9 +31,10 @@ interface NumberInputProps extends UpstreamNumberInputProps {
    */
   accessor: Accessor
   /**
-   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the NumberInput into a StateTree for writing to the device.
+   * If the accessor is merely a messageID, this Writer is optional.
+   * If the accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: Writer
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: number) => void
   /**
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
@@ -76,18 +78,17 @@ class ElectricNumberInput extends Component<
     this.debouncedPush = this.debouncedPush.bind(this)
   }
 
-  defaultWriter = (value: number) => {
+  defaultWriter = (staging: Draft<ElectricUIDeveloperState>, value: number) => {
     const { accessor } = this.props
 
     if (typeof accessor !== 'string') {
       throw new Error(
-        "The number input needs a writer since the accessor isn't simple",
+        "The number input needs a writer since the accessor isn't simply a MessageID",
       )
     }
 
-    return {
-      [accessor]: value,
-    }
+    // Perform the mutation
+    staging[accessor] = value
   }
 
   getWriter = () => {
@@ -127,17 +128,19 @@ class ElectricNumberInput extends Component<
   }
 
   onChange = (valueAsNumber: number, valueAsString: string) => {
-    const { commit } = this.props
+    const { commitStaged, generateStaging } = this.props
 
     const value = valueAsNumber
     const writer = this.getWriter()
-    const toWrite = writer(value)
 
-    commit(toWrite)
+    const staging = generateStaging() // Generate the staging
+    writer(staging, value) // The writer mutates the staging into a 'staged'
+
+    const messageIDsModified = commitStaged(staging)
 
     this.setLocalValue(value)
 
-    this.debouncedPush(Object.keys(toWrite))
+    this.debouncedPush(Object.keys(messageIDsModified))
   }
 
   /**
