@@ -116,7 +116,12 @@ class ElectricCheckbox extends Component<
   }
 
   render() {
-    const rest = removeElectricProps(this.props, ['checked', 'unchecked'])
+    const rest = removeElectricProps(this.props, [
+      'checked',
+      'unchecked',
+      'writeChecked',
+      'writeUnchecked',
+    ])
 
     const value = this.getValue()
 

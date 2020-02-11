@@ -81,7 +81,7 @@ export const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
 
   return (
     <React.Fragment>
-      {writeButton}{' '}
+      {writeButton}
       <Button onClick={pathPicker} disabled={loggerInfo.isLogging}>
         {props.selectSaveLocationText
           ? props.selectSaveLocationText
