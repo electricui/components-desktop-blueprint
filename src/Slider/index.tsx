@@ -1,15 +1,15 @@
-import React, { Component } from 'react'
-import { Omit } from 'utility-types'
-
-import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import {
-  removeElectricProps,
-  withElectricity,
   Accessor,
   InjectedElectricityProps,
   StateTree,
+  removeElectricProps,
+  withElectricity,
 } from '@electricui/components-core'
+import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
+import React, { Component } from 'react'
 
+import { Draft } from 'immer'
+import { Omit } from 'utility-types'
 import { isElementOfType } from '../utils'
 
 /**
@@ -50,8 +50,6 @@ type SliderValues = {
   [key: string]: number
 }
 
-type Writer = (sliderValues: SliderValues) => StateTree
-
 /**
  * Slider Props
  * @remove onChange
@@ -64,10 +62,13 @@ interface ExtendedSliderProps extends IMultiSliderProps {
    */
   children: React.ReactElement<HandleProps>[] | React.ReactElement<HandleProps>
   /**
-   * If all the SliderHandles' Accessors are merely messageIDs, this writer is optional.
-   * If any Accessor is functional, then this Writer must be used to transform the hashmap of accessor names and values to a StateTree to write to the device.
+   * If all the SliderHandles' Accessors are merely messageIDs, this Writer is optional.
+   * If any Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: Writer
+  writer?: (
+    staging: Draft<ElectricUIDeveloperState>,
+    sliderValues: SliderValues,
+  ) => void
   /**
    * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the StateTree will be written to the device.
    */
@@ -139,8 +140,13 @@ class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
     return accessorObjects
   }
 
-  defaultWriter = (sliderValues: SliderValues) => {
-    return sliderValues
+  defaultWriter = (
+    staging: Draft<ElectricUIDeveloperState>,
+    sliderValues: SliderValues,
+  ) => {
+    for (const messageID of Object.keys(sliderValues)) {
+      staging[messageID] = sliderValues[messageID]
+    }
   }
 
   getWriter = () => {
@@ -183,31 +189,39 @@ class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
   }
 
   handleChange = (values: number[]) => {
-    const { commit, write, sendOnlyOnRelease } = this.props
+    const {
+      commitStaged,
+      writeStaged,
+      generateStaging,
+      sendOnlyOnRelease,
+    } = this.props
 
     const sliderValues = this.convertArrayValuesToHashmap(values)
 
     const writer = this.getWriter()
-    const toWrite = writer(sliderValues)
+
+    const staging = generateStaging() // Generate the staging
+    writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
 
     if (sendOnlyOnRelease) {
-      commit(toWrite)
+      commitStaged(staging)
       return
     }
 
-    write(toWrite, false)
+    writeStaged(staging, false)
 
     this.setLocalValue(values)
   }
 
   handleRelease = (values: number[]) => {
-    const { write } = this.props
+    const { writeStaged, generateStaging } = this.props
     const sliderValues = this.convertArrayValuesToHashmap(values)
 
     const writer = this.getWriter()
-    const toWrite = writer(sliderValues)
+    const staging = generateStaging() // Generate the staging
+    writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
 
-    write(toWrite, true)
+    writeStaged(staging, true)
 
     this.setState({ focused: false })
   }
