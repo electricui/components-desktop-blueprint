@@ -1,20 +1,20 @@
-import React, { Component } from 'react'
-import { Omit } from 'utility-types'
-
+import {
+  Accessor,
+  InjectedElectricityProps,
+  StateTree,
+  removeElectricProps,
+  withElectricity,
+} from '@electricui/components-core'
 import {
   IRadioGroupProps,
   IRadioProps,
   Radio,
   RadioGroup,
 } from '@blueprintjs/core'
-import {
-  removeElectricProps,
-  withElectricity,
-  Accessor,
-  InjectedElectricityProps,
-  StateTree,
-} from '@electricui/components-core'
+import React, { Component } from 'react'
 
+import { Draft } from 'immer'
+import { Omit } from 'utility-types'
 import { isElementOfType } from '../utils'
 
 type UpstreamRadioProps = Omit<
@@ -47,8 +47,6 @@ export class ElectricRadio extends React.Component<RadioProps> {
 
 type RadioValue = string | number
 
-type Writer = (value: RadioValue) => StateTree
-
 // We want to try to force only Radios to be our children
 // But I'm pretty sure this doesn't actually work?
 
@@ -75,9 +73,10 @@ interface RadioGroupProps extends UpstreamRadioGroupProps {
    */
   accessor: Accessor
   /**
-   * If the accessor is merely a messageID, this Writer is optional. If the Accessor is functional, then this writer must be used to transform the value from the Radio button selected into a StateTree for writing to the device.
+   * If the accessor is merely a messageID, this Writer is optional.
+   * If the Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: Writer
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: RadioValue) => void
 }
 
 function propsToRadioProps(props: RadioGroupProps) {
@@ -100,18 +99,20 @@ class ElectricRadioGroup extends React.Component<
 
   static generateAccessorsFromProps = (props: RadioGroupProps) => []
 
-  defaultWriter = (value: RadioValue) => {
+  defaultWriter = (
+    staging: Draft<ElectricUIDeveloperState>,
+    value: RadioValue,
+  ) => {
     const { accessor } = this.props
 
     if (typeof accessor !== 'string') {
       throw new Error(
-        "The radio group needs a writer since the accessor isn't simple",
+        "The radio group needs a functional writer since the accessor isn't simply a MessageID",
       )
     }
 
-    return {
-      [accessor]: value,
-    }
+    // Perform the mutation
+    staging[accessor] = value
   }
 
   getWriter = () => {
@@ -125,7 +126,7 @@ class ElectricRadioGroup extends React.Component<
   }
 
   handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const { write } = this.props
+    const { generateStaging, writeStaged } = this.props
 
     const writer = this.getWriter()
 
@@ -150,9 +151,9 @@ class ElectricRadioGroup extends React.Component<
       }
     })
 
-    const toWrite = writer(valueToWrite)
-
-    write(toWrite, true)
+    const staging = generateStaging() // Generate the staging
+    writer(staging, valueToWrite) // The writer mutates the staging into a 'staged'
+    writeStaged(staging, true) // Write the 'staged' version
   }
 
   getSelectedValue = () => {
