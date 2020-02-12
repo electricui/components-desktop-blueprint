@@ -1,54 +1,65 @@
 import {
   Accessor,
-  StateTree,
   removeElectricProps,
   useHardwareState,
   useWriteState,
 } from '@electricui/components-core'
 import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 
 type UpstreamCheckboxProps = Omit<
   ICheckboxProps,
-  | 'checked'
-  | 'defaultIndeterminate'
-  | 'indeterminate'
-  | 'onChange'
-  | 'defaultChecked'
+  'checked' | 'onChange' | 'defaultChecked'
 >
+
+interface CommonCheckboxProps<T> extends UpstreamCheckboxProps {
+  /**
+   * The checked value
+   */
+  checked: T
+  /**
+   * The checked value
+   */
+  unchecked: T
+}
+
+interface CheckboxPropsSimpleAccessor<T> extends CommonCheckboxProps<T> {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string, number or boolean.
+   */
+  accessor: string
+  /**
+   * A writer to write the Checked state.
+   *
+   * If the accessor is a MessageID string this isn't required.
+   */
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: T) => void
+}
+
+interface CheckboxPropsFunctionalAccessor<T> extends CommonCheckboxProps<T> {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string, number or boolean.
+   */
+  accessor: Accessor<T>
+  /**
+   * A writer to write the Checked state.
+   *
+   * If the accessor is a MessageID string this isn't required.
+   */
+  writer: (staging: Draft<ElectricUIDeveloperState>, value: T) => void
+}
 
 /**
  * Remove the ICheckboxProps ones we don't want to show in the documentation
- * @remove defaultIndeterminate
- * @remove indeterminate
  * @remove onChange
  * @remove defaultChecked
  */
-interface CheckboxProps extends UpstreamCheckboxProps {
-  /**
-   * An accessor to determine if the checkbox is in a 'checked' state.
-   * If the result is truthy, the checkbox is considered 'checked'.
-   */
-  checked: Accessor<boolean>
-  /**
-   * An accessor to determine if the checkbox is in an 'uchecked' state.
-   * If the result is truthy, the checkbox is considered 'uchecked'.
-   */
-  unchecked: Accessor<boolean>
-  /**
-   * A writer to write the Checked state.
-   */
-  writeChecked: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree
-  /**
-   * A writer to write the Unchecked state.
-   */
-  writeUnchecked:
-    | ((staging: Draft<ElectricUIDeveloperState>) => void)
-    | StateTree
-}
+type CheckboxProps<T> =
+  | CheckboxPropsSimpleAccessor<T>
+  | CheckboxPropsFunctionalAccessor<T>
 
 function valueFromCheckedUnchecked(
   checked: boolean | null,
@@ -80,17 +91,43 @@ function valueFromCheckedUnchecked(
  * @name Checkbox
  * @props CheckboxProps
  */
-function ElectricCheckbox(props: CheckboxProps) {
-  const checked = useHardwareState(props.checked)
-  const unchecked = useHardwareState(props.unchecked)
-  const value = valueFromCheckedUnchecked(checked, unchecked)
+function ElectricCheckbox<T>(props: CheckboxProps<T>) {
+  // this will cause a re-update every time the messageID changes,
+  // even if it doesn't cause a checked or unchecked state change.
+  const accessedState = useHardwareState(props.accessor)
   const writeState = useWriteState()
 
+  // calculate if we are checked, unchecked or indeterminate
+  const value = valueFromCheckedUnchecked(
+    accessedState === props.checked,
+    accessedState === props.unchecked,
+  )
+
+  // the writer
+  const writer = useMemo(() => {
+    if (typeof props.accessor === 'string') {
+      const accessor = props.accessor
+      return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
+        staging[accessor] = value
+      }
+    }
+
+    if (!props.writer) {
+      throw new Error(
+        "If the Checkbox's accessor isn't a MessageID string, a writer must be provided",
+      )
+    }
+
+    return props.writer
+  }, [props.writer, props.accessor])
+
   const handleWriting = useCallback(
-    (checked: boolean) => {
-      writeState(checked ? props.writeUnchecked : props.writeChecked, true)
+    (writeChecked: boolean) => {
+      writeState(draftState => {
+        writer(draftState, writeChecked ? props.checked : props.unchecked)
+      }, true)
     },
-    [props.writeChecked, props.writeUnchecked],
+    [writer, props.checked, props.unchecked],
   )
 
   const onChange = useCallback(() => {
@@ -100,13 +137,13 @@ function ElectricCheckbox(props: CheckboxProps) {
     }
 
     handleWriting(true)
-  }, [checked, unchecked]) // value is derived from checked and unchecked
+  }, [value.checked])
 
   const rest = removeElectricProps(props, [
     'checked',
     'unchecked',
-    'writeChecked',
-    'writeUnchecked',
+    'writer',
+    'accessor',
   ])
 
   return <Checkbox onChange={onChange} {...rest} {...value} />
