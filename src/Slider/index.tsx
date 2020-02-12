@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import { isElementOfType } from '../utils'
+import { unstable_batchedUpdates } from 'react-dom'
 
 /**
  * Slider Props
@@ -123,6 +124,7 @@ class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
     mutableValues: [],
     focused: false,
   }
+  messageIDsNeedAck: string[] = []
 
   static generateAccessorsFromProps = (props: SliderProps) => {
     // Iterate over this components children
@@ -191,7 +193,7 @@ class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
   handleChange = (values: number[]) => {
     const {
       commitStaged,
-      writeStaged,
+      push,
       generateStaging,
       sendOnlyOnRelease,
     } = this.props
@@ -203,25 +205,34 @@ class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
     const staging = generateStaging() // Generate the staging
     writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
 
+    // Batch the local update and the global reducer update into the same react reconciliation
+    unstable_batchedUpdates(() => {
+      const messageIDs = commitStaged(staging)
+      this.messageIDsNeedAck = messageIDs
+      this.setLocalValue(values)
+    })
+
     if (sendOnlyOnRelease) {
-      commitStaged(staging)
       return
     }
 
-    writeStaged(staging, false)
-
-    this.setLocalValue(values)
+    push(this.messageIDsNeedAck, false) // we never ack on movement, so don't reset the list
   }
 
   handleRelease = (values: number[]) => {
-    const { writeStaged, generateStaging } = this.props
+    const { commitStaged, push, generateStaging } = this.props
     const sliderValues = this.convertArrayValuesToHashmap(values)
 
     const writer = this.getWriter()
     const staging = generateStaging() // Generate the staging
     writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
 
-    writeStaged(staging, true)
+    const messageIDs = commitStaged(staging)
+
+    this.messageIDsNeedAck = [...this.messageIDsNeedAck, ...messageIDs]
+
+    push(this.messageIDsNeedAck, true)
+    this.messageIDsNeedAck = [] // reset our mutated MessageIDs list
 
     this.setState({ focused: false })
   }
