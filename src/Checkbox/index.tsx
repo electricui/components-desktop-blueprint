@@ -3,10 +3,12 @@ import {
   InjectedElectricityProps,
   StateTree,
   removeElectricProps,
+  useHardwareState,
+  useWriteState,
   withElectricity,
 } from '@electricui/components-core'
 import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
-import React, { Component } from 'react'
+import React, { Component, useCallback } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
@@ -50,85 +52,66 @@ interface CheckboxProps extends UpstreamCheckboxProps {
     | StateTree
 }
 
+function valueFromCheckedUnchecked(
+  checked: boolean | null,
+  unchecked: boolean | null,
+) {
+  if (checked) {
+    return {
+      checked: true,
+      indeterminate: false,
+    }
+  }
+
+  if (unchecked) {
+    return {
+      checked: false,
+      indeterminate: false,
+    }
+  }
+
+  return {
+    checked: false,
+    indeterminate: true,
+  }
+}
+
 /**
  * Checkbox
  * @module components-desktop-blueprint
  * @name Checkbox
  * @props CheckboxProps
  */
-class ElectricCheckbox extends Component<
-  CheckboxProps & InjectedElectricityProps
-> {
-  static readonly accessorKeys = ['checked', 'unchecked']
+function ElectricCheckbox(props: CheckboxProps) {
+  const checked = useHardwareState(props.checked)
+  const unchecked = useHardwareState(props.unchecked)
+  const value = valueFromCheckedUnchecked(checked, unchecked)
+  const writeState = useWriteState()
 
-  static generateAccessorsFromProps = (props: CheckboxProps) => {
-    return []
-  }
+  const handleWriting = useCallback(
+    (checked: boolean) => {
+      writeState(checked ? props.writeUnchecked : props.writeChecked, true)
+    },
+    [props.writeChecked, props.writeUnchecked],
+  )
 
-  getValue = () => {
-    const { access } = this.props
-
-    if (access('checked')) {
-      return {
-        checked: true,
-        indeterminate: false,
-      }
-    }
-
-    if (access('unchecked')) {
-      return {
-        checked: false,
-        indeterminate: false,
-      }
-    }
-
-    return {
-      checked: false,
-      indeterminate: true,
-    }
-  }
-
-  handleWriting = (
-    writer: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree,
-  ) => {
-    const { generateStaging, writeStaged, write } = this.props
-    if (typeof writer === 'function') {
-      const staging = generateStaging()
-      writer(staging) // mutate with the writer
-      writeStaged(staging, true)
+  const onChange = useCallback(() => {
+    if (value.checked) {
+      handleWriting(false)
       return
     }
 
-    write(writer, true)
-  }
+    handleWriting(true)
+  }, [checked, unchecked])
 
-  onChange = () => {
-    const { writeChecked, writeUnchecked } = this.props
+  const rest = removeElectricProps(props, [
+    'checked',
+    'unchecked',
+    'writeChecked',
+    'writeUnchecked',
+  ])
 
-    // If we're checked, write the unchecked values
-    if (this.getValue().checked) {
-      this.handleWriting(writeUnchecked)
-      return
-    }
-
-    // Otherwise write the checked values
-    this.handleWriting(writeChecked)
-  }
-
-  render() {
-    const rest = removeElectricProps(this.props, [
-      'checked',
-      'unchecked',
-      'writeChecked',
-      'writeUnchecked',
-    ])
-
-    const value = this.getValue()
-
-    return <Checkbox onChange={this.onChange} {...rest} {...value} />
-  }
+  return <Checkbox onChange={onChange} {...rest} {...value} />
 }
 
-export default withElectricity(ElectricCheckbox) as React.ComponentType<
-  CheckboxProps
->
+export default ElectricCheckbox
