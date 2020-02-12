@@ -1,15 +1,12 @@
-import classnames from 'classnames'
-import React, { Component } from 'react'
-import { Omit } from 'utility-types'
-
-import { IProgressBarProps, ProgressBar } from '@blueprintjs/core'
-// import { getDependencyProps } from '../../utils'
 import {
-  removeElectricProps,
-  withElectricity,
-  InjectedElectricityProps,
   Accessor,
+  removeElectricProps,
+  useHardwareState,
 } from '@electricui/components-core'
+import { IProgressBarProps, ProgressBar } from '@blueprintjs/core'
+
+import { Omit } from 'utility-types'
+import React from 'react'
 
 type UpstreamProgressBarProps = Omit<IProgressBarProps, 'value' | 'stripes'>
 
@@ -39,34 +36,16 @@ interface ProgressBarProps extends UpstreamProgressBarProps {
  * @name ProgressBar
  * @props ProgressBarProps
  */
-class ElectricProgressBar extends Component<
-  ProgressBarProps & InjectedElectricityProps
-> {
-  static readonly accessorKeys = ['accessor']
+export default function ElectricProgressBar(props: ProgressBarProps) {
+  const { min, max, stripes } = props
+  const value = useHardwareState(props.accessor)
+  const rest = removeElectricProps(props, ['min', 'max', 'accessor'])
 
-  static generateAccessorsFromProps = (props: ProgressBarProps) => {
-    return []
-  }
+  const minWithDefault = min ?? 0
+  const maxWithDefault = max ?? 1
+  const stripesWithDefaults = stripes ?? false
 
-  render() {
-    const rest = removeElectricProps(this.props, ['min', 'max', 'accessor'])
+  const clamped = (value - minWithDefault) / (maxWithDefault - minWithDefault)
 
-    const { access, min, max, stripes } = this.props
-
-    const value = access('accessor')
-
-    const minWithDefault = min || 0
-    const maxWithDefault = max || 1
-    const stripesWithDefaults = stripes || false
-
-    const clamped = (value - minWithDefault) / (maxWithDefault - minWithDefault)
-
-    return (
-      <ProgressBar {...rest} value={clamped} stripes={stripesWithDefaults} />
-    )
-  }
+  return <ProgressBar {...rest} value={clamped} stripes={stripesWithDefaults} />
 }
-
-export default withElectricity(ElectricProgressBar) as React.ComponentType<
-  ProgressBarProps
->
