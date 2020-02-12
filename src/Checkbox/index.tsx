@@ -1,14 +1,12 @@
 import {
   Accessor,
-  InjectedElectricityProps,
   StateTree,
   removeElectricProps,
   useHardwareState,
   useWriteState,
-  withElectricity,
 } from '@electricui/components-core'
 import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
-import React, { Component, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
@@ -102,7 +100,7 @@ function ElectricCheckbox(props: CheckboxProps) {
     }
 
     handleWriting(true)
-  }, [checked, unchecked])
+  }, [checked, unchecked]) // value is derived from checked and unchecked
 
   const rest = removeElectricProps(props, [
     'checked',

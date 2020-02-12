@@ -70,7 +70,7 @@ interface ExtendedSliderProps extends IMultiSliderProps {
     sliderValues: SliderValues,
   ) => void
   /**
-   * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the StateTree will be written to the device.
+   * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the updated state will be written to the device.
    */
   sendOnlyOnRelease?: boolean
 }
