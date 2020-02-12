@@ -1,20 +1,18 @@
-import './index.css'
-
-// import { getDependencyProps } from '../../utils'
 import {
   Accessor,
   InjectedElectricityProps,
   StateTree,
   removeElectricProps,
+  useHardwareState,
+  useWriteState,
   withElectricity,
 } from '@electricui/components-core'
 import { ISwitchProps, Switch } from '@blueprintjs/core'
-import React, { Component, ReactNode } from 'react'
+import React, { Component, useCallback } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import classnames from 'classnames'
-import { isSubset } from '@electricui/core'
 
 type UpstreamSwitchProps = Omit<
   ISwitchProps,
@@ -49,94 +47,78 @@ interface SwitchProps extends UpstreamSwitchProps {
     | StateTree
 }
 
+function valueFromCheckedUnchecked(
+  checked: boolean | null,
+  unchecked: boolean | null,
+) {
+  if (checked) {
+    return {
+      checked: true,
+      indeterminate: false,
+    }
+  }
+
+  if (unchecked) {
+    return {
+      checked: false,
+      indeterminate: false,
+    }
+  }
+
+  return {
+    checked: false,
+    indeterminate: true,
+  }
+}
+
 /**
  * Switch
  * @module components-desktop-blueprint
  * @name Switch
  * @props SwitchProps
  */
-class ElectricSwitch extends Component<SwitchProps & InjectedElectricityProps> {
-  static readonly accessorKeys = ['checked', 'unchecked']
+function ElectricSwitch(props: SwitchProps) {
+  const checked = useHardwareState(props.checked)
+  const unchecked = useHardwareState(props.unchecked)
+  const value = valueFromCheckedUnchecked(checked, unchecked)
+  const writeState = useWriteState()
 
-  static generateAccessorsFromProps = (props: SwitchProps) => {
-    return []
-  }
+  const handleWriting = useCallback(
+    (checked: boolean) => {
+      writeState(checked ? props.writeUnchecked : props.writeChecked, true)
+    },
+    [props.writeChecked, props.writeUnchecked],
+  )
 
-  getValue = () => {
-    const { access } = this.props
-
-    if (access('checked')) {
-      return {
-        checked: true,
-        indeterminate: false,
-      }
-    }
-
-    if (access('unchecked')) {
-      return {
-        checked: false,
-        indeterminate: false,
-      }
-    }
-
-    return {
-      checked: false,
-      indeterminate: true,
-    }
-  }
-
-  handleWriting = (
-    writer: ((staging: Draft<ElectricUIDeveloperState>) => void) | StateTree,
-  ) => {
-    const { generateStaging, writeStaged, write } = this.props
-
-    if (typeof writer === 'function') {
-      const staging = generateStaging()
-      writer(staging) // mutate with the writer
-      writeStaged(staging, true)
+  const onChange = useCallback(() => {
+    if (value.checked) {
+      handleWriting(false)
       return
     }
 
-    write(writer, true)
-  }
+    handleWriting(true)
+  }, [checked, unchecked])
 
-  onChange = () => {
-    const { writeChecked, writeUnchecked } = this.props
+  const rest = removeElectricProps(props, [
+    'checked',
+    'unchecked',
+    'writeChecked',
+    'writeUnchecked',
+  ])
 
-    // If we're checked, write the unchecked values
-    if (this.getValue().checked) {
-      this.handleWriting(writeUnchecked)
-      return
-    }
+  const classNames = classnames(
+    { indeterminate: value.indeterminate },
+    props.className,
+  )
 
-    // Otherwise write the checked values
-    this.handleWriting(writeChecked)
-  }
-
-  render() {
-    const rest = removeElectricProps(this.props, [
-      'checked',
-      'unchecked',
-      'writeChecked',
-      'writeUnchecked',
-    ])
-
-    const { className } = this.props
-    const { checked, indeterminate } = this.getValue()
-
-    const classNames = classnames({ indeterminate }, className)
-
-    return (
-      <Switch
-        onChange={this.onChange}
-        {...rest}
-        checked={checked}
-        className={classNames}
-      />
-    )
-  }
+  return (
+    <Switch
+      onChange={onChange}
+      {...rest}
+      checked={value.checked}
+      className={classNames}
+    />
+  )
 }
 
-export default withElectricity(ElectricSwitch) as React.ComponentType<
-  SwitchProps
->
+export default ElectricSwitch
