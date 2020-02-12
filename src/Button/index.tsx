@@ -4,9 +4,11 @@ import {
   InjectedElectricityProps,
   StateTree,
   removeElectricProps,
+  useSendCallback,
+  useWriteState,
   withElectricity,
 } from '@electricui/components-core'
-import React, { Component, ReactNode } from 'react'
+import React, { Component, ReactNode, useCallback } from 'react'
 
 import { CALL_CALLBACK } from '@electricui/core'
 import { Draft } from 'immer'
@@ -40,58 +42,36 @@ interface ElectricButtonProps extends IButtonProps {
  * @name Button
  * @props ElectricButtonProps
  */
-class ElectricButton extends Component<
-  ElectricButtonProps & InjectedElectricityProps
-> {
-  static readonly accessorKeys = []
+export default function ElectricButton(props: ElectricButtonProps) {
+  const sendCallback = useSendCallback()
+  const writeState = useWriteState()
 
-  static generateAccessorsFromProps = (props: ElectricButtonProps) => {
-    return []
-  }
+  const allOnClick = useCallback(
+    (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+      if (props.disabled) {
+        return
+      }
 
-  onClick = () => {
-    const { generateStaging, writeStaged, writer, write, noAck } = this.props
+      // If we have a writer, call it now
+      if (props.writer) {
+        writeState(props.writer, !props.noAck)
+      }
 
-    if (!writer) {
-      return
-    }
+      // If there is a callback to call after our write, do it now
+      if (props.callback) {
+        sendCallback(props.callback, !props.noAck)
+      }
 
-    if (typeof writer === 'function') {
-      const staging = generateStaging()
-      writer(staging)
-      writeStaged(staging, !noAck)
-      return
-    }
+      // If there's a regular JS onClick handler, call it
+      if (props.onClick) {
+        props.onClick(event)
+      }
+    },
+    [props.writer, props.onClick, props.callback, props.noAck, props.disabled],
+  )
 
-    write(writer, !noAck)
-  }
+  const disabled = props.disabled
+  const rest = removeElectricProps(props, ['writer', 'noAck'])
 
-  allOnClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    const { write, onClick, callback, noAck, disabled } = this.props
-
-    if (disabled) {
-      return
-    }
-
-    this.onClick()
-
-    if (callback) {
-      write({ [callback]: CALL_CALLBACK }, !noAck)
-    }
-
-    if (typeof onClick === 'function') {
-      onClick(event)
-    }
-  }
-
-  render() {
-    const disabled = this.props.disabled
-    const rest = removeElectricProps(this.props, ['writer', 'noAck'])
-
-    return <Button onClick={this.allOnClick} {...rest} disabled={disabled} />
-  }
+  return <Button onClick={allOnClick} {...rest} disabled={disabled} />
 }
-
-export default withElectricity(ElectricButton) as React.ComponentType<
-  ElectricButtonProps
->
