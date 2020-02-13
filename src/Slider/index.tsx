@@ -1,17 +1,20 @@
 import {
-  Accessor,
-  InjectedElectricityProps,
-  StateTree,
+  FunctionalAccessorCommittedAndPushed,
   removeElectricProps,
-  withElectricity,
+  useCommitStateStaged,
+  useHardwareState,
+  usePushMessageIDs,
 } from '@electricui/components-core'
 import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
-import React, { Component } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import { isElementOfType } from '../utils'
+import throttle from 'lodash.throttle'
 import { unstable_batchedUpdates } from 'react-dom'
+
+type CommonHandleProps = Omit<IHandleProps, 'onChange' | 'onRelease' | 'value'>
 
 /**
  * Slider Props
@@ -19,11 +22,11 @@ import { unstable_batchedUpdates } from 'react-dom'
  * @remove onRelease
  * @remove value
  */
-interface ExtendedSliderHandleProps extends IHandleProps {
+interface SliderHandlePropsStringAccessor extends CommonHandleProps {
   /**
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the SliderHandle.
    */
-  accessor: Accessor
+  accessor: string
   /**
    * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
    * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
@@ -32,31 +35,53 @@ interface ExtendedSliderHandleProps extends IHandleProps {
   name?: string
 }
 
-type HandleProps = Omit<
-  ExtendedSliderHandleProps,
-  'onChange' | 'onRelease' | 'value'
->
+interface SliderHandleProps extends CommonHandleProps {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the SliderHandle.
+   */
+  accessor: FunctionalAccessorCommittedAndPushed<number>
+  /**
+   * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
+   * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
+   * This name will be used as the key of a hashmap passed to the Slider's Writer, to convert the combination of all SliderHandle values into a StateTree to write to the device.
+   */
+  name: string
+}
+
+type HandleProps = SliderHandlePropsStringAccessor | SliderHandleProps
 
 /**
  * A Slider handle
  * @module components-desktop-blueprint
  * @name Slider.SliderHandle
- * @props ExtendedSliderHandleProps
+ * @props HandleProps
  */
-export class ElectricSliderHandle extends React.Component<HandleProps> {
-  static readonly displayName = 'SliderHandle'
+export function ElectricSliderHandle(props: HandleProps) {
+  return null
 }
+ElectricSliderHandle.displayName = 'SliderHandle'
 
 type SliderValues = {
   [key: string]: number
 }
 
-/**
- * Slider Props
- * @remove onChange
- * @remove onRelease
- */
-interface ExtendedSliderProps extends IMultiSliderProps {
+type SliderPropsNoEventHandlers = Omit<
+  IMultiSliderProps,
+  'onChange' | 'onRelease'
+>
+
+interface CommonSliderProps extends SliderPropsNoEventHandlers {
+  /**
+   * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the updated state will be written to the device.
+   */
+  sendOnlyOnRelease?: boolean
+  /**
+   * Throttle hardware updates to once every n milliseconds, by default 100ms.
+   */
+  throttleDuration?: number
+}
+
+interface SliderPropsWithWriter extends CommonSliderProps {
   /**
    * A Slider handle or an array of slider handles.
    * @type <Slider.SliderHandle /> | <Slider.SliderHandle />[]
@@ -66,26 +91,34 @@ interface ExtendedSliderProps extends IMultiSliderProps {
    * If all the SliderHandles' Accessors are merely messageIDs, this Writer is optional.
    * If any Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
+  writer: (
+    staging: Draft<ElectricUIDeveloperState>,
+    sliderValues: SliderValues,
+  ) => void
+}
+
+/**
+ * If all the Sliders have simple MessageID accessors, the writer is optional
+ */
+interface SliderPropsAutomaticWriter extends CommonSliderProps {
+  /**
+   * A Slider handle or an array of slider handles.
+   * @type <Slider.SliderHandle /> | <Slider.SliderHandle />[]
+   */
+  children:
+    | React.ReactElement<SliderHandlePropsStringAccessor>[]
+    | React.ReactElement<SliderHandlePropsStringAccessor>
+  /**
+   * If all the SliderHandles' Accessors are merely messageIDs, this Writer is optional.
+   * If any Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
+   */
   writer?: (
     staging: Draft<ElectricUIDeveloperState>,
     sliderValues: SliderValues,
   ) => void
-  /**
-   * If this is true, intermediate values while dragging will be added to the UI StateTree but not sent to the device. When the handle is released, the updated state will be written to the device.
-   */
-  sendOnlyOnRelease?: boolean
 }
 
-// Remove the props that we will handle
-type SliderProps = Omit<ExtendedSliderProps, 'onChange' | 'onRelease'> &
-  InjectedElectricityProps
-
-type SliderPropsPublic = Omit<ExtendedSliderProps, 'onChange' | 'onRelease'>
-
-interface MutableReaderState {
-  mutableValues: number[]
-  focused: boolean
-}
+type SliderProps = SliderPropsWithWriter | SliderPropsAutomaticWriter
 
 function propsToHandleProps(props: SliderProps) {
   return React.Children.map(props.children, child =>
@@ -93,15 +126,29 @@ function propsToHandleProps(props: SliderProps) {
   ).filter(child => child !== null) as Array<HandleProps>
 }
 
+function convertArrayValuesToHashmap(
+  handleProps: Array<HandleProps>,
+  values: number[],
+) {
+  const childAccessorKeys = handlePropsToAccessorKey(handleProps)
+
+  const sliderValues: { [key: string]: number } = {}
+
+  // For each handle, get the value
+  handleProps.forEach((props, index) => {
+    sliderValues[childAccessorKeys[index]] = values[index]
+  })
+
+  return sliderValues
+}
+
 function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   return handleProps.map(props => {
     if (typeof props.accessor !== 'string') {
       if (typeof props.name === 'undefined') {
-        console.error(
+        throw new Error(
           'If a Slider Handle Accessor is a function it needs a name',
         )
-
-        return 'unknown'
       }
 
       return props.name
@@ -111,236 +158,151 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   })
 }
 
+const defaultWriter = (
+  staging: Draft<ElectricUIDeveloperState>,
+  sliderValues: SliderValues,
+) => {
+  for (const messageID of Object.keys(sliderValues)) {
+    staging[messageID] = sliderValues[messageID]
+  }
+}
+
 /**
  * Slider
  * @module components-desktop-blueprint
  * @name Slider
  * @props ExtendedSliderProps
  */
-class ElectricSlider extends React.Component<SliderProps, MutableReaderState> {
-  public static readonly displayName = 'Slider'
-  static readonly accessorKeys = []
-  state: MutableReaderState = {
-    mutableValues: [],
-    focused: false,
-  }
-  messageIDsNeedAck: string[] = []
+function ElectricSlider(props: SliderProps) {
+  const [focused, setFocused] = useState(false)
+  const [localState, setLocalState] = useState<number[] | null>(null)
+  const [generateStaging, commitStaged] = useCommitStateStaged()
+  const pushMessageIDs = usePushMessageIDs()
+  const messageIDsNeedAcking = useRef<Set<string>>(new Set())
 
-  static generateAccessorsFromProps = (props: SliderProps) => {
-    // Iterate over this components children
-    // If the child is a handle, grab its props
-    // filter out non-handles
-    const handleProps = propsToHandleProps(props)
+  const sliderProps = removeElectricProps(props, ['children', 'writer'])
 
-    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
+  const handleProps = propsToHandleProps(props)
+  const childAccessorKeys = handlePropsToAccessorKey(handleProps)
 
-    const accessorObjects = handleProps.map((props, index) => ({
-      accessorKey: childAccessorKeys[index],
-      accessor: props.accessor,
-    }))
-
-    return accessorObjects
-  }
-
-  defaultWriter = (
-    staging: Draft<ElectricUIDeveloperState>,
-    sliderValues: SliderValues,
-  ) => {
-    for (const messageID of Object.keys(sliderValues)) {
-      staging[messageID] = sliderValues[messageID]
-    }
-  }
-
-  getWriter = () => {
-    const { writer } = this.props
-
-    if (writer) {
-      return writer
+  const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
     }
 
-    return this.defaultWriter
-  }
+    return defaultWriter
+  }, [props.writer])
 
-  convertArrayValuesToHashmap = (values: number[]) => {
-    const handleProps = propsToHandleProps(this.props)
-    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
+  const performWrite = useCallback(
+    throttle(
+      (values: number[], release: boolean) => {
+        const sliderValues = convertArrayValuesToHashmap(handleProps, values)
 
-    const sliderValues: { [key: string]: number } = {}
+        const staging = generateStaging() // Generate the staging
+        writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
 
-    // For each handle, get the value
-    handleProps.forEach((props, index) => {
-      sliderValues[childAccessorKeys[index]] = values[index]
-    })
+        const messageIDs = commitStaged(staging)
+        // If the handle is held down for more than `props.throttleDuration`ms, then the committed state
+        // will be modified twice with the same values, the second time, no changes will be detected
+        // but the message would not have been acked.
+        // remembering the messageIDs that changed, we can force an ack later.
+        for (const messageID of messageIDs) {
+          messageIDsNeedAcking.current.add(messageID)
+        }
 
-    return sliderValues
-  }
+        if (props.sendOnlyOnRelease && !release) {
+          return
+        }
 
-  getLocalValue = () => {
-    return this.state.mutableValues
-  }
+        pushMessageIDs(Array.from(messageIDsNeedAcking.current), release) // Only ack on release
 
-  getFocused = () => {
-    return this.state.focused
-  }
+        // Clear the messageIDs to ack on release
+        if (release) {
+          messageIDsNeedAcking.current.clear()
+        }
+      },
+      // throttle options
+      props.throttleDuration ?? 100,
+      { leading: true, trailing: true },
+    ),
+    // callback deps
+    [writer, props.throttleDuration, props.sendOnlyOnRelease],
+  )
 
-  /**
-   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
-   */
-  setLocalValue = (values: number[]) => {
-    this.setState({ mutableValues: values, focused: true })
-  }
+  const handleChange = useCallback(
+    (values: number[]) => {
+      unstable_batchedUpdates(() => {
+        performWrite(values, false)
+        // We're focused
+        setFocused(true)
+        setLocalState(values)
+      })
+    },
+    [performWrite],
+  )
 
-  handleChange = (values: number[]) => {
-    const {
-      commitStaged,
-      push,
-      generateStaging,
-      sendOnlyOnRelease,
-    } = this.props
+  const handleRelease = useCallback(
+    (values: number[]) => {
+      unstable_batchedUpdates(() => {
+        performWrite(values, true)
+        // We're no longer focused
+        setFocused(false)
+        setLocalState(values)
+      })
+    },
+    [performWrite],
+  )
 
-    const sliderValues = this.convertArrayValuesToHashmap(values)
+  let isValid = true
 
-    const writer = this.getWriter()
+  const hardwareState = handleProps.map((handleProp, index) => {
+    const value = useHardwareState(handleProp.accessor)
 
-    const staging = generateStaging() // Generate the staging
-    writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
-
-    // Batch the local update and the global reducer update into the same react reconciliation
-    unstable_batchedUpdates(() => {
-      const messageIDs = commitStaged(staging)
-      this.messageIDsNeedAck = messageIDs
-      this.setLocalValue(values)
-    })
-
-    if (sendOnlyOnRelease) {
-      return
+    if (typeof value !== 'number') {
+      isValid = false
     }
 
-    push(this.messageIDsNeedAck, false) // we never ack on movement, so don't reset the list
+    return value
+  })
+
+  if (!isValid) {
+    return <MultiSlider {...sliderProps} disabled={true} />
   }
 
-  handleRelease = (values: number[]) => {
-    const { commitStaged, push, generateStaging } = this.props
-    const sliderValues = this.convertArrayValuesToHashmap(values)
+  // If we're focussed, return local state if we can.
+  const stateToDisplay = (focused
+    ? hardwareState.map((hardwareState, index) => {
+        // we're focused, so grab the local state if we can instead
+        if (localState) {
+          return localState[index]
+        }
 
-    const writer = this.getWriter()
-    const staging = generateStaging() // Generate the staging
-    writer(staging, sliderValues) // The writer mutates the staging into a 'staged'
+        return hardwareState
+      })
+    : hardwareState) as number[] // nothing will be null by now, we bailed with the isValid check
 
-    const messageIDs = commitStaged(staging)
-
-    this.messageIDsNeedAck = [...this.messageIDsNeedAck, ...messageIDs]
-
-    push(this.messageIDsNeedAck, true)
-    this.messageIDsNeedAck = [] // reset our mutated MessageIDs list
-
-    this.setState({ focused: false })
-  }
-
-  getValues = () => {
-    // Grab the handle props
-    const handleProps = propsToHandleProps(this.props)
-    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
-
-    const { access } = this.props
-
-    const sliderValues: { [key: string]: number } = {}
-
-    // For each handle, get the value
-    handleProps.forEach((props, index) => {
-      sliderValues[childAccessorKeys[index]] = access(childAccessorKeys[index])
-    })
-
-    return sliderValues
-  }
-
-  getChildProps = () => {
-    return React.Children.map(this.props.children, child =>
-      isElementOfType(child, ElectricSliderHandle) ? child.props : null,
-    ).filter(child => child !== null)
-  }
-
-  /**
-   * Get the initial state
-   */
-  static getDerivedStateFromProps(
-    props: SliderProps,
-    state: MutableReaderState,
-  ) {
-    const handleProps = propsToHandleProps(props)
-    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
-
-    const { access } = props
-
-    const sliderValues: { [key: string]: number } = {}
-
-    // For each handle, get the value
-    handleProps.forEach((props, index) => {
-      sliderValues[childAccessorKeys[index]] = access(childAccessorKeys[index])
-    })
-
-    return {
-      focused: false,
-      mutableValues: sliderValues,
-    }
-  }
-
-  // onTouchStart onTouchEnd
-
-  render() {
-    const { access } = this.props
-
-    const sliderProps = removeElectricProps(this.props, ['children', 'writer'])
-
-    const handleProps = propsToHandleProps(this.props)
-    const childAccessorKeys = handlePropsToAccessorKey(handleProps)
-
-    let isValid = true
-
-    handleProps.forEach((handlePropList, index) => {
-      const value = access(childAccessorKeys[index])
-
-      if (typeof value !== 'number') {
-        isValid = false
-      }
-    })
-
-    if (!isValid) {
-      return <MultiSlider {...sliderProps} disabled={true} />
-    }
-
-    return (
-      <MultiSlider
-        onChange={this.handleChange}
-        onRelease={this.handleRelease}
-        {...sliderProps}
-      >
-        {handleProps.map((handlePropList, index) => {
-          const key = childAccessorKeys[index]
-          const value = this.getFocused()
-            ? this.getValues()[index]
-            : access(key)
-
-          if (typeof value !== 'number') {
-            return null
-          }
-
-          const { accessor, name, ...restHandle } = handlePropList
-          return <MultiSlider.Handle {...restHandle} value={value} key={key} />
-        })}
-      </MultiSlider>
-    )
-  }
+  return (
+    <MultiSlider
+      onChange={handleChange}
+      onRelease={handleRelease}
+      {...sliderProps}
+    >
+      {handleProps.map((handlePropList, index) => {
+        const { accessor, name, ...restHandle } = handlePropList
+        const val = stateToDisplay[index]
+        return (
+          <MultiSlider.Handle
+            {...restHandle}
+            value={val}
+            key={childAccessorKeys[index]}
+          />
+        )
+      })}
+    </MultiSlider>
+  )
 }
 
-const SliderWithElectricity = withElectricity(ElectricSlider)
-// The withElectricity HOC strips static methods that aren't part of react
-// So we need to add the Handle manually and coax the types back to what we want
-const SliderWithHandle = SliderWithElectricity as React.ComponentClass<
-  SliderPropsPublic
-> & {
-  Handle: typeof ElectricSliderHandle
-}
-SliderWithHandle.Handle = ElectricSliderHandle
+// Add the handle to the component
+ElectricSlider.Handle = ElectricSliderHandle
 
-export default SliderWithHandle
+export default ElectricSlider
