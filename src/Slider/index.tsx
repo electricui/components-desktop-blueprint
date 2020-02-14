@@ -232,10 +232,10 @@ function ElectricSlider(props: SliderProps) {
   const handleChange = useCallback(
     (values: number[]) => {
       unstable_batchedUpdates(() => {
-        performWrite(values, false)
         // We're focused
         setFocused(true)
         setLocalState(values)
+        performWrite(values, false)
       })
     },
     [performWrite],
@@ -244,10 +244,10 @@ function ElectricSlider(props: SliderProps) {
   const handleRelease = useCallback(
     (values: number[]) => {
       unstable_batchedUpdates(() => {
-        performWrite(values, true)
         // We're no longer focused
         setFocused(false)
         setLocalState(values)
+        performWrite(values, true)
       })
     },
     [performWrite],
