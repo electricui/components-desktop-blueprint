@@ -20,7 +20,7 @@
     "@electricui/components-desktop-charts": "^0.6.15-prerelease.15",
     "@electricui/core": "^0.6.15-prerelease.15",
     "@electricui/core-timeseries": "^0.6.15-prerelease.15",
-    "atomic-layout": "^0.10.2",
+    "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
