@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@blueprintjs/core'
 import { DataSourceReference } from '@electricui/core-timeseries'
 import { remote } from 'electron'
-import { useEventLogger } from '@electricui/components-desktop-charts'
+import { useCSVEventLogger } from '@electricui/components-desktop-charts'
 
 const { dialog } = remote
 
@@ -26,7 +26,7 @@ export const EventCSVLogger = (props: EventCSVLoggerProps) => {
     [props.timestampColumnFormat, props.timestampColumnName],
   )
 
-  const [loggerInfo, setPath, setLogging] = useEventLogger(
+  const [loggerInfo, setPath, setLogging] = useCSVEventLogger(
     props.dataSource,
     memoisedOptions,
   )

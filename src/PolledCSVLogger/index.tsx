@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@blueprintjs/core'
 import { DataSourceReference } from '@electricui/core-timeseries'
 import { remote } from 'electron'
-import { usePolledLogger } from '@electricui/components-desktop-charts'
+import { useCSVPolledLogger } from '@electricui/components-desktop-charts'
 
 const { dialog } = remote
 
@@ -31,7 +31,7 @@ export const PolledCSVLogger = (props: PolledCSVLoggerProps) => {
     [props.timestampColumnFormat, props.timestampColumnName],
   )
 
-  const [loggerInfo, setPath, setLogging] = usePolledLogger(
+  const [loggerInfo, setPath, setLogging] = useCSVPolledLogger(
     props.dataSource,
     props.interval,
     props.columns,
