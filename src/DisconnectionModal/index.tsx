@@ -1,8 +1,8 @@
+import { Alert, IconName, Intent } from '@blueprintjs/core'
 import React, { ReactNode } from 'react'
-import { Alert, Intent, IconName } from '@blueprintjs/core'
 import {
-  useDeviceHasAcceptableConnection,
   useDeviceDisconnect,
+  useDeviceHasAcceptableConnection,
 } from '@electricui/components-core'
 
 type DisconnectionModalProps = {
@@ -20,6 +20,12 @@ type DisconnectionModalProps = {
   children?: ReactNode
 }
 
+/**
+ * DisconnectionModal
+ * @module components-desktop-blueprint
+ * @name DisconnectionModal
+ * @props DisconnectionModalProps
+ */
 const DisconnectionModal = ({
   navigateToConnectionsScreen,
   backText,
