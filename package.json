@@ -59,9 +59,12 @@
   "peerDependencies": {
     "electron": "*",
     "immer": "*",
-    "react": ">=16.12.0",
+    "react": ">=16.13.0",
     "react-dom": ">16.10.0",
-    "react-pose": "*"
+    "react-pose": "*",
+    "react-redux": "*",
+    "redux": "*",
+    "styled-components": ">=4.0.0"
   },
   "scripts": {
     "prepack": "silversmith prepack",
