@@ -23,7 +23,8 @@
     "classnames": "^2.2.6",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
-    "react-helmet": "^5.2.1"
+    "react-helmet": "^5.2.1",
+    "immer": "^5.3.6"
   },
   "devDependencies": {
     "@electricui/build-rollup-config": "^0.6.15-prerelease.25",
@@ -42,7 +43,6 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "electron": "^7.1.1",
-    "immer": "^5.3.5",
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
     "nyc": "^13.3.0",
@@ -58,7 +58,6 @@
   },
   "peerDependencies": {
     "electron": "*",
-    "immer": "*",
     "react": ">=16.13.0",
     "react-dom": ">16.10.0",
     "react-pose": "*",
