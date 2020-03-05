@@ -21,7 +21,7 @@
     "@electricui/core-timeseries": "^0.6.15-prerelease.39",
     "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",
-    "immer": "^5.3.6",
+    "immer": "^6.0.1",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "react-helmet": "^5.2.1"
