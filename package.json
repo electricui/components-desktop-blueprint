@@ -42,7 +42,7 @@
     "@types/sinon": "^7.0.6",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "electron": "^7.1.1",
+    "electron": "^8.0.3",
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
     "nyc": "^13.3.0",
