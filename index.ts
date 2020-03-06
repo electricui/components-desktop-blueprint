@@ -24,3 +24,5 @@ export { default as ResetButton } from './src/ResetButton'
 export { default as NoIPCModal } from './src/NoIPCModal'
 export { default as RefreshIndicator } from './src/RefreshIndicator'
 export { default as RefreshSpinner } from './src/RefreshIndicator/spinner'
+
+import './normalize.css'
