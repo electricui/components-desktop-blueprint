@@ -97,8 +97,6 @@ const useConnectWithTimeout = (
   const connect = useDeviceConnect(deviceID)
   const disconnect = useDeviceDisconnect(deviceID)
 
-  const timeoutTime = 10000
-
   const connectWithCBs = useCallback(() => {
     preConnect(deviceID)
 
@@ -111,18 +109,13 @@ const useConnectWithTimeout = (
       .catch(err => {
         console.log('caught error in connections page', err)
         onFailure(deviceID, err)
-        disconnect()
+        disconnect().catch(errDisconnect => {
+          console.log(
+            'Could not disconnect after failed connection!',
+            errDisconnect,
+          )
+        })
       })
-
-    /*
-    // our timeout
-    useEffect(() => {
-      const timeout = setTimeout(() => {}, timeoutTime)
-
-      return () => {
-        clearTimeout(timeout)
-      }
-    })*/
   }, [deviceID])
 
   return connectWithCBs
