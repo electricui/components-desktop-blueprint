@@ -104,6 +104,7 @@ const useConnectWithTimeout = (
 
     connect()
       .then(() => {
+        console.log('connection occurred')
         postHandshake(deviceID)
       })
       .catch(err => {
