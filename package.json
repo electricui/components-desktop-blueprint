@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -17,7 +17,7 @@
     "@blueprintjs/core": "^3.22.0",
     "@blueprintjs/icons": "^3.12.0",
     "@electricui/components-core": "^0.7.2",
-    "@electricui/components-desktop": "^0.7.2",
+    "@electricui/components-desktop": "^0.7.3",
     "@electricui/core": "^0.7.2",
     "@electricui/core-timeseries": "^0.7.2",
     "atomic-layout": "^0.13.0",
