@@ -45,6 +45,7 @@ const debugOptions = [
       'electricui-core:connection',
       'electricui-core:device',
       'electricui-core:device-manager',
+      'electricui-core:discovery-manager',
       'electricui-core:validation-worker',
       'electricui-core:router-log-ratio:result',
       'electricui-core:router-log-ratio:calculations',
