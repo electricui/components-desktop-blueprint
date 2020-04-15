@@ -51,12 +51,16 @@ export default function ElectricButton(props: ElectricButtonProps) {
 
       // If we have a writer, call it now
       if (props.writer) {
-        writeState(props.writer, !props.noAck)
+        writeState(props.writer, !props.noAck).catch(err => {
+          console.warn('Could not write state from button', err)
+        })
       }
 
       // If there is a callback to call after our write, do it now
       if (props.callback) {
-        sendCallback(props.callback, !props.noAck)
+        sendCallback(props.callback, !props.noAck).catch(err => {
+          console.warn('Unable to send callback from button', err)
+        })
       }
 
       // If there's a regular JS onClick handler, call it
