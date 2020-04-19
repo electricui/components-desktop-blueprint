@@ -69,7 +69,7 @@ const NoDevices = () => {
         title="No devices found"
         description={
           <ConsecutivePollFailureMessage>
-            {noIncreases =>
+            {(noIncreases) =>
               noIncreases >= 3 ? <div>Hey maybe try something else?</div> : null
             }
           </ConsecutivePollFailureMessage>
@@ -105,12 +105,12 @@ const useConnectWithTimeout = (
     connect()
       .then(() => {
         console.log('connection occurred')
-        postHandshake(deviceID)
+        return postHandshake(deviceID)
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('caught error in connections page', err)
         onFailure(deviceID, err)
-        disconnect().catch(errDisconnect => {
+        return disconnect().catch((errDisconnect) => {
           console.log(
             'Could not disconnect after failed connection!',
             errDisconnect,
@@ -293,7 +293,7 @@ const DeviceLine = (props: DeviceLineProps) => {
                 }}
               >
                 <div>
-                  {connectionHashes.map(connectionHash => (
+                  {connectionHashes.map((connectionHash) => (
                     <ConnectionHash
                       deviceID={deviceID}
                       connectionHash={connectionHash}
@@ -318,7 +318,7 @@ const Connections = (props: ConnectionsProps) => {
 
   const maxWidthWithDefault = maxWidth || 400
 
-  const list = deviceIDs.map(deviceID => (
+  const list = deviceIDs.map((deviceID) => (
     <DeviceLine
       key={deviceID}
       deviceID={deviceID}

@@ -7,11 +7,12 @@ import {
   withElectricity,
 } from '@electricui/components-core'
 import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
-import React, { Component, ReactNode } from 'react'
+import React, { Component } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
+import { generateWriteErrHandler } from 'src/utils'
 
 type UpstreamTextInputProps = Omit<
   IInputGroupProps,
@@ -61,7 +62,7 @@ class ElectricTextInput extends Component<
     focused: false,
   }
 
-  static generateAccessorsFromProps = (props: TextInputProps) => []
+  static generateAccessorsFromProps = () => []
 
   debouncedPush: (toWrite: StateTree) => void
 
@@ -123,7 +124,14 @@ class ElectricTextInput extends Component<
 
   push(keysToWrite: string[]) {
     const { push } = this.props
-    push(keysToWrite, true)
+    push(keysToWrite, true).catch(
+      generateWriteErrHandler(
+        (err) =>
+          this.setState(() => {
+            throw err
+          }), // make the callback inline since this isn't hooks based
+      ),
+    )
   }
 
   onChange = (event: React.FormEvent<HTMLInputElement>) => {
@@ -145,11 +153,11 @@ class ElectricTextInput extends Component<
   /**
    * On focus, enter user input mode and just in time override our mutable value with the hardware state
    */
-  onFocus = (event: React.FormEvent<HTMLInputElement>) => {
+  onFocus = () => {
     this.setState({ focused: true, mutableValue: this.getValue() })
   }
 
-  onBlur = (event: React.FormEvent<HTMLInputElement>) => {
+  onBlur = () => {
     this.setState({ focused: false })
   }
 

@@ -4,11 +4,13 @@ import React, { ReactNode, useCallback } from 'react'
 import {
   StateTree,
   removeElectricProps,
+  useAsyncThrow,
   useSendCallback,
   useWriteState,
 } from '@electricui/components-core'
 
 import { Draft } from 'immer'
+import { generateWriteErrHandler } from 'src/utils'
 
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation
@@ -42,6 +44,7 @@ interface ElectricButtonProps extends IButtonProps {
 export default function ElectricButton(props: ElectricButtonProps) {
   const sendCallback = useSendCallback()
   const writeState = useWriteState()
+  const asyncThrow = useAsyncThrow()
 
   const allOnClick = useCallback(
     (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -51,16 +54,16 @@ export default function ElectricButton(props: ElectricButtonProps) {
 
       // If we have a writer, call it now
       if (props.writer) {
-        writeState(props.writer, !props.noAck).catch(err => {
-          console.warn('Could not write state from button', err)
-        })
+        writeState(props.writer, !props.noAck).catch(
+          generateWriteErrHandler(asyncThrow),
+        )
       }
 
       // If there is a callback to call after our write, do it now
       if (props.callback) {
-        sendCallback(props.callback, !props.noAck).catch(err => {
-          console.warn('Unable to send callback from button', err)
-        })
+        sendCallback(props.callback, !props.noAck).catch(
+          generateWriteErrHandler(asyncThrow),
+        )
       }
 
       // If there's a regular JS onClick handler, call it

@@ -3,16 +3,17 @@ import {} from '@electricui/build-rollup-config'
 import {
   FunctionalAccessorCommittedAndPushed,
   removeElectricProps,
+  useAsyncThrow,
   useCommitStateStaged,
   useHardwareState,
   usePushMessageIDs,
 } from '@electricui/components-core'
 import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { generateWriteErrHandler, isElementOfType } from '../utils'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
-import { isElementOfType } from '../utils'
 import throttle from 'lodash.throttle'
 import { unstable_batchedUpdates } from 'react-dom'
 
@@ -128,22 +129,6 @@ function propsToHandleProps(props: SliderProps) {
   ).filter((child) => child !== null) as Array<HandleProps>
 }
 
-function convertArrayValuesToHashmap(
-  handleProps: Array<HandleProps>,
-  values: number[],
-) {
-  const childAccessorKeys = handlePropsToAccessorKey(handleProps)
-
-  const sliderValues: { [key: string]: number } = {}
-
-  // For each handle, get the value
-  handleProps.forEach((props, index) => {
-    sliderValues[childAccessorKeys[index]] = values[index]
-  })
-
-  return sliderValues
-}
-
 function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   return handleProps.map((props) => {
     if (typeof props.accessor !== 'string') {
@@ -158,6 +143,22 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
 
     return props.accessor
   })
+}
+
+function convertArrayValuesToHashmap(
+  handleProps: Array<HandleProps>,
+  values: number[],
+) {
+  const childAccessorKeys = handlePropsToAccessorKey(handleProps)
+
+  const sliderValues: { [key: string]: number } = {}
+
+  // For each handle, get the value
+  handleProps.forEach((props, index) => {
+    sliderValues[childAccessorKeys[index]] = values[index]
+  })
+
+  return sliderValues
 }
 
 const defaultWriter = (
@@ -181,6 +182,7 @@ function ElectricSlider(props: SliderProps) {
   const [generateStaging, commitStaged] = useCommitStateStaged()
   const pushMessageIDs = usePushMessageIDs()
   const messageIDsNeedAcking = useRef<Set<string>>(new Set())
+  const asyncThrow = useAsyncThrow()
 
   const sliderProps = removeElectricProps(props, ['children', 'writer'])
 
@@ -229,17 +231,14 @@ function ElectricSlider(props: SliderProps) {
         const pushPromise = pushMessageIDs(
           Array.from(messageIDsNeedAcking.current),
           release,
-        ).catch((err) => {
-          if (__DEV__) {
-            console.warn('Captured error in slider', err)
-          }
-        })
+        ).catch(generateWriteErrHandler(asyncThrow))
 
         // Clear the messageIDs to ack on release
         if (release) {
           messageIDsNeedAcking.current.clear()
 
-          // Update the last push ID on release
+          // We already caught the promise, don't catch it again
+          // eslint-disable-next-line promise/catch-or-return
           pushPromise.finally(() => {
             // When it's received by hardware, update our last push finished ID
             lastPushFinishedID.current = thisPushID

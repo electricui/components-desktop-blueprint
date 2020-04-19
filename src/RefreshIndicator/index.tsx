@@ -10,11 +10,12 @@ interface RefreshIndicatorProps {
 const RefreshIndicator = (props: RefreshIndicatorProps) => {
   return (
     <RootRefreshIndicator
-      children={props.children}
       renderIfLoading={
         props.renderIfLoading ? props.renderIfLoading : <RefreshSpinner />
       }
-    />
+    >
+      {props.children}
+    </RootRefreshIndicator>
   )
 }
 

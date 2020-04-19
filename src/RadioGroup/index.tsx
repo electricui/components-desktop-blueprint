@@ -12,10 +12,10 @@ import {
   RadioGroup,
 } from '@blueprintjs/core'
 import React, { Component } from 'react'
+import { generateWriteErrHandler, isElementOfType } from '../utils'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
-import { isElementOfType } from '../utils'
 
 type UpstreamRadioProps = Omit<
   IRadioProps,
@@ -80,9 +80,9 @@ interface RadioGroupProps extends UpstreamRadioGroupProps {
 }
 
 function propsToRadioProps(props: RadioGroupProps) {
-  return React.Children.map(props.children, child =>
+  return React.Children.map(props.children, (child) =>
     isElementOfType(child, ElectricRadio) ? child.props : null,
-  ).filter(child => child !== null) as Array<RadioProps>
+  ).filter((child) => child !== null) as Array<RadioProps>
 }
 
 /**
@@ -137,7 +137,7 @@ class ElectricRadioGroup extends React.Component<
     let valueToWrite: string | number = clickedValue
 
     // Iterate over every child radio prop to see if we can find the actual type of the value
-    radioPropsList.forEach(radioProps => {
+    radioPropsList.forEach((radioProps) => {
       const radioValue = radioProps.value
 
       if (typeof radioValue === 'string') {
@@ -153,7 +153,14 @@ class ElectricRadioGroup extends React.Component<
 
     const staging = generateStaging() // Generate the staging
     writer(staging, valueToWrite) // The writer mutates the staging into a 'staged'
-    writeStaged(staging, true) // Write the 'staged' version
+    writeStaged(staging, true).catch(
+      generateWriteErrHandler(
+        (err) =>
+          this.setState(() => {
+            throw err
+          }), // make the callback inline since this isn't hooks based
+      ),
+    ) // Write the 'staged' version
   }
 
   getSelectedValue = () => {

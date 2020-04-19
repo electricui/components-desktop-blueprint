@@ -1,11 +1,12 @@
-import React, { ReactNode } from 'react'
-import { isElementOfType } from '../utils'
 import './index.css'
 
+import React, { ReactNode } from 'react'
+
 import { Accessor } from '@electricui/components-core'
-import { Printer } from '@electricui/components-desktop'
 import { INTENT_COLOR_MAP } from './../colors'
 import { Intent } from '@blueprintjs/core'
+import { Printer } from '@electricui/components-desktop'
+import { isElementOfType } from '../utils'
 
 /*
   <Statistics>
@@ -158,7 +159,7 @@ const Statistic = (props: StatisticProps) => {
   }
 
   if (props.children) {
-    const { children, ...rest } = props
+    const { children } = props
     return (
       <div className="eui statistic" style={mixedStyle}>
         {children}
@@ -171,8 +172,9 @@ const Statistic = (props: StatisticProps) => {
           suffix={props.suffix}
           prefix={props.prefix}
           accessor={props.accessor}
-          children={val || undefined}
-        />
+        >
+          {val}
+        </StatisticValue>
         <StatisticLabel>{props.label}</StatisticLabel>
       </div>
     )
@@ -189,6 +191,20 @@ Statistic.displayName = 'Statistic'
 
   In which case the Statistic will need to include its own minWidth style prop to make them spaced evenly.
 */
+
+function hasStatisticChildren(props: StatisticsProps) {
+  return (
+    React.Children.map(props.children, (child) =>
+      isElementOfType(child, Statistic) ? child.props : null,
+    ).filter((child) => child !== null).length > 0
+  )
+}
+
+function propsToStatisticProps(props: StatisticsProps) {
+  return React.Children.map(props.children, (child) =>
+    isElementOfType(child, Statistic) ? child.props : null,
+  ).filter((child) => child !== null) as Array<StatisticProps>
+}
 
 /**
  * Statistics
@@ -215,19 +231,6 @@ export const Statistics = (props: StatisticsProps) => {
       ))}
     </div>
   )
-}
-
-function hasStatisticChildren(props: StatisticsProps) {
-  return (
-    React.Children.map(props.children, child =>
-      isElementOfType(child, Statistic) ? child.props : null,
-    ).filter(child => child !== null).length > 0
-  )
-}
-function propsToStatisticProps(props: StatisticsProps) {
-  return React.Children.map(props.children, child =>
-    isElementOfType(child, Statistic) ? child.props : null,
-  ).filter(child => child !== null) as Array<StatisticProps>
 }
 
 export default Statistic

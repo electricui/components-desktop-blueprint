@@ -4,6 +4,7 @@ import {
   InjectedElectricityProps,
   StateTree,
   removeElectricProps,
+  useAsyncThrow,
   withElectricity,
 } from '@electricui/components-core'
 import { INumericInputProps, NumericInput } from '@blueprintjs/core'
@@ -12,6 +13,7 @@ import React, { Component, ReactNode } from 'react'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
+import { generateWriteErrHandler } from 'src/utils'
 
 type UpstreamNumberInputProps = Omit<
   INumericInputProps,
@@ -124,7 +126,14 @@ class ElectricNumberInput extends Component<
 
   push(keysToWrite: string[]) {
     const { push } = this.props
-    push(keysToWrite, true)
+    push(keysToWrite, true).catch(
+      generateWriteErrHandler(
+        (err) =>
+          this.setState(() => {
+            throw err
+          }), // make the callback inline since this isn't hooks based
+      ),
+    )
   }
 
   onChange = (valueAsNumber: number, valueAsString: string) => {

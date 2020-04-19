@@ -3,6 +3,7 @@ import './index.css'
 import {
   Accessor,
   removeElectricProps,
+  useAsyncThrow,
   useHardwareState,
   useWriteState,
 } from '@electricui/components-core'
@@ -12,6 +13,7 @@ import React, { useCallback, useMemo } from 'react'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import classnames from 'classnames'
+import { generateWriteErrHandler } from 'src/utils'
 
 type UpstreamSwitchProps = Omit<
   ISwitchProps,
@@ -99,6 +101,7 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
   // even if it doesn't cause a checked or unchecked state change.
   const accessedState = useHardwareState(props.accessor)
   const writeState = useWriteState()
+  const asyncThrow = useAsyncThrow()
 
   // calculate if we are checked, unchecked or indeterminate
   const value = valueFromCheckedUnchecked(
@@ -126,9 +129,9 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
 
   const handleWriting = useCallback(
     (writeChecked: boolean) => {
-      writeState(draftState => {
+      writeState((draftState) => {
         writer(draftState, writeChecked ? props.checked : props.unchecked)
-      }, true)
+      }, true).catch(generateWriteErrHandler(asyncThrow))
     },
     [writer, props.checked, props.unchecked],
   )

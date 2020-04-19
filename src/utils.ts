@@ -20,3 +20,8 @@ export function isElementOfType<P = {}>(
     element.type.displayName === ComponentType.displayName
   )
 }
+export function generateWriteErrHandler(asyncThrow: (error: Error) => void) {
+  return (err: Error) => {
+    asyncThrow(err)
+  }
+}

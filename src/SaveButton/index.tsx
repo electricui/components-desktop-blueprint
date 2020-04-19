@@ -1,8 +1,8 @@
-import React, { Component, ReactNode } from 'react'
-
 import { Button, IButtonProps } from '@blueprintjs/core'
+import React, { Component, ReactNode, useCallback } from 'react'
+import { useAsyncThrow, useSaveContainer } from '@electricui/components-core'
 
-import { useSaveContainer } from '@electricui/components-core'
+import { generateWriteErrHandler } from 'src/utils'
 
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation
@@ -32,8 +32,13 @@ const ElectricSaveButton = (props: ElectricSaveButtonProps) => {
 
   // Use our savecontainer hook, reverse our noAck prop
   const { save, dirty } = useSaveContainer(!props.noAck)
+  const asyncThrow = useAsyncThrow()
 
-  return <Button onClick={save} disabled={!dirty} {...rest} />
+  const saveWithCatch = useCallback(() => {
+    save().catch(generateWriteErrHandler(asyncThrow))
+  }, [])
+
+  return <Button onClick={saveWithCatch} disabled={!dirty} {...rest} />
 }
 
 export default ElectricSaveButton
