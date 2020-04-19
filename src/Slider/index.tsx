@@ -1,3 +1,5 @@
+import {} from '@electricui/build-rollup-config'
+
 import {
   FunctionalAccessorCommittedAndPushed,
   removeElectricProps,
@@ -121,9 +123,9 @@ interface SliderPropsAutomaticWriter extends CommonSliderProps {
 type SliderProps = SliderPropsWithWriter | SliderPropsAutomaticWriter
 
 function propsToHandleProps(props: SliderProps) {
-  return React.Children.map(props.children, child =>
+  return React.Children.map(props.children, (child) =>
     isElementOfType(child, ElectricSliderHandle) ? child.props : null,
-  ).filter(child => child !== null) as Array<HandleProps>
+  ).filter((child) => child !== null) as Array<HandleProps>
 }
 
 function convertArrayValuesToHashmap(
@@ -143,7 +145,7 @@ function convertArrayValuesToHashmap(
 }
 
 function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
-  return handleProps.map(props => {
+  return handleProps.map((props) => {
     if (typeof props.accessor !== 'string') {
       if (typeof props.name === 'undefined') {
         throw new Error(
@@ -185,6 +187,9 @@ function ElectricSlider(props: SliderProps) {
   const handleProps = propsToHandleProps(props)
   const childAccessorKeys = handlePropsToAccessorKey(handleProps)
 
+  const lastPushID = useRef(0)
+  const lastPushFinishedID = useRef(0)
+
   const writer = useMemo(() => {
     if (props.writer) {
       return props.writer
@@ -214,11 +219,31 @@ function ElectricSlider(props: SliderProps) {
           return
         }
 
-        pushMessageIDs(Array.from(messageIDsNeedAcking.current), release) // Only ack on release
+        // Increment the last push ID
+        lastPushID.current++
+
+        // Capture a copy of it
+        const thisPushID = lastPushID.current
+
+        // Only ack on release
+        const pushPromise = pushMessageIDs(
+          Array.from(messageIDsNeedAcking.current),
+          release,
+        ).catch((err) => {
+          if (__DEV__) {
+            console.warn('Captured error in slider', err)
+          }
+        })
 
         // Clear the messageIDs to ack on release
         if (release) {
           messageIDsNeedAcking.current.clear()
+
+          // Update the last push ID on release
+          pushPromise.finally(() => {
+            // When it's received by hardware, update our last push finished ID
+            lastPushFinishedID.current = thisPushID
+          })
         }
       },
       // throttle options
@@ -269,8 +294,11 @@ function ElectricSlider(props: SliderProps) {
     return <MultiSlider {...sliderProps} disabled={true} />
   }
 
-  // If we're focussed, return local state if we can.
-  const stateToDisplay = (focused
+  // If focused or if we're waiting on messages, use local state.
+  const useLocalState = focused || lastPushID.current !== lastPushFinishedID.current // prettier-ignore
+
+  // Calculate which state to display
+  const stateToDisplay = (useLocalState
     ? hardwareState.map((hardwareState, index) => {
         // we're focused, so grab the local state if we can instead
         if (localState) {
