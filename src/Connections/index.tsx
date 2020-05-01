@@ -165,7 +165,10 @@ const ConnectionHash = (props: ConnectionHashProps) => {
 
   const connectionState = useConnectionState(connectionHash)
   const connectionRequested = useDeviceConnectionRequested(deviceID)
-  const connectionName = useConnectionMetadataKey(connectionHash, 'name')
+  const connectionName = useConnectionMetadataKey<string>(
+    connectionHash,
+    'name',
+  )
 
   return (
     <Tag
