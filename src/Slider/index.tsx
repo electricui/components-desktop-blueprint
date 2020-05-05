@@ -1,14 +1,14 @@
 import {} from '@electricui/build-rollup-config'
 
+import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import {
-  FunctionalAccessorCommittedAndPushed,
+  InterfaceAccessor,
   removeElectricProps,
   useAsyncThrow,
   useCommitStateStaged,
-  useHardwareState,
+  useInterfaceState,
   usePushMessageIDs,
 } from '@electricui/components-core'
-import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
@@ -41,8 +41,10 @@ interface SliderHandlePropsStringAccessor extends CommonHandleProps {
 interface SliderHandleProps extends CommonHandleProps {
   /**
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the SliderHandle.
+   *
+   * This accessor is only for the interface state to prevent 'jumping' behaviour.
    */
-  accessor: FunctionalAccessorCommittedAndPushed<number>
+  accessor: InterfaceAccessor<number>
   /**
    * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
    * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
@@ -59,6 +61,7 @@ type HandleProps = SliderHandlePropsStringAccessor | SliderHandleProps
  * @name Slider.SliderHandle
  * @props HandleProps
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function ElectricSliderHandle(props: HandleProps) {
   return null
 }
@@ -189,8 +192,21 @@ function ElectricSlider(props: SliderProps) {
   const handleProps = propsToHandleProps(props)
   const childAccessorKeys = handlePropsToAccessorKey(handleProps)
 
-  const lastPushID = useRef(0)
-  const lastPushFinishedID = useRef(0)
+  const lastUpdateID = useRef(0)
+  const lastPushedUpdateID = useRef(0)
+
+  let isValid = true
+
+  // As long as we have the same amount of handles, this will call the same amount of useInterfaceState hooks
+  const hardwareState = handleProps.map((handleProp) => {
+    const value = useInterfaceState(handleProp.accessor)
+
+    if (typeof value !== 'number') {
+      isValid = false
+    }
+
+    return value
+  })
 
   const writer = useMemo(() => {
     if (props.writer) {
@@ -217,15 +233,15 @@ function ElectricSlider(props: SliderProps) {
           messageIDsNeedAcking.current.add(messageID)
         }
 
+        // Increment the last push ID
+        lastUpdateID.current++
+
         if (props.sendOnlyOnRelease && !release) {
           return
         }
 
-        // Increment the last push ID
-        lastPushID.current++
-
         // Capture a copy of it
-        const thisPushID = lastPushID.current
+        const thisPushID = lastUpdateID.current
 
         // Only ack on release
         const pushPromise = pushMessageIDs(
@@ -240,8 +256,8 @@ function ElectricSlider(props: SliderProps) {
           // We already caught the promise, don't catch it again
           // eslint-disable-next-line promise/catch-or-return
           pushPromise.finally(() => {
-            // When it's received by hardware, update our last push finished ID
-            lastPushFinishedID.current = thisPushID
+            // When it's received by hardware, update our last push finished ID asyncronously, hold the focussed state until then
+            lastPushedUpdateID.current = thisPushID
           })
         }
       },
@@ -277,24 +293,12 @@ function ElectricSlider(props: SliderProps) {
     [performWrite],
   )
 
-  let isValid = true
-
-  const hardwareState = handleProps.map((handleProp, index) => {
-    const value = useHardwareState(handleProp.accessor)
-
-    if (typeof value !== 'number') {
-      isValid = false
-    }
-
-    return value
-  })
-
   if (!isValid) {
     return <MultiSlider {...sliderProps} disabled={true} />
   }
 
   // If focused or if we're waiting on messages, use local state.
-  const useLocalState = focused || lastPushID.current !== lastPushFinishedID.current // prettier-ignore
+  const useLocalState = focused || lastUpdateID.current !== lastPushedUpdateID.current // prettier-ignore
 
   // Calculate which state to display
   const stateToDisplay = (useLocalState
