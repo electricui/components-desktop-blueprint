@@ -1,14 +1,14 @@
 import {} from '@electricui/build-rollup-config'
 
-import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import {
-  InterfaceAccessor,
+  FunctionalAccessorCommittedAndPushed,
   removeElectricProps,
   useAsyncThrow,
   useCommitStateStaged,
-  useInterfaceState,
+  useHardwareState,
   usePushMessageIDs,
 } from '@electricui/components-core'
+import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
@@ -44,7 +44,7 @@ interface SliderHandleProps extends CommonHandleProps {
    *
    * This accessor is only for the interface state to prevent 'jumping' behaviour.
    */
-  accessor: InterfaceAccessor<number>
+  accessor: FunctionalAccessorCommittedAndPushed<number>
   /**
    * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
    * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
@@ -199,7 +199,7 @@ function ElectricSlider(props: SliderProps) {
 
   // As long as we have the same amount of handles, this will call the same amount of useInterfaceState hooks
   const hardwareState = handleProps.map((handleProp) => {
-    const value = useInterfaceState(handleProp.accessor)
+    const value = useHardwareState(handleProp.accessor)
 
     if (typeof value !== 'number') {
       isValid = false
