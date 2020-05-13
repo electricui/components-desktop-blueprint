@@ -194,16 +194,16 @@ Statistic.displayName = 'Statistic'
 
 function hasStatisticChildren(props: StatisticsProps) {
   return (
-    React.Children.map(props.children, (child) =>
+    React.Children.map(props.children, child =>
       isElementOfType(child, Statistic) ? child.props : null,
-    ).filter((child) => child !== null).length > 0
+    ).filter(child => child !== null).length > 0
   )
 }
 
 function propsToStatisticProps(props: StatisticsProps) {
-  return React.Children.map(props.children, (child) =>
+  return React.Children.map(props.children, child =>
     isElementOfType(child, Statistic) ? child.props : null,
-  ).filter((child) => child !== null) as Array<StatisticProps>
+  ).filter(child => child !== null) as Array<StatisticProps>
 }
 
 /**

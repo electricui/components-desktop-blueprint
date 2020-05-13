@@ -127,13 +127,13 @@ interface SliderPropsAutomaticWriter extends CommonSliderProps {
 type SliderProps = SliderPropsWithWriter | SliderPropsAutomaticWriter
 
 function propsToHandleProps(props: SliderProps) {
-  return React.Children.map(props.children, (child) =>
+  return React.Children.map(props.children, child =>
     isElementOfType(child, ElectricSliderHandle) ? child.props : null,
-  ).filter((child) => child !== null) as Array<HandleProps>
+  ).filter(child => child !== null) as Array<HandleProps>
 }
 
 function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
-  return handleProps.map((props) => {
+  return handleProps.map(props => {
     if (typeof props.accessor !== 'string') {
       if (typeof props.name === 'undefined') {
         throw new Error(
@@ -198,7 +198,7 @@ function ElectricSlider(props: SliderProps) {
   let isValid = true
 
   // As long as we have the same amount of handles, this will call the same amount of useInterfaceState hooks
-  const hardwareState = handleProps.map((handleProp) => {
+  const hardwareState = handleProps.map(handleProp => {
     const value = useHardwareState(handleProp.accessor)
 
     if (typeof value !== 'number') {

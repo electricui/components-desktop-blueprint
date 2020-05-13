@@ -74,7 +74,7 @@ const debugOptions = [
 ]
 
 const debugStrings = debugOptions
-  .map((opt) => opt.strings)
+  .map(opt => opt.strings)
   .reduce((all, strings) => all.concat(strings), [])
   .sort()
 
@@ -115,7 +115,7 @@ const DebugInterface = () => {
                   localStorage.setItem(
                     'debug',
                     selectedStrings
-                      .filter((selectedString) =>
+                      .filter(selectedString =>
                         debugStrings.includes(selectedString),
                       ) // remove ones set by not us
                       .join(','),
@@ -152,11 +152,11 @@ const DebugInterface = () => {
               </p>
               <div>
                 <div className="optionslist">
-                  {debugOptions.map((debugGroup) => (
+                  {debugOptions.map(debugGroup => (
                     <div className="option" key={debugGroup.categoryTitle}>
                       <h3>{debugGroup.categoryTitle}</h3>
                       <ul>
-                        {debugGroup.strings.map((debugString) => (
+                        {debugGroup.strings.map(debugString => (
                           <li style={{ listStyle: 'none' }} key={debugString}>
                             <Checkbox
                               checked={selectedStrings.includes(debugString)}
@@ -165,7 +165,7 @@ const DebugInterface = () => {
                                   // remove it from the list
                                   setSelected(
                                     selectedStrings.filter(
-                                      (selectedString) =>
+                                      selectedString =>
                                         selectedString !== debugString,
                                     ),
                                   )

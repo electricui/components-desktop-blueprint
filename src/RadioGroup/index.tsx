@@ -80,9 +80,9 @@ interface RadioGroupProps extends UpstreamRadioGroupProps {
 }
 
 function propsToRadioProps(props: RadioGroupProps) {
-  return React.Children.map(props.children, (child) =>
+  return React.Children.map(props.children, child =>
     isElementOfType(child, ElectricRadio) ? child.props : null,
-  ).filter((child) => child !== null) as Array<RadioProps>
+  ).filter(child => child !== null) as Array<RadioProps>
 }
 
 /**
@@ -137,7 +137,7 @@ class ElectricRadioGroup extends React.Component<
     let valueToWrite: string | number = clickedValue
 
     // Iterate over every child radio prop to see if we can find the actual type of the value
-    radioPropsList.forEach((radioProps) => {
+    radioPropsList.forEach(radioProps => {
       const radioValue = radioProps.value
 
       if (typeof radioValue === 'string') {
@@ -155,7 +155,7 @@ class ElectricRadioGroup extends React.Component<
     writer(staging, valueToWrite) // The writer mutates the staging into a 'staged'
     writeStaged(staging, true).catch(
       generateWriteErrHandler(
-        (err) =>
+        err =>
           this.setState(() => {
             throw err
           }), // make the callback inline since this isn't hooks based

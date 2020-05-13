@@ -128,7 +128,7 @@ class ElectricNumberInput extends Component<
     const { push } = this.props
     push(keysToWrite, true).catch(
       generateWriteErrHandler(
-        (err) =>
+        err =>
           this.setState(() => {
             throw err
           }), // make the callback inline since this isn't hooks based

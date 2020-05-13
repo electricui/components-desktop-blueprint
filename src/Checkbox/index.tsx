@@ -126,7 +126,7 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
   const handleWriting = useCallback(
     (writeChecked: boolean) => {
-      writeState((draftState) => {
+      writeState(draftState => {
         writer(draftState, writeChecked ? props.checked : props.unchecked)
       }, true).catch(generateWriteErrHandler(asyncThrow))
     },
