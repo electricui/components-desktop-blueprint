@@ -124,7 +124,7 @@ const StatisticValue = (props: StatisticValueProps) => {
   }
 
   return (
-    <div className="value" {...rest}>
+    <div className="value monospace" {...rest}>
       {prefix}
       {val}
       {suffix}

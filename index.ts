@@ -27,3 +27,4 @@ export { default as RefreshSpinner } from './src/RefreshIndicator/spinner'
 export { default as DebugInterface } from './src/DebugInterface'
 
 import './normalize.css'
+import './src/monospace.css'
