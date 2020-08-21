@@ -33,6 +33,7 @@ const debugOptions = [
       'electricui-transport-node-websocket:*',
       'electricui-transport-node-ble:hint-producer',
       'electricui-transport-node-serial:hint-producer',
+      'electricui-transport-node-serial:usb-hint-transformer',
       'electricui-transport-node-serial:transport',
       'electricui-transport-node-serial:bandwidth-metadata',
       'electricui-transport-node-websocket:transport',
