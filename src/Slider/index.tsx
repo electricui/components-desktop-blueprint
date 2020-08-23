@@ -5,6 +5,7 @@ import {
   removeElectricProps,
   useAsyncThrow,
   useCommitStateStaged,
+  useDeadline,
   useHardwareState,
   usePushMessageIDs,
 } from '@electricui/components-core'
@@ -186,6 +187,7 @@ function ElectricSlider(props: SliderProps) {
   const pushMessageIDs = usePushMessageIDs()
   const messageIDsNeedAcking = useRef<Set<string>>(new Set())
   const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
   const sliderProps = removeElectricProps(props, ['children', 'writer'])
 
@@ -240,6 +242,9 @@ function ElectricSlider(props: SliderProps) {
           return
         }
 
+        // Create a deadline
+        const cancellationToken = getDeadline()
+
         // Capture a copy of it
         const thisPushID = lastUpdateID.current
 
@@ -247,6 +252,7 @@ function ElectricSlider(props: SliderProps) {
         const pushPromise = pushMessageIDs(
           Array.from(messageIDsNeedAcking.current),
           release,
+          cancellationToken,
         ).catch(generateWriteErrHandler(asyncThrow))
 
         // Clear the messageIDs to ack on release

@@ -4,6 +4,7 @@ import {
   Accessor,
   removeElectricProps,
   useAsyncThrow,
+  useDeadline,
   useHardwareState,
   useWriteState,
 } from '@electricui/components-core'
@@ -102,6 +103,7 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
   const accessedState = useHardwareState(props.accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
   // calculate if we are checked, unchecked or indeterminate
   const value = valueFromCheckedUnchecked(
@@ -129,9 +131,15 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
 
   const handleWriting = useCallback(
     (writeChecked: boolean) => {
-      writeState(draftState => {
-        writer(draftState, writeChecked ? props.checked : props.unchecked)
-      }, true).catch(generateWriteErrHandler(asyncThrow))
+      const cancellationToken = getDeadline()
+
+      writeState(
+        draftState => {
+          writer(draftState, writeChecked ? props.checked : props.unchecked)
+        },
+        true,
+        cancellationToken,
+      ).catch(generateWriteErrHandler(asyncThrow))
     },
     [writer, props.checked, props.unchecked],
   )

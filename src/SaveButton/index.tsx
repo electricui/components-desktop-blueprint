@@ -1,6 +1,10 @@
 import { Button, IButtonProps } from '@blueprintjs/core'
 import React, { Component, ReactNode, useCallback } from 'react'
-import { useAsyncThrow, useSaveContainer } from '@electricui/components-core'
+import {
+  useAsyncThrow,
+  useDeadline,
+  useSaveContainer,
+} from '@electricui/components-core'
 
 import { generateWriteErrHandler } from 'src/utils'
 
@@ -27,6 +31,8 @@ interface ElectricSaveButtonProps extends IButtonProps {
  * @props ElectricSaveButtonProps
  */
 const ElectricSaveButton = (props: ElectricSaveButtonProps) => {
+  const getDeadline = useDeadline()
+
   // TODO: Work out why we need to rip the type prop out
   const { noAck, type, ...rest } = props
 
@@ -35,7 +41,9 @@ const ElectricSaveButton = (props: ElectricSaveButtonProps) => {
   const asyncThrow = useAsyncThrow()
 
   const saveWithCatch = useCallback(() => {
-    save().catch(generateWriteErrHandler(asyncThrow))
+    const cancellationToken = getDeadline()
+
+    save(cancellationToken).catch(generateWriteErrHandler(asyncThrow))
   }, [])
 
   return <Button onClick={saveWithCatch} disabled={!dirty} {...rest} />

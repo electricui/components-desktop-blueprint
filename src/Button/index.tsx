@@ -5,6 +5,7 @@ import {
   StateTree,
   removeElectricProps,
   useAsyncThrow,
+  useDeadline,
   useSendCallback,
   useWriteState,
 } from '@electricui/components-core'
@@ -45,6 +46,7 @@ export default function ElectricButton(props: ElectricButtonProps) {
   const sendCallback = useSendCallback()
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
   const allOnClick = useCallback(
     (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -52,16 +54,18 @@ export default function ElectricButton(props: ElectricButtonProps) {
         return
       }
 
+      const cancellationToken = getDeadline()
+
       // If we have a writer, call it now
       if (props.writer) {
-        writeState(props.writer, !props.noAck).catch(
+        writeState(props.writer, !props.noAck, cancellationToken).catch(
           generateWriteErrHandler(asyncThrow),
         )
       }
 
       // If there is a callback to call after our write, do it now
       if (props.callback) {
-        sendCallback(props.callback, !props.noAck).catch(
+        sendCallback(props.callback, !props.noAck, cancellationToken).catch(
           generateWriteErrHandler(asyncThrow),
         )
       }
