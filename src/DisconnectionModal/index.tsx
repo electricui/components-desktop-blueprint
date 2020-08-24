@@ -1,6 +1,7 @@
 import { Alert, IconName, Intent } from '@blueprintjs/core'
 import React, { ReactNode } from 'react'
 import {
+  useDeadline,
   useDeviceDisconnect,
   useDeviceHasAcceptableConnection,
 } from '@electricui/components-core'
@@ -36,6 +37,7 @@ const DisconnectionModal = ({
 }: DisconnectionModalProps) => {
   const disconnect = useDeviceDisconnect()
   const hasAcceptableConnection = useDeviceHasAcceptableConnection()
+  const getDeadline = useDeadline()
 
   return (
     <Alert
@@ -47,7 +49,7 @@ const DisconnectionModal = ({
       onCancel={navigateToConnectionsScreen}
       onConfirm={() => {
         navigateToConnectionsScreen()
-        disconnect()
+        disconnect(getDeadline())
       }}
     >
       {children}

@@ -7,6 +7,7 @@ import {
   Poll,
   useConnectionMetadataKey,
   useConnectionState,
+  useDeadline,
   useDeviceConnect,
   useDeviceConnectionHashes,
   useDeviceConnectionRequested,
@@ -96,21 +97,26 @@ const useConnectWithTimeout = (
 ) => {
   const connect = useDeviceConnect(deviceID)
   const disconnect = useDeviceDisconnect(deviceID)
+  const getDeadline = useDeadline()
 
   const connectWithCBs = useCallback(() => {
     preConnect(deviceID)
 
     console.log('hook connection start')
 
-    connect()
+    const connectCancellationToken = getDeadline()
+
+    connect(connectCancellationToken)
       .then(() => {
         console.log('connection occurred')
         return postHandshake(deviceID)
       })
       .catch(err => {
         console.log('caught error in connections page', err)
+
+        const disconnectCancellationToken = getDeadline()
         onFailure(deviceID, err)
-        return disconnect().catch(errDisconnect => {
+        return disconnect(disconnectCancellationToken).catch(errDisconnect => {
           console.log(
             'Could not disconnect after failed connection!',
             errDisconnect,
@@ -202,6 +208,7 @@ const DeviceLine = (props: DeviceLineProps) => {
   const disconnect = useDeviceDisconnect(deviceID)
   const connectionRequested = useDeviceConnectionRequested(deviceID)
   const connectionState = useDeviceConnectionState(deviceID)
+  const getDeadline = useDeadline()
 
   const handshakeState = useDeviceHandshakeState(deviceID)
 
@@ -262,7 +269,7 @@ const DeviceLine = (props: DeviceLineProps) => {
         {connectionRequested && connectionState === 'CONNECTED' ? (
           <Button
             intent="danger"
-            onClick={() => disconnect()}
+            onClick={() => disconnect(getDeadline())}
             style={{
               position: 'absolute',
               right: 0,
