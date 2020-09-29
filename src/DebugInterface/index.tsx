@@ -3,7 +3,6 @@ import './index.css'
 import { Button, Checkbox } from '@blueprintjs/core'
 import React, { useState } from 'react'
 
-import { DarkModeProvider } from '@electricui/components-desktop'
 import { DarkModeWrapper } from '../DarkModeWrapper'
 import { ipcRenderer } from 'electron'
 
@@ -63,10 +62,7 @@ const debugOptions = [
   },
   {
     categoryTitle: 'Components Core',
-    strings: [
-      'electricui-components-core:proxy-client',
-      'electricui-components-core:device-manager-proxy',
-    ],
+    strings: ['electricui-components-core:proxy-client', 'electricui-components-core:device-manager-proxy'],
   },
   {
     categoryTitle: 'Utilities',
@@ -84,112 +80,95 @@ const DebugInterface = () => {
 
   const defaultSelectedArray = defaultSelected ? defaultSelected.split(',') : []
 
-  const [selectedStrings, setSelected] = useState<string[]>(
-    defaultSelectedArray,
-  )
+  const [selectedStrings, setSelected] = useState<string[]>(defaultSelectedArray)
 
   return (
-    <DarkModeProvider>
-      <DarkModeWrapper>
-        <div className="debug-page">
-          <div className="debug-header">
-            <div className="debug-header-buttons">
-              <Button
-                fill
-                intent="success"
-                className="bp3-outlined"
-                large
-                icon="applications"
-                onClick={() => {
-                  ipcRenderer.send('open-debug-window-dev-tools')
-                }}
-              >
-                Transport Console
-              </Button>
-              <Button
-                fill
-                intent="warning"
-                className="bp3-outlined"
-                large
-                icon="refresh"
-                onClick={() => {
-                  localStorage.setItem(
-                    'debug',
-                    selectedStrings
-                      .filter(selectedString =>
-                        debugStrings.includes(selectedString),
-                      ) // remove ones set by not us
-                      .join(','),
-                  )
-                  window.location.reload()
-                }}
-              >
-                Apply Filters {'&'} Restart
-              </Button>
-              <Button
-                fill
-                intent="primary"
-                className="bp3-outlined"
-                large
-                icon="document-open"
-                onClick={() => {
-                  ipcRenderer.send('open-debugging-docs')
-                }}
-              >
-                Debugging Docs
-              </Button>
-            </div>
+    <DarkModeWrapper>
+      <div className="debug-page">
+        <div className="debug-header">
+          <div className="debug-header-buttons">
+            <Button
+              fill
+              intent="success"
+              className="bp3-outlined"
+              large
+              icon="applications"
+              onClick={() => {
+                ipcRenderer.send('open-debug-window-dev-tools')
+              }}
+            >
+              Transport Console
+            </Button>
+            <Button
+              fill
+              intent="warning"
+              className="bp3-outlined"
+              large
+              icon="refresh"
+              onClick={() => {
+                localStorage.setItem(
+                  'debug',
+                  selectedStrings
+                    .filter(selectedString => debugStrings.includes(selectedString)) // remove ones set by not us
+                    .join(','),
+                )
+                window.location.reload()
+              }}
+            >
+              Apply Filters {'&'} Restart
+            </Button>
+            <Button
+              fill
+              intent="primary"
+              className="bp3-outlined"
+              large
+              icon="document-open"
+              onClick={() => {
+                ipcRenderer.send('open-debugging-docs')
+              }}
+            >
+              Debugging Docs
+            </Button>
           </div>
-          <div className="debug-content">
-            <div style={{ padding: '0 2em' }}>
-              <h1>Transport Debugger</h1>
-              <p>
-                Use this interface to filter the transport-manager&apos;s
-                runtime debug output.
-              </p>
-              <p>
-                Filter modifications require a restart of the transport-manager
-                and will disconnect from all devices.
-              </p>
-              <div>
-                <div className="optionslist">
-                  {debugOptions.map(debugGroup => (
-                    <div className="option" key={debugGroup.categoryTitle}>
-                      <h3>{debugGroup.categoryTitle}</h3>
-                      <ul>
-                        {debugGroup.strings.map(debugString => (
-                          <li style={{ listStyle: 'none' }} key={debugString}>
-                            <Checkbox
-                              checked={selectedStrings.includes(debugString)}
-                              onChange={() => {
-                                if (selectedStrings.includes(debugString)) {
-                                  // remove it from the list
-                                  setSelected(
-                                    selectedStrings.filter(
-                                      selectedString =>
-                                        selectedString !== debugString,
-                                    ),
-                                  )
-                                  return
-                                }
+        </div>
+        <div className="debug-content">
+          <div style={{ padding: '0 2em' }}>
+            <h1>Transport Debugger</h1>
+            <p>Use this interface to filter the transport-manager&apos;s runtime debug output.</p>
+            <p>Filter modifications require a restart of the transport-manager and will disconnect from all devices.</p>
+            <div>
+              <div className="optionslist">
+                {debugOptions.map(debugGroup => (
+                  <div className="option" key={debugGroup.categoryTitle}>
+                    <h3>{debugGroup.categoryTitle}</h3>
+                    <ul>
+                      {debugGroup.strings.map(debugString => (
+                        <li style={{ listStyle: 'none' }} key={debugString}>
+                          <Checkbox
+                            checked={selectedStrings.includes(debugString)}
+                            onChange={() => {
+                              if (selectedStrings.includes(debugString)) {
+                                // remove it from the list
+                                setSelected(selectedStrings.filter(selectedString => selectedString !== debugString))
+                                return
+                              }
 
-                                setSelected([...selectedStrings, debugString])
-                              }}
-                            >
-                              {debugString}
-                            </Checkbox>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
+                              setSelected([...selectedStrings, debugString])
+                            }}
+                          >
+                            {debugString}
+                          </Checkbox>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </DarkModeWrapper>
-    </DarkModeProvider>
+      </div>
+    </DarkModeWrapper>
   )
 }
 

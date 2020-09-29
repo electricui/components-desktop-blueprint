@@ -18,7 +18,6 @@ export {
   default as Statistic,
 } from './src/Statistic'
 export { DarkModeWrapper, DarkModeWrapperProps } from './src/DarkModeWrapper'
-export { SetDarkModeButtons } from './src/SetDarkModeButtons'
 export { default as SaveButton } from './src/SaveButton'
 export { default as ResetButton } from './src/ResetButton'
 export { default as NoIPCModal } from './src/NoIPCModal'
