@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.7.17-prerelease.18",
+  "version": "0.7.17",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -16,10 +16,10 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.0",
     "@blueprintjs/icons": "^3.12.0",
-    "@electricui/components-core": "^0.7.17-prerelease.18",
-    "@electricui/components-desktop": "^0.7.17-prerelease.18",
-    "@electricui/core": "^0.7.17-prerelease.18",
-    "@electricui/core-timeseries": "^0.7.17-prerelease.18",
+    "@electricui/components-core": "^0.7.17",
+    "@electricui/components-desktop": "^0.7.17",
+    "@electricui/core": "^0.7.17",
+    "@electricui/core-timeseries": "^0.7.17",
     "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",
     "immer": "^6.0.1",
@@ -28,8 +28,8 @@
     "react-helmet": "^5.2.1"
   },
   "devDependencies": {
-    "@electricui/build-rollup-config": "^0.7.17-prerelease.5",
-    "@electricui/jest-config": "^0.7.17-prerelease.1",
+    "@electricui/build-rollup-config": "^0.7.17",
+    "@electricui/jest-config": "^0.7.17",
     "@types/chai": "^4.1.7",
     "@types/chai-subset": "^1.3.2",
     "@types/classnames": "^2.2.7",
