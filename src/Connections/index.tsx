@@ -70,9 +70,7 @@ const NoDevices = () => {
         title="No devices found"
         description={
           <ConsecutivePollFailureMessage>
-            {noIncreases =>
-              noIncreases >= 3 ? <div>Hey maybe try something else?</div> : null
-            }
+            {noIncreases => (noIncreases >= 3 ? <div>Hey maybe try something else?</div> : null)}
           </ConsecutivePollFailureMessage>
         }
       />
@@ -102,13 +100,10 @@ const useConnectWithTimeout = (
   const connectWithCBs = useCallback(() => {
     preConnect(deviceID)
 
-    console.log('hook connection start')
-
     const connectCancellationToken = getDeadline()
 
     connect(connectCancellationToken)
       .then(() => {
-        console.log('connection occurred')
         return postHandshake(deviceID)
       })
       .catch(err => {
@@ -117,10 +112,7 @@ const useConnectWithTimeout = (
         const disconnectCancellationToken = getDeadline()
         onFailure(deviceID, err)
         return disconnect(disconnectCancellationToken).catch(errDisconnect => {
-          console.log(
-            'Could not disconnect after failed connection!',
-            errDisconnect,
-          )
+          console.log('Could not disconnect after failed connection!', errDisconnect)
         })
       })
   }, [deviceID])
@@ -138,11 +130,7 @@ const CardInternals = (props: CardInternalsProps) => {
   const metadataName = useDeviceMetadataKey('name', deviceID)
   const metadataType = useDeviceMetadataKey('type', deviceID)
 
-  let header = (
-    <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>
-      Placeholder name
-    </h3>
-  )
+  let header = <h3 className={`${Classes.HEADING} ${Classes.SKELETON}`}>Placeholder name</h3>
 
   if (metadataName) {
     header = <h3 className={Classes.HEADING}>{metadataName}</h3>
@@ -171,19 +159,12 @@ const ConnectionHash = (props: ConnectionHashProps) => {
 
   const connectionState = useConnectionState(connectionHash)
   const connectionRequested = useDeviceConnectionRequested(deviceID)
-  const connectionName = useConnectionMetadataKey<string>(
-    connectionHash,
-    'name',
-  )
+  const connectionName = useConnectionMetadataKey<string>(connectionHash, 'name')
 
   return (
     <Tag
       round
-      intent={
-        connectionRequested && connectionState === 'CONNECTED'
-          ? 'success'
-          : 'none'
-      }
+      intent={connectionRequested && connectionState === 'CONNECTED' ? 'success' : 'none'}
       style={{ marginLeft: 4 }}
     >
       {connectionName}
@@ -197,9 +178,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
   // If they provide an internal card component, wrap it in a device ID context and render it, otherwise provide defaults
   const InternalCard = props.internalCardComponent ? (
-    <DeviceIDContextProvider deviceID={deviceID}>
-      {props.internalCardComponent}
-    </DeviceIDContextProvider>
+    <DeviceIDContextProvider deviceID={deviceID}>{props.internalCardComponent}</DeviceIDContextProvider>
   ) : (
     <CardInternals deviceID={deviceID} />
   )
@@ -212,12 +191,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
   const handshakeState = useDeviceHandshakeState(deviceID)
 
-  const connect = useConnectWithTimeout(
-    deviceID,
-    props.preConnect,
-    props.postHandshake,
-    props.onFailure,
-  )
+  const connect = useConnectWithTimeout(deviceID, props.preConnect, props.postHandshake, props.onFailure)
 
   const cardClick = useCallback(() => {
     if (connectionHashes.length === 0) {
@@ -237,10 +211,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
   // Device Card Pose
   let deviceInnerCardPose: string = connectionState
-  if (
-    !connectionRequested &&
-    (connectionState === 'CONNECTED' || connectionState === 'CONNECTING')
-  ) {
+  if (!connectionRequested && (connectionState === 'CONNECTED' || connectionState === 'CONNECTING')) {
     deviceInnerCardPose = 'DISCOVERING'
   }
 
@@ -304,11 +275,7 @@ const DeviceLine = (props: DeviceLineProps) => {
               >
                 <div>
                   {connectionHashes.map(connectionHash => (
-                    <ConnectionHash
-                      deviceID={deviceID}
-                      connectionHash={connectionHash}
-                      key={connectionHash}
-                    />
+                    <ConnectionHash deviceID={deviceID} connectionHash={connectionHash} key={connectionHash} />
                   ))}
                 </div>
                 <div>{errorMessage}</div>
