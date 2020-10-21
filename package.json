@@ -46,10 +46,9 @@
     "chai-subset": "^1.6.0",
     "electron": "^8.0.3",
     "mocha": "^5.2.0",
-    "mochawesome": "^3.1.1",
     "nyc": "^13.3.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "17.0.0",
+    "react-dom": "17.0.0",
     "react-pose": "^4.0.8",
     "rollup": "^1.31.1",
     "sinon": "^7.2.7",
@@ -60,7 +59,7 @@
   },
   "peerDependencies": {
     "electron": "*",
-    "react": ">=16.13.0",
+    "react": "17.0.0",
     "react-dom": ">16.10.0",
     "react-pose": "*",
     "react-redux": "*",
@@ -71,7 +70,7 @@
     "prepack": "silversmith prepack",
     "build": "rm -rf ./lib && rollup -c",
     "postpack": "silversmith postpack",
-    "test": "export TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' &&  mocha --require ts-node/register --reporter mochawesome \"test/**/*.ts\" && export TS_NODE_COMPILER_OPTIONS=\"\"",
+    "test": "export TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' && mocha --require ts-node/register \"test/**/*.ts\" && export TS_NODE_COMPILER_OPTIONS=\"\"",
     "coverage": "export TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' && nyc mocha- -require ts-node/register \"test/**/*.ts\" && export TS_NODE_COMPILER_OPTIONS=\"\""
   }
 }
