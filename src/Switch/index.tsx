@@ -27,7 +27,7 @@ interface CommonSwitchProps<T> extends UpstreamSwitchProps {
    */
   checked: T
   /**
-   * The checked value
+   * The unchecked value
    */
   unchecked: T
 }
@@ -56,6 +56,26 @@ interface SwitchPropsFunctionalAccessor<T> extends CommonSwitchProps<T> {
    * If the accessor is a MessageID string this isn't required.
    */
   writer: (staging: Draft<ElectricUIDeveloperState>, value: T) => void
+}
+
+/**
+ * Remove the ISwitchProps ones we don't want to show in the documentation
+ * @remove checked
+ * @remove onChange
+ * @remove defaultChecked
+ * @extends ISwitchProps
+ */
+interface SwitchPropsForDocs extends ISwitchProps {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string, number or boolean.
+   */
+  accessor: Accessor
+  /**
+   * A writer to write the Checked state.
+   *
+   * If the accessor is a MessageID string this isn't required.
+   */
+  writer: (staging: Draft<ElectricUIDeveloperState>, value: any) => void
 }
 
 /**
@@ -95,7 +115,7 @@ function valueFromCheckedUnchecked(
  * Switch
  * @module components-desktop-blueprint
  * @name Switch
- * @props SwitchProps
+ * @props SwitchPropsForDocs
  */
 function ElectricSwitch<T>(props: SwitchProps<T>) {
   // this will cause a re-update every time the messageID changes,
