@@ -6,7 +6,7 @@ import {
   useDeviceHasAcceptableConnection,
 } from '@electricui/components-core'
 
-type DisconnectionModalProps = {
+interface DisconnectionModalProps {
   /** A function that navigates to the connections screen. */
   navigateToConnectionsScreen: () => void
   /** Text to display in the button that goes to the connections screen without disconnecting. */

@@ -92,7 +92,7 @@ function valueFromCheckedUnchecked(
  * Checkbox
  * @module @electricui/components-desktop-blueprint
  * @name Checkbox
- * @props CheckboxProps
+ * @props CheckboxPropsFunctionalAccessor
  */
 function ElectricCheckbox<T>(props: CheckboxProps<T>) {
   // this will cause a re-update every time the messageID changes,

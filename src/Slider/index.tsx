@@ -60,7 +60,7 @@ type HandleProps = SliderHandlePropsStringAccessor | SliderHandleProps
  * A Slider handle
  * @module @electricui/components-desktop-blueprint
  * @name Slider.SliderHandle
- * @props HandleProps
+ * @props SliderHandleProps
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function ElectricSliderHandle(props: HandleProps) {
@@ -178,7 +178,7 @@ const defaultWriter = (
  * Slider
  * @module @electricui/components-desktop-blueprint
  * @name Slider
- * @props ExtendedSliderProps
+ * @props SliderPropsWithWriter
  */
 function ElectricSlider(props: SliderProps) {
   const [focused, setFocused] = useState(false)
