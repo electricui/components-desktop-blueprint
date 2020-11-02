@@ -37,7 +37,7 @@ interface RadioProps extends UpstreamRadioProps {
 
 /**
  * A Radio button
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name RadioGroup.Radio
  * @props RadioProps
  */
@@ -87,7 +87,7 @@ function propsToRadioProps(props: RadioGroupProps) {
 
 /**
  * RadioGroup
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name RadioGroup
  * @props RadioGroupProps
  */

@@ -90,7 +90,7 @@ function valueFromCheckedUnchecked(
 
 /**
  * Checkbox
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Checkbox
  * @props CheckboxProps
  */

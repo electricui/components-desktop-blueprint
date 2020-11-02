@@ -23,7 +23,7 @@ type DisconnectionModalProps = {
 
 /**
  * DisconnectionModal
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name DisconnectionModal
  * @props DisconnectionModalProps
  */

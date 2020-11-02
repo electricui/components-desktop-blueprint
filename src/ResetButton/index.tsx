@@ -1,6 +1,5 @@
-import React, { Component, ReactNode } from 'react'
-
 import { Button, IButtonProps } from '@blueprintjs/core'
+import React, { Component, ReactNode } from 'react'
 
 import { useSaveContainer } from '@electricui/components-core'
 
@@ -22,7 +21,7 @@ interface ElectricResetButtonProps extends IButtonProps {
 
 /**
  * ResetButton
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name ResetButton
  * @props ElectricResetButtonProps
  */

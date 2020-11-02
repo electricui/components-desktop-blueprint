@@ -50,7 +50,7 @@ interface MutableReaderState {
 
 /**
  * NumberInput
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name NumberInput
  * @props NumberInputProps
  */

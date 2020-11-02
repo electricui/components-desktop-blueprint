@@ -48,7 +48,7 @@ interface MutableReaderState {
 
 /**
  * TextInput
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name TextInput
  * @props TextInputProps
  */

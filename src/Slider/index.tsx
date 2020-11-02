@@ -58,7 +58,7 @@ type HandleProps = SliderHandlePropsStringAccessor | SliderHandleProps
 
 /**
  * A Slider handle
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Slider.SliderHandle
  * @props HandleProps
  */
@@ -176,7 +176,7 @@ const defaultWriter = (
 
 /**
  * Slider
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Slider
  * @props ExtendedSliderProps
  */

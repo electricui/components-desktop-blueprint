@@ -26,7 +26,7 @@ interface ElectricSaveButtonProps extends IButtonProps {
 
 /**
  * SaveButton
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name SaveButton
  * @props ElectricSaveButtonProps
  */

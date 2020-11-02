@@ -38,7 +38,7 @@ interface ElectricButtonProps extends IButtonProps {
 
 /**
  * Button
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Button
  * @props ElectricButtonProps
  */

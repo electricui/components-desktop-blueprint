@@ -101,7 +101,7 @@ export interface StatisticValueProps {
 
 /**
  * Statistic Label
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Statistic.Label
  * @props StatisticLabelProps
  */
@@ -111,7 +111,7 @@ const StatisticLabel = (props: StatisticLabelProps) => {
 
 /**
  * Statistic Value
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Statistic.Value
  * @props StatisticValueProps
  */
@@ -134,7 +134,7 @@ const StatisticValue = (props: StatisticValueProps) => {
 
 /**
  * Statistic
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Statistic
  * @props StatisticProps
  */
@@ -208,7 +208,7 @@ function propsToStatisticProps(props: StatisticsProps) {
 
 /**
  * Statistics
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name Statistics
  * @props StatisticsProps
  */

@@ -32,7 +32,7 @@ interface ProgressBarProps extends UpstreamProgressBarProps {
 
 /**
  * ProgressBar
- * @module components-desktop-blueprint
+ * @module @electricui/components-desktop-blueprint
  * @name ProgressBar
  * @props ProgressBarProps
  */
