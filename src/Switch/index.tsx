@@ -2,6 +2,7 @@ import './index.css'
 
 import {
   Accessor,
+  deepObjectEquality,
   removeElectricProps,
   useAsyncThrow,
   useDeadline,
@@ -127,8 +128,8 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
 
   // calculate if we are checked, unchecked or indeterminate
   const value = valueFromCheckedUnchecked(
-    accessedState === props.checked,
-    accessedState === props.unchecked,
+    deepObjectEquality(accessedState, props.checked),
+    deepObjectEquality(accessedState, props.unchecked),
   )
 
   // the writer
