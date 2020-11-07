@@ -14,6 +14,7 @@ import {
 import React, { Component } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
+import { CancellationToken } from '@electricui/core'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 
@@ -153,7 +154,10 @@ class ElectricRadioGroup extends React.Component<
 
     const staging = generateStaging() // Generate the staging
     writer(staging, valueToWrite) // The writer mutates the staging into a 'staged'
-    writeStaged(staging, true).catch(
+
+    const cancellationToken = new CancellationToken()
+
+    writeStaged(staging, true, cancellationToken).catch(
       generateWriteErrHandler(
         err =>
           this.setState(() => {

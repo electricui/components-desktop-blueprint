@@ -10,6 +10,7 @@ import {
 import { INumericInputProps, NumericInput } from '@blueprintjs/core'
 import React, { Component, ReactNode } from 'react'
 
+import { CancellationToken } from '@electricui/core'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
@@ -126,7 +127,10 @@ class ElectricNumberInput extends Component<
 
   push(keysToWrite: string[]) {
     const { push } = this.props
-    push(keysToWrite, true).catch(
+
+    const cancellationToken = new CancellationToken()
+    
+    push(keysToWrite, true, cancellationToken).catch(
       generateWriteErrHandler(
         err =>
           this.setState(() => {

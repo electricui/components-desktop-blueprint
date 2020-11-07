@@ -9,6 +9,7 @@ import {
 import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
 import React, { Component } from 'react'
 
+import { CancellationToken } from '@electricui/core'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import debounce from 'lodash.debounce'
@@ -124,7 +125,10 @@ class ElectricTextInput extends Component<
 
   push(keysToWrite: string[]) {
     const { push } = this.props
-    push(keysToWrite, true).catch(
+
+    const cancellationToken = new CancellationToken()
+
+    push(keysToWrite, true, cancellationToken).catch(
       generateWriteErrHandler(
         err =>
           this.setState(() => {
