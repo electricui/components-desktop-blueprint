@@ -1,36 +1,34 @@
-// import { getDependencyProps } from '../../utils'
+import {} from '@electricui/build-rollup-config'
+
 import {
   Accessor,
-  InjectedElectricityProps,
-  StateTree,
   removeElectricProps,
   useAsyncThrow,
-  withElectricity,
+  useCommitStateStaged,
+  useDeadline,
+  useHardwareState,
+  usePushMessageIDs,
 } from '@electricui/components-core'
 import { INumericInputProps, NumericInput } from '@blueprintjs/core'
-import React, { Component, ReactNode } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { CancellationToken } from '@electricui/core'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
-import debounce from 'lodash.debounce'
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
+import throttle from 'lodash.throttle'
+import { unstable_batchedUpdates } from 'react-dom'
 
-type UpstreamNumberInputProps = Omit<
-  INumericInputProps,
-  'onValueChange' | 'value'
->
-
-type Writer = (value: number) => StateTree
+type UpstreamNumberInputProps = Omit<INumericInputProps, 'onValueChange' | 'value'>
 
 /**
- * Remove the INumericInputProps ones we don't want to show in the documentation
- * @remove onValueChange
+ * Remove the IInputGroupProps ones we don't want to show in the documentation
+ * @remove defaultValue
+ * @remove onChange
  * @remove value
  */
 interface NumberInputProps extends UpstreamNumberInputProps {
   /**
-   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the NumberInput.
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number for use in the TextInput.
    */
   accessor: Accessor
   /**
@@ -41,12 +39,11 @@ interface NumberInputProps extends UpstreamNumberInputProps {
   /**
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
-  debounceDuration?: number
-}
-
-interface MutableReaderState {
-  mutableValue: number
-  focused: boolean
+  throttleDuration?: number
+  /**
+   * Limit the maximum length of the string. This does not take into consideration any null bytes required, etc.
+   */
+  maxLength?: number
 }
 
 /**
@@ -55,142 +52,104 @@ interface MutableReaderState {
  * @name NumberInput
  * @props NumberInputProps
  */
-class ElectricNumberInput extends Component<
-  NumberInputProps & InjectedElectricityProps,
-  MutableReaderState
-> {
-  static readonly accessorKeys = ['accessor']
-  state: MutableReaderState = {
-    mutableValue: 0,
-    focused: false,
-  }
+function ElectricNumberInput(props: NumberInputProps) {
+  const [focused, setFocused] = useState(false)
+  const hardwareState = useHardwareState<number>(props.accessor)
+  const [localState, setLocalState] = useState<number>(hardwareState ?? 0)
+  const [generateStaging, commitStaged] = useCommitStateStaged()
+  const pushMessageIDs = usePushMessageIDs()
+  const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
-  static generateAccessorsFromProps = (props: NumberInputProps) => []
+  const numericInputProps = removeElectricProps(props, ['writer'])
 
-  debouncedPush: (toWrite: StateTree) => void
+  const lastUpdateID = useRef(0)
+  const lastPushedUpdateID = useRef(0)
 
-  constructor(props: NumberInputProps & InjectedElectricityProps) {
-    super(props)
-
-    this.push = this.push.bind(this)
-
-    const debounceDuration = props.debounceDuration || 100
-    this.debouncedPush = debounce(this.push, debounceDuration, {
-      trailing: true,
-    })
-    this.debouncedPush = this.debouncedPush.bind(this)
-  }
-
-  defaultWriter = (staging: Draft<ElectricUIDeveloperState>, value: number) => {
-    const { accessor } = this.props
-
-    if (typeof accessor !== 'string') {
-      throw new Error(
-        "The number input needs a writer since the accessor isn't simply a MessageID",
-      )
+  const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
     }
 
-    // Perform the mutation
-    staging[accessor] = value
-  }
-
-  getWriter = () => {
-    const { writer } = this.props
-
-    if (writer) {
-      return writer
+    if (typeof props.accessor === 'string') {
+      return (staging: Draft<ElectricUIDeveloperState>, value: number) => {
+        staging[props.accessor as string] = value
+      }
     }
 
-    return this.defaultWriter
-  }
+    throw new Error("If the NumberInput's accessor isn't a MessageID string, a writer must be provided")
+  }, [props.writer, props.accessor])
 
-  getValue = () => {
-    const { access } = this.props
+  const performWrite = useCallback(
+    throttle(
+      (value: number) => {
+        const staging = generateStaging() // Generate the staging
+        writer(staging, value) // The writer mutates the staging into a 'staged'
 
-    return access('accessor')
-  }
+        const messageIDs = commitStaged(staging)
 
-  getLocalValue = () => {
-    return this.state.mutableValue
-  }
+        // Increment the last push ID
+        lastUpdateID.current++
 
-  getFocused = () => {
-    return this.state.focused
-  }
+        // Create a deadline
+        const cancellationToken = getDeadline()
 
-  /**
-   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
-   */
-  setLocalValue = (value: number) => {
-    this.setState({ mutableValue: value })
-  }
+        // Capture a copy of it
+        const thisPushID = lastUpdateID.current
 
-  push(keysToWrite: string[]) {
-    const { push } = this.props
+        // Only ack on release
+        const pushPromise = pushMessageIDs(messageIDs, true, cancellationToken).catch(
+          generateWriteErrHandler(asyncThrow),
+        )
 
-    const cancellationToken = new CancellationToken()
-    
-    push(keysToWrite, true, cancellationToken).catch(
-      generateWriteErrHandler(
-        err =>
-          this.setState(() => {
-            throw err
-          }), // make the callback inline since this isn't hooks based
-      ),
-    )
-  }
+        // We already caught the promise, don't catch it again
+        // eslint-disable-next-line promise/catch-or-return
+        pushPromise.finally(() => {
+          // When it's received by hardware, update our last push finished ID asyncronously, hold the focussed state until then
+          lastPushedUpdateID.current = thisPushID
+        })
+      },
+      // throttle options
+      props.throttleDuration ?? 100,
+      { leading: false, trailing: true },
+    ),
+    // callback deps
+    [writer, props.throttleDuration],
+  )
 
-  onChange = (valueAsNumber: number, valueAsString: string) => {
-    const { commitStaged, generateStaging } = this.props
+  const handleChange = useCallback(
+    (value: number) => {
+      unstable_batchedUpdates(() => {
+        setLocalState(value)
+        performWrite(value)
+      })
+    },
+    [performWrite, setLocalState],
+  )
 
-    const value = valueAsNumber
-    const writer = this.getWriter()
+  const handleFocus = useCallback(() => {
+    setFocused(true)
+  }, [setFocused])
 
-    const staging = generateStaging() // Generate the staging
-    writer(staging, value) // The writer mutates the staging into a 'staged'
+  const handleBlur = useCallback(() => {
+    setFocused(false)
+  }, [setFocused])
 
-    const messageIDsModified = commitStaged(staging)
+  // If focused or if we're waiting on messages, use local state.
+  const useLocalState = focused || lastUpdateID.current !== lastPushedUpdateID.current // prettier-ignore
 
-    this.setLocalValue(value)
+  // Calculate which state to display
+  const value = useLocalState ? localState : hardwareState ?? 0
 
-    this.debouncedPush(Object.keys(messageIDsModified))
-  }
-
-  /**
-   * On focus, enter user input mode and just in time override our mutable value with the hardware state
-   */
-  onFocus = (event: React.FormEvent<HTMLInputElement>) => {
-    this.setState({ focused: true, mutableValue: this.getValue() })
-  }
-
-  onBlur = (event: React.FormEvent<HTMLInputElement>) => {
-    this.setState({ focused: false })
-  }
-
-  render() {
-    const rest = removeElectricProps(this.props, [
-      'accessor',
-      'debounceDuration',
-    ])
-
-    const value = this.getFocused() ? this.getLocalValue() : this.getValue()
-
-    if (typeof value !== 'number') {
-      return <NumericInput {...rest} disabled={true} value="" />
-    }
-
-    return (
-      <NumericInput
-        onValueChange={this.onChange}
-        {...rest}
-        value={value}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-      />
-    )
-  }
+  return (
+    <NumericInput
+      onValueChange={handleChange}
+      {...numericInputProps}
+      value={value}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    />
+  )
 }
 
-export default withElectricity(ElectricNumberInput) as React.ComponentType<
-  NumberInputProps
->
+export default ElectricNumberInput
