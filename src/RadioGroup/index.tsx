@@ -1,27 +1,15 @@
-import {
-  Accessor,
-  InjectedElectricityProps,
-  StateTree,
-  removeElectricProps,
-  withElectricity,
-} from '@electricui/components-core'
-import {
-  IRadioGroupProps,
-  IRadioProps,
-  Radio,
-  RadioGroup,
-} from '@blueprintjs/core'
-import React, { Component } from 'react'
-import { generateWriteErrHandler, isElementOfType } from '../utils'
+import {} from '@electricui/build-rollup-config'
 
-import { CancellationToken } from '@electricui/core'
+import { Accessor, deepObjectEquality, useWriteState } from '@electricui/components-core'
+import { IRadioGroupProps, IRadioProps, Radio, RadioGroup } from '@blueprintjs/core'
+import React, { useCallback, useMemo } from 'react'
+import { generateWriteErrHandler, isElementOfType } from '../utils'
+import { removeElectricProps, useAsyncThrow, useDeadline, useHardwareState } from '@electricui/components-core'
+
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 
-type UpstreamRadioProps = Omit<
-  IRadioProps,
-  'checked' | 'defaultChecked' | 'onChange'
->
+type UpstreamRadioProps = Omit<IRadioProps, 'checked' | 'defaultChecked' | 'onChange' | 'value'>
 
 /**
  * Remove the IRadioProps ones we don't want to show in the documentation
@@ -29,11 +17,11 @@ type UpstreamRadioProps = Omit<
  * @remove defaultChecked
  * @remove onChange
  */
-interface RadioProps extends UpstreamRadioProps {
+interface RadioProps<T> extends UpstreamRadioProps {
   /**
    * The value that will be used to match against which Radio button is selected, and the value that will be written when this Radio button is selected.
    */
-  value: string | number
+  value: T
 }
 
 /**
@@ -42,20 +30,13 @@ interface RadioProps extends UpstreamRadioProps {
  * @name RadioGroup.Radio
  * @props RadioProps
  */
-export class ElectricRadio extends React.Component<RadioProps> {
-  static readonly displayName = 'Radio'
+export function ElectricRadio<T>(props: RadioProps<T>) {
+  return null
 }
-
-type RadioValue = string | number
-
-// We want to try to force only Radios to be our children
-// But I'm pretty sure this doesn't actually work?
+ElectricRadio.displayName = 'Radio'
 
 // Remove the props that we will handle
-type UpstreamRadioGroupProps = Omit<
-  IRadioGroupProps,
-  'onChange' | 'options' | 'selectedValue'
->
+type UpstreamRadioGroupProps = Omit<IRadioGroupProps, 'onChange' | 'options' | 'selectedValue'>
 
 /**
  * RadioGroup Props
@@ -63,12 +44,12 @@ type UpstreamRadioGroupProps = Omit<
  * @remove options
  * @remove selectedValue
  */
-interface RadioGroupProps extends UpstreamRadioGroupProps {
+interface RadioGroupProps<T> extends UpstreamRadioGroupProps {
   /**
    * A radio button or an array of radio button.
    * @type <RadioGroup.Radio /> | <RadioGroup.Radio />[]
    */
-  children: React.ReactElement<RadioProps>[] | React.ReactElement<RadioProps>
+  children: React.ReactElement<RadioProps<T>>[] | React.ReactElement<RadioProps<T>>
   /**
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string or number for use in the RadioGroup.
    */
@@ -77,13 +58,13 @@ interface RadioGroupProps extends UpstreamRadioGroupProps {
    * If the accessor is merely a messageID, this Writer is optional.
    * If the accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: (staging: Draft<ElectricUIDeveloperState>, value: RadioValue) => void
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: T) => void
 }
 
-function propsToRadioProps(props: RadioGroupProps) {
+function propsToRadioProps<T>(props: RadioGroupProps<T>): Array<RadioProps<T>> {
   return React.Children.map(props.children, child =>
     isElementOfType(child, ElectricRadio) ? child.props : null,
-  ).filter(child => child !== null) as Array<RadioProps>
+  ).filter(child => child !== null)
 }
 
 /**
@@ -92,120 +73,78 @@ function propsToRadioProps(props: RadioGroupProps) {
  * @name RadioGroup
  * @props RadioGroupProps
  */
-class ElectricRadioGroup extends React.Component<
-  RadioGroupProps & InjectedElectricityProps
-> {
-  public static readonly displayName = 'RadioGroup'
-  static readonly accessorKeys = ['accessor']
+function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
+  const radioProps = propsToRadioProps(props)
 
-  static generateAccessorsFromProps = (props: RadioGroupProps) => []
+  const accessedState = useHardwareState(props.accessor)
+  const writeState = useWriteState()
+  const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
-  defaultWriter = (
-    staging: Draft<ElectricUIDeveloperState>,
-    value: RadioValue,
-  ) => {
-    const { accessor } = this.props
+  let selected = -1
 
-    if (typeof accessor !== 'string') {
-      throw new Error(
-        "The radio group needs a functional writer since the accessor isn't simply a MessageID",
-      )
+  for (const [index, radio] of radioProps.entries()) {
+    if (deepObjectEquality(accessedState, radio.value)) {
+      selected = index
+      break
+    }
+  }
+
+  const radioGroupProps = removeElectricProps(props, ['children', 'writer', 'accessor'])
+
+  const writer = useMemo(() => {
+    if (typeof props.accessor === 'string') {
+      const accessor = props.accessor
+      return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
+        staging[accessor] = value
+      }
     }
 
-    // Perform the mutation
-    staging[accessor] = value
-  }
-
-  getWriter = () => {
-    const { writer } = this.props
-
-    if (writer) {
-      return writer
+    if (!props.writer) {
+      throw new Error("If the RadioGroup's accessor isn't a MessageID string, a writer must be provided")
     }
 
-    return this.defaultWriter
+    return props.writer
+  }, [props.writer, props.accessor])
+
+  const handleWriting = useCallback(
+    (value: T) => {
+      const cancellationToken = getDeadline()
+
+      writeState(
+        draftState => {
+          writer(draftState, value)
+        },
+        true,
+        cancellationToken,
+      ).catch(generateWriteErrHandler(asyncThrow))
+    },
+    [writer, getDeadline],
+  )
+
+  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const index = event.currentTarget.value
+
+    const radio = radioProps[index as any] as RadioProps<T>
+
+    if (radio) {
+      handleWriting(radio.value)
+    } else {
+      console.warn("Clicked radiobutton but couldn't find the radio data?")
+    }
   }
 
-  handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const { generateStaging, writeStaged } = this.props
+  return (
+    <RadioGroup onChange={handleChange} {...radioGroupProps} selectedValue={selected === -1 ? undefined : selected}>
+      {radioProps.map((radioPropList, index) => {
+        const cleanedPropList = removeElectricProps(radioPropList, ['value'])
 
-    const writer = this.getWriter()
-
-    const radioPropsList = propsToRadioProps(this.props)
-
-    const clickedValue = event.currentTarget.value
-
-    let valueToWrite: string | number = clickedValue
-
-    // Iterate over every child radio prop to see if we can find the actual type of the value
-    radioPropsList.forEach(radioProps => {
-      const radioValue = radioProps.value
-
-      if (typeof radioValue === 'string') {
-        valueToWrite = String(clickedValue)
-        return
-      }
-
-      if (typeof radioValue === 'number') {
-        valueToWrite = parseInt(clickedValue, 10)
-        return
-      }
-    })
-
-    const staging = generateStaging() // Generate the staging
-    writer(staging, valueToWrite) // The writer mutates the staging into a 'staged'
-
-    const cancellationToken = new CancellationToken()
-
-    writeStaged(staging, true, cancellationToken).catch(
-      generateWriteErrHandler(
-        err =>
-          this.setState(() => {
-            throw err
-          }), // make the callback inline since this isn't hooks based
-      ),
-    ) // Write the 'staged' version
-  }
-
-  getSelectedValue = () => {
-    const { access } = this.props
-
-    const value = access('accessor')
-
-    return value
-  }
-
-  render() {
-    const radioGroupProps = removeElectricProps(this.props, [
-      'children',
-      'writer',
-      'accessor',
-    ])
-
-    const radioProps = propsToRadioProps(this.props)
-
-    return (
-      <RadioGroup
-        onChange={this.handleChange}
-        {...radioGroupProps}
-        selectedValue={this.getSelectedValue()}
-      >
-        {radioProps.map((radioPropList, index) => {
-          return <Radio {...radioPropList} key={radioPropList.value} />
-        })}
-      </RadioGroup>
-    )
-  }
+        return <Radio {...cleanedPropList} value={index} key={index} />
+      })}
+    </RadioGroup>
+  )
 }
 
-const RadioGroupWithElectricity = withElectricity(ElectricRadioGroup)
-// The withElectricity HOC strips static methods that aren't part of react
-// So we need to add the Radio manually and coax the types back to what we want
-const RadioGroupWithRadio = RadioGroupWithElectricity as React.ComponentClass<
-  RadioGroupProps
-> & {
-  Radio: typeof ElectricRadio
-}
-RadioGroupWithRadio.Radio = ElectricRadio
+ElectricRadioGroup.Radio = ElectricRadio
 
-export default RadioGroupWithRadio
+export default ElectricRadioGroup
