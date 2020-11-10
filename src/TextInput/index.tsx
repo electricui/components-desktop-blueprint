@@ -40,6 +40,11 @@ interface TextInputProps extends UpstreamTextInputProps {
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
   throttleDuration?: number
+
+  /**
+   * Limit the maximum length of the string. This does not take into consideration any null bytes required, etc.
+   */
+  maxLength?: number
 }
 
 /**
@@ -117,6 +122,10 @@ function ElectricTextInput(props: TextInputProps) {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       unstable_batchedUpdates(() => {
         let value = event.target.value
+
+        if (props.maxLength && value.length >= props.maxLength) {
+          value = value.slice(0, props.maxLength - 1)
+        }
 
         setLocalState(value)
         performWrite(value)
