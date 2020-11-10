@@ -40,7 +40,6 @@ interface TextInputProps extends UpstreamTextInputProps {
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
   throttleDuration?: number
-
   /**
    * Limit the maximum length of the string. This does not take into consideration any null bytes required, etc.
    */
@@ -112,7 +111,7 @@ function ElectricTextInput(props: TextInputProps) {
       },
       // throttle options
       props.throttleDuration ?? 100,
-      { leading: true, trailing: true },
+      { leading: false, trailing: true },
     ),
     // callback deps
     [writer, props.throttleDuration],
