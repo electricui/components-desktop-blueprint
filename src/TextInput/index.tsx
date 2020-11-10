@@ -1,24 +1,24 @@
-// import { getDependencyProps } from '../../utils'
+import {} from '@electricui/build-rollup-config'
+
 import {
   Accessor,
-  InjectedElectricityProps,
-  StateTree,
   removeElectricProps,
-  withElectricity,
+  useAsyncThrow,
+  useCommitStateStaged,
+  useDeadline,
+  useHardwareState,
+  usePushMessageIDs,
 } from '@electricui/components-core'
 import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
-import React, { Component } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { CancellationToken } from '@electricui/core'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
-import debounce from 'lodash.debounce'
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
+import throttle from 'lodash.throttle'
+import { unstable_batchedUpdates } from 'react-dom'
 
-type UpstreamTextInputProps = Omit<
-  IInputGroupProps,
-  'defaultValue' | 'onChange' | 'value'
->
+type UpstreamTextInputProps = Omit<IInputGroupProps, 'defaultValue' | 'onChange' | 'value'>
 
 /**
  * Remove the IInputGroupProps ones we don't want to show in the documentation
@@ -39,12 +39,7 @@ interface TextInputProps extends UpstreamTextInputProps {
   /**
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
-  debounceDuration?: number
-}
-
-interface MutableReaderState {
-  mutableValue: string
-  focused: boolean
+  throttleDuration?: number
 }
 
 /**
@@ -53,139 +48,98 @@ interface MutableReaderState {
  * @name TextInput
  * @props TextInputProps
  */
-class ElectricTextInput extends Component<
-  TextInputProps & InjectedElectricityProps,
-  MutableReaderState
-> {
-  static readonly accessorKeys = ['accessor']
-  state: MutableReaderState = {
-    mutableValue: '',
-    focused: false,
-  }
+function ElectricTextInput(props: TextInputProps) {
+  const [focused, setFocused] = useState(false)
+  const hardwareState = useHardwareState<string>(props.accessor)
+  const [localState, setLocalState] = useState<string>(hardwareState ?? '')
+  const [generateStaging, commitStaged] = useCommitStateStaged()
+  const pushMessageIDs = usePushMessageIDs()
+  const asyncThrow = useAsyncThrow()
+  const getDeadline = useDeadline()
 
-  static generateAccessorsFromProps = () => []
+  const textProps = removeElectricProps(props, ['writer'])
 
-  debouncedPush: (toWrite: StateTree) => void
+  const lastUpdateID = useRef(0)
+  const lastPushedUpdateID = useRef(0)
 
-  constructor(props: TextInputProps & InjectedElectricityProps) {
-    super(props)
-
-    this.push = this.push.bind(this)
-
-    const debounceDuration = props.debounceDuration || 250
-    this.debouncedPush = debounce(this.push, debounceDuration, {
-      trailing: true,
-    })
-    this.debouncedPush = this.debouncedPush.bind(this)
-  }
-
-  defaultWriter = (staging: Draft<ElectricUIDeveloperState>, value: string) => {
-    const { accessor } = this.props
-
-    if (typeof accessor !== 'string') {
-      throw new Error(
-        "The text input needs a writer since the accessor isn't simply a MessageID",
-      )
+  const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
     }
 
-    // Perform the mutation
-    staging[accessor] = value
-  }
-
-  getWriter = () => {
-    const { writer } = this.props
-
-    if (writer) {
-      return writer
+    if (typeof props.accessor === 'string') {
+      return (staging: Draft<ElectricUIDeveloperState>, value: string) => {
+        staging[props.accessor as string] = value
+      }
     }
 
-    return this.defaultWriter
-  }
+    throw new Error("If the TextBox's accessor isn't a MessageID string, a writer must be provided")
+  }, [props.writer, props.accessor])
 
-  getValue = () => {
-    const { access } = this.props
+  const performWrite = useCallback(
+    throttle(
+      (value: string) => {
+        const staging = generateStaging() // Generate the staging
+        writer(staging, value) // The writer mutates the staging into a 'staged'
 
-    return access('accessor')
-  }
+        const messageIDs = commitStaged(staging)
 
-  getLocalValue = () => {
-    return this.state.mutableValue
-  }
+        // Increment the last push ID
+        lastUpdateID.current++
 
-  getFocused = () => {
-    return this.state.focused
-  }
+        // Create a deadline
+        const cancellationToken = getDeadline()
 
-  /**
-   * We maintain a local state while the user is focused so we don't have "jumping" behaviour
-   */
-  setLocalValue = (value: string) => {
-    this.setState({ mutableValue: value })
-  }
+        // Capture a copy of it
+        const thisPushID = lastUpdateID.current
 
-  push(keysToWrite: string[]) {
-    const { push } = this.props
+        // Only ack on release
+        const pushPromise = pushMessageIDs(messageIDs, true, cancellationToken).catch(
+          generateWriteErrHandler(asyncThrow),
+        )
 
-    const cancellationToken = new CancellationToken()
+        // We already caught the promise, don't catch it again
+        // eslint-disable-next-line promise/catch-or-return
+        pushPromise.finally(() => {
+          // When it's received by hardware, update our last push finished ID asyncronously, hold the focussed state until then
+          lastPushedUpdateID.current = thisPushID
+        })
+      },
+      // throttle options
+      props.throttleDuration ?? 100,
+      { leading: true, trailing: true },
+    ),
+    // callback deps
+    [writer, props.throttleDuration],
+  )
 
-    push(keysToWrite, true, cancellationToken).catch(
-      generateWriteErrHandler(
-        err =>
-          this.setState(() => {
-            throw err
-          }), // make the callback inline since this isn't hooks based
-      ),
-    )
-  }
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      unstable_batchedUpdates(() => {
+        let value = event.target.value
 
-  onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const { commitStaged, generateStaging } = this.props
+        setLocalState(value)
+        performWrite(value)
+      })
+    },
+    [performWrite, setLocalState],
+  )
 
-    const value = event.currentTarget.value
-    const writer = this.getWriter()
+  const handleFocus = useCallback(() => {
+    setFocused(true)
+  }, [setFocused])
 
-    const staging = generateStaging() // Generate the staging
-    writer(staging, value) // The writer mutates the staging into a 'staged'
+  const handleBlur = useCallback(() => {
+    setFocused(false)
+  }, [setFocused])
 
-    const messageIDsModified = commitStaged(staging)
+  // If focused or if we're waiting on messages, use local state.
+  const useLocalState = focused || lastUpdateID.current !== lastPushedUpdateID.current // prettier-ignore
 
-    this.setLocalValue(value)
+  // Calculate which state to display
+  const value = useLocalState ? localState : hardwareState ?? ''
 
-    this.debouncedPush(Object.keys(messageIDsModified))
-  }
-
-  /**
-   * On focus, enter user input mode and just in time override our mutable value with the hardware state
-   */
-  onFocus = () => {
-    this.setState({ focused: true, mutableValue: this.getValue() })
-  }
-
-  onBlur = () => {
-    this.setState({ focused: false })
-  }
-
-  render() {
-    const rest = removeElectricProps(this.props, [
-      'accessor',
-      'writer',
-      'debounceDuration',
-    ])
-
-    const value = this.getFocused() ? this.getLocalValue() : this.getValue()
-
-    return (
-      <InputGroup
-        onChange={this.onChange}
-        {...rest}
-        value={value}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-      />
-    )
-  }
+  return <InputGroup onChange={handleChange} {...textProps} value={value} onFocus={handleFocus} onBlur={handleBlur} />
 }
 
-export default withElectricity(ElectricTextInput) as React.ComponentType<
-  TextInputProps
->
+export default ElectricTextInput
