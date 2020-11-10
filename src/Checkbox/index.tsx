@@ -5,7 +5,7 @@ import {
   useAsyncThrow,
   useDeadline,
   useHardwareState,
-  useWriteState
+  useWriteState,
 } from '@electricui/components-core'
 import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
@@ -14,10 +14,7 @@ import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import { generateWriteErrHandler } from 'src/utils'
 
-type UpstreamCheckboxProps = Omit<
-  ICheckboxProps,
-  'checked' | 'onChange' | 'defaultChecked'
->
+type UpstreamCheckboxProps = Omit<ICheckboxProps, 'checked' | 'onChange' | 'defaultChecked'>
 
 interface CommonCheckboxProps<T> extends UpstreamCheckboxProps {
   /**
@@ -61,14 +58,9 @@ interface CheckboxPropsFunctionalAccessor<T> extends CommonCheckboxProps<T> {
  * @remove onChange
  * @remove defaultChecked
  */
-type CheckboxProps<T> =
-  | CheckboxPropsSimpleAccessor<T>
-  | CheckboxPropsFunctionalAccessor<T>
+type CheckboxProps<T> = CheckboxPropsSimpleAccessor<T> | CheckboxPropsFunctionalAccessor<T>
 
-function valueFromCheckedUnchecked(
-  checked: boolean | null,
-  unchecked: boolean | null,
-) {
+function valueFromCheckedUnchecked(checked: boolean | null, unchecked: boolean | null) {
   if (checked) {
     return {
       checked: true,
@@ -111,6 +103,10 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
   // the writer
   const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
+    }
+
     if (typeof props.accessor === 'string') {
       const accessor = props.accessor
       return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
@@ -118,13 +114,7 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
       }
     }
 
-    if (!props.writer) {
-      throw new Error(
-        "If the Checkbox's accessor isn't a MessageID string, a writer must be provided",
-      )
-    }
-
-    return props.writer
+    throw new Error("If the Checkbox's accessor isn't a MessageID string, a writer must be provided")
   }, [props.writer, props.accessor])
 
   const handleWriting = useCallback(
@@ -151,12 +141,7 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
     handleWriting(true)
   }, [value.checked])
 
-  const rest = removeElectricProps(props, [
-    'checked',
-    'unchecked',
-    'writer',
-    'accessor',
-  ])
+  const rest = removeElectricProps(props, ['checked', 'unchecked', 'writer', 'accessor'])
 
   return <Checkbox onChange={onChange} {...rest} {...value} />
 }

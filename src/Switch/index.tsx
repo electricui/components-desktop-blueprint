@@ -17,10 +17,7 @@ import { Omit } from 'utility-types'
 import classnames from 'classnames'
 import { generateWriteErrHandler } from 'src/utils'
 
-type UpstreamSwitchProps = Omit<
-  ISwitchProps,
-  'checked' | 'onChange' | 'defaultChecked'
->
+type UpstreamSwitchProps = Omit<ISwitchProps, 'checked' | 'onChange' | 'defaultChecked'>
 
 interface CommonSwitchProps<T> extends UpstreamSwitchProps {
   /**
@@ -84,14 +81,9 @@ interface SwitchPropsForDocs extends ISwitchProps {
  * @remove onChange
  * @remove defaultChecked
  */
-type SwitchProps<T> =
-  | SwitchPropsSimpleAccessor<T>
-  | SwitchPropsFunctionalAccessor<T>
+type SwitchProps<T> = SwitchPropsSimpleAccessor<T> | SwitchPropsFunctionalAccessor<T>
 
-function valueFromCheckedUnchecked(
-  checked: boolean | null,
-  unchecked: boolean | null,
-) {
+function valueFromCheckedUnchecked(checked: boolean | null, unchecked: boolean | null) {
   if (checked) {
     return {
       checked: true,
@@ -134,6 +126,10 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
 
   // the writer
   const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
+    }
+
     if (typeof props.accessor === 'string') {
       const accessor = props.accessor
       return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
@@ -141,13 +137,7 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
       }
     }
 
-    if (!props.writer) {
-      throw new Error(
-        "If the Switch's accessor isn't a MessageID string, a writer must be provided",
-      )
-    }
-
-    return props.writer
+    throw new Error("If the Switch's accessor isn't a MessageID string, a writer must be provided")
   }, [props.writer, props.accessor])
 
   const handleWriting = useCallback(
@@ -174,26 +164,11 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
     handleWriting(true)
   }, [value.checked])
 
-  const rest = removeElectricProps(props, [
-    'checked',
-    'unchecked',
-    'writer',
-    'accessor',
-  ])
+  const rest = removeElectricProps(props, ['checked', 'unchecked', 'writer', 'accessor'])
 
-  const classNames = classnames(
-    { indeterminate: value.indeterminate },
-    props.className,
-  )
+  const classNames = classnames({ indeterminate: value.indeterminate }, props.className)
 
-  return (
-    <Switch
-      onChange={onChange}
-      {...rest}
-      checked={value.checked}
-      className={classNames}
-    />
-  )
+  return <Switch onChange={onChange} {...rest} checked={value.checked} className={classNames} />
 }
 
 export default ElectricSwitch

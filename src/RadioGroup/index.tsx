@@ -93,6 +93,10 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
   const radioGroupProps = removeElectricProps(props, ['children', 'writer', 'accessor'])
 
   const writer = useMemo(() => {
+    if (props.writer) {
+      return props.writer
+    }
+
     if (typeof props.accessor === 'string') {
       const accessor = props.accessor
       return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
@@ -100,11 +104,7 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
       }
     }
 
-    if (!props.writer) {
-      throw new Error("If the RadioGroup's accessor isn't a MessageID string, a writer must be provided")
-    }
-
-    return props.writer
+    throw new Error("If the RadioGroup's accessor isn't a MessageID string, a writer must be provided")
   }, [props.writer, props.accessor])
 
   const handleWriting = useCallback(
