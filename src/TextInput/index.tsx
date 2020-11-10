@@ -111,7 +111,7 @@ function ElectricTextInput(props: TextInputProps) {
       },
       // throttle options
       props.throttleDuration ?? 100,
-      { leading: false, trailing: true },
+      { leading: true, trailing: true },
     ),
     // callback deps
     [writer, props.throttleDuration],

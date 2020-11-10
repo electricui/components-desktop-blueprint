@@ -25,6 +25,7 @@ type UpstreamNumberInputProps = Omit<INumericInputProps, 'onValueChange' | 'valu
  * @remove defaultValue
  * @remove onChange
  * @remove value
+ * @remove clampValueOnBlur
  */
 interface NumberInputProps extends UpstreamNumberInputProps {
   /**
@@ -61,10 +62,12 @@ function ElectricNumberInput(props: NumberInputProps) {
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
 
-  const numericInputProps = removeElectricProps(props, ['writer'])
+  const numericInputProps = removeElectricProps(props, ['writer', 'clampValueOnBlur'])
 
   const lastUpdateID = useRef(0)
   const lastPushedUpdateID = useRef(0)
+  const [lastUpdateIDState, setLastUpdateID] = useState(0)
+  const [lastPushedUpdateIDState, setLastPushedUpdateID] = useState(0)
 
   const writer = useMemo(() => {
     if (props.writer) {
@@ -102,25 +105,43 @@ function ElectricNumberInput(props: NumberInputProps) {
           generateWriteErrHandler(asyncThrow),
         )
 
+        setLastUpdateID(thisPushID)
+
         // We already caught the promise, don't catch it again
         // eslint-disable-next-line promise/catch-or-return
         pushPromise.finally(() => {
           // When it's received by hardware, update our last push finished ID asyncronously, hold the focussed state until then
           lastPushedUpdateID.current = thisPushID
+          setLastPushedUpdateID(thisPushID)
         })
       },
       // throttle options
       props.throttleDuration ?? 100,
-      { leading: false, trailing: true },
+      { leading: true, trailing: true },
     ),
     // callback deps
-    [writer, props.throttleDuration],
+    [writer, props.throttleDuration, setLastUpdateID, setLastPushedUpdateID],
   )
 
   const handleChange = useCallback(
     (value: number) => {
       unstable_batchedUpdates(() => {
         setLocalState(value)
+
+        // Don't write if we have a minimum and it's below it
+        if (typeof props.min !== 'undefined') {
+          if (value < props.min) {
+            return
+          }
+        }
+
+        // Don't write if we have a maximum and it's above it
+        if (typeof props.max !== 'undefined') {
+          if (value > props.max) {
+            return
+          }
+        }
+
         performWrite(value)
       })
     },
@@ -132,23 +153,52 @@ function ElectricNumberInput(props: NumberInputProps) {
   }, [setFocused])
 
   const handleBlur = useCallback(() => {
-    setFocused(false)
+    unstable_batchedUpdates(() => {
+      setFocused(false)
+
+      // Check if we went below the minimum, correct if we did and write
+      if (typeof props.min !== 'undefined') {
+        if (localState < props.min) {
+          const min = props.min // capture in a closure
+
+          setLocalState(min)
+          performWrite(min)
+          return
+        }
+      }
+
+      // Check if we went above the maximum, correct if we did and write
+      if (typeof props.max !== 'undefined') {
+        if (localState > props.max) {
+          const max = props.max
+          setLocalState(max)
+          performWrite(max)
+          return
+        }
+      }
+    })
   }, [setFocused])
 
   // If focused or if we're waiting on messages, use local state.
-  const useLocalState = focused || lastUpdateID.current !== lastPushedUpdateID.current // prettier-ignore
+  const useLocalState = focused || lastUpdateIDState !== lastPushedUpdateIDState // prettier-ignore
 
   // Calculate which state to display
   const value = useLocalState ? localState : hardwareState ?? 0
 
   return (
-    <NumericInput
-      onValueChange={handleChange}
-      {...numericInputProps}
-      value={value}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-    />
+    <>
+      <NumericInput
+        onValueChange={handleChange}
+        {...numericInputProps}
+        value={value}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        clampValueOnBlur
+      />
+      <p>localState: {localState}</p>
+      <p>hardwareState: {hardwareState}</p>
+      <p>useLocalState: {useLocalState ? 'true' : 'false'}</p>
+    </>
   )
 }
 
