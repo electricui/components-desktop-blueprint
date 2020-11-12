@@ -8,25 +8,60 @@ import {
   useWriteState,
 } from '@electricui/components-core'
 import { Button, IMenuItemProps, MenuItem } from '@blueprintjs/core'
-import { IItemRendererProps, ItemRenderer, Select } from '@blueprintjs/select'
+import { IItemRendererProps, ISelectProps, ItemRenderer, Select } from '@blueprintjs/select'
 import React, { useCallback, useMemo } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
-const ElectricSelect = Select
+type UpstreamSelectPropsProps<T> = Omit<ISelectProps<T>, 'itemRenderer' | 'items' | 'onItemSelect' | 'activeItem'>
 
-interface DropdownProps<T> {
+interface DropdownProps<T> extends UpstreamSelectPropsProps<DropdownOptionProps<T>> {
+  /**
+   * Either a string that denotes the messageID or a function that takes the device's state tree and returns state to match against the values
+   */
   accessor: Accessor<T>
-  writer: (staging: Draft<ElectricUIDeveloperState>, value: T | any) => void
+
+  /**
+   * A writer to write the selected state.
+   *
+   * If the accessor is a MessageID string this isn't required.
+   */
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: T | any) => void
+
+  /**
+   * A series of `Dropdown.Option` components that describe the possible selection options
+   */
   children: React.ReactElement<DropdownOptionProps<T>>[] | React.ReactElement<DropdownOptionProps<T>>
-  placeholder?: string
+
+  /**
+   * A function that takes the currently selected item and returns the placeholder text.
+   * It can also take a string.
+   *
+   * Can be used to display the name of the current selected item in addition for example.
+   */
+  placeholder?: ((selectedItem: DropdownOptionProps<T> | null) => string) | string
+
   itemRenderer?: ItemRenderer<DropdownOptionProps<T>>
 }
 
 interface DropdownOptionProps<T> extends IMenuItemProps {
+  /**
+   * The value to pass to the writer upon clicking.
+   *
+   * Also the value that's used to pattern match the current hardware state.
+   */
   value: T
+  /**
+   * The text to display for the option.
+   */
   text: string
 }
 
+/**
+ * A Dropdown option
+ * @module @electricui/components-desktop-blueprint
+ * @name Dropdown.Option
+ * @props DropdownOptionProps
+ */
 function DropdownOption<T>(props: DropdownOptionProps<T>) {
   return null
 }
@@ -47,13 +82,20 @@ function renderDefaultItem<T>(item: DropdownOptionProps<T>, itemProps: IItemRend
   )
 }
 
+/**
+ * Dropdown
+ * @module @electricui/components-desktop-blueprint
+ * @name Dropdown
+ * @props DropdownProps
+ */
 export function Dropdown<T>(props: DropdownProps<T>) {
   const hardwareState = useHardwareState<T>(props.accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
 
-  const placeholderText = props.placeholder ?? 'Select an option'
+  // Filter the props we need and the props we'll pass down.
+  const { accessor: _1, writer: _2, children: _3, placeholder, ...rest } = props
 
   const items = propsToDropdownOptionProps(props)
 
@@ -65,6 +107,18 @@ export function Dropdown<T>(props: DropdownProps<T>) {
       break
     }
   }
+
+  const placeholderText = useMemo(() => {
+    if (typeof placeholder === 'function') {
+      return placeholder(selectedOption)
+    }
+
+    if (typeof placeholder === 'string') {
+      return selectedOption?.text ?? placeholder
+    }
+
+    return 'Select an option'
+  }, [placeholder])
 
   // the writer
   const writer = useMemo(() => {
@@ -109,15 +163,16 @@ export function Dropdown<T>(props: DropdownProps<T>) {
   }
 
   return (
-    <ElectricSelect
+    <Select
+      popoverProps={{ minimal: true }}
+      filterable={false}
+      {...rest}
       itemRenderer={props.itemRenderer ?? renderDefaultItem}
       items={items}
       onItemSelect={onItemSelect}
-      filterable={false}
-      popoverProps={{ minimal: true }}
       activeItem={selectedOption}
     >
-      <Button text={selectedOption?.text ?? placeholderText} rightIcon="double-caret-vertical" />
-    </ElectricSelect>
+      <Button text={placeholderText} rightIcon="double-caret-vertical" />
+    </Select>
   )
 }
