@@ -24,6 +24,7 @@ export { default as NoIPCModal } from './src/NoIPCModal'
 export { default as RefreshIndicator } from './src/RefreshIndicator'
 export { default as RefreshSpinner } from './src/RefreshIndicator/spinner'
 export { default as DebugInterface } from './src/DebugInterface'
+export { Dropdown } from './src/Dropdown'
 
 import './normalize.css'
 import './src/monospace.css'
