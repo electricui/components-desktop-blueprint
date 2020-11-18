@@ -61,16 +61,23 @@ export type ConnectionsProps = {
   onFailure: (deviceID: string, err: Error) => void
   style: React.CSSProperties
   internalCardComponent: React.ReactNode
+  noDevicesText?: string
 }
 
-const NoDevices = () => {
+interface NoDevicesProps {
+  noDevicesText?: string
+}
+
+const NoDevices = (props: NoDevicesProps) => {
   return (
     <NoFoundDiv key="nodevices">
       <NonIdealState
         title="No devices found"
         description={
           <ConsecutivePollFailureMessage>
-            {noIncreases => (noIncreases >= 3 ? <div>Hey maybe try something else?</div> : null)}
+            {noIncreases =>
+              noIncreases >= 3 ? <div>{props.noDevicesText ?? 'Unable to detect any new devices.'}</div> : null
+            }
           </ConsecutivePollFailureMessage>
         }
       />
@@ -317,7 +324,7 @@ const Connections = (props: ConnectionsProps) => {
       }}
       className="eui-connections-list"
     >
-      {deviceIDs.length === 0 ? <NoDevices /> : null}
+      {deviceIDs.length === 0 ? <NoDevices noDevicesText={props.noDevicesText} /> : null}
       <PoseGroup>{list}</PoseGroup>
 
       <Poll>
