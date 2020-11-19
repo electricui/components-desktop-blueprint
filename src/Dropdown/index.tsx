@@ -40,9 +40,21 @@ interface DropdownProps<T> extends UpstreamSelectPropsProps<DropdownOptionProps<
    */
   placeholder?: ((selectedItem: DropdownOptionProps<T> | null) => string) | string
 
+  /**
+   * This function can be used to render custom menu items.
+   *
+   * It takes an item (with a value and text string) and an object that contains modifiers such as whether the item is `active` or not.
+   *
+   * Return a custom MenuItem or other component.
+   */
   itemRenderer?: ItemRenderer<DropdownOptionProps<T>>
 }
 
+/**
+ * @remove children
+ * @remove href
+ * @remove onClick
+ */
 interface DropdownOptionProps<T> extends IMenuItemProps {
   /**
    * The value to pass to the writer upon clicking.
