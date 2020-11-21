@@ -195,9 +195,6 @@ function ElectricNumberInput(props: NumberInputProps) {
         onBlur={handleBlur}
         clampValueOnBlur
       />
-      <p>localState: {localState}</p>
-      <p>hardwareState: {hardwareState}</p>
-      <p>useLocalState: {useLocalState ? 'true' : 'false'}</p>
     </>
   )
 }
