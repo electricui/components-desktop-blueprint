@@ -41,10 +41,6 @@ interface NumberInputProps extends UpstreamNumberInputProps {
    * Wait this many milliseconds until no changes have occurred before writing them.
    */
   throttleDuration?: number
-  /**
-   * Limit the maximum length of the string. This does not take into consideration any null bytes required, etc.
-   */
-  maxLength?: number
 }
 
 /**
