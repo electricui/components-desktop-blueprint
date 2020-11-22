@@ -23,6 +23,7 @@
     "@electricui/core-timeseries": "^0.7.34",
     "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",
+    "debug": "^4.3.1",
     "immer": "^6.0.1",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
