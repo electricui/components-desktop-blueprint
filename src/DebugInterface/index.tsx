@@ -1,9 +1,12 @@
 import './index.css'
 
 import { Button, Checkbox } from '@blueprintjs/core'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { DarkModeWrapper } from '../DarkModeWrapper'
+import { DeviceManager } from '@electricui/core'
+import { DeviceManagerProxyServer } from '@electricui/components-core'
+import debug from 'debug'
 import { ipcRenderer } from 'electron'
 
 const debugOptions = [
@@ -29,7 +32,6 @@ const debugOptions = [
     strings: [
       'electricui-transport-node-ble:transport',
       'electricui-transport-node-hid:transport',
-      'electricui-transport-node-websocket:*',
       'electricui-transport-node-ble:hint-producer',
       'electricui-transport-node-serial:hint-producer',
       'electricui-transport-node-serial:usb-hint-transformer',
@@ -75,12 +77,25 @@ const debugStrings = debugOptions
   .reduce((all, strings) => all.concat(strings), [])
   .sort()
 
-const DebugInterface = () => {
-  const defaultSelected = localStorage.getItem('debug')
+interface DebugInterfaceProps {
+  proxyServer: DeviceManagerProxyServer
+  deviceManager: DeviceManager
+}
 
-  const defaultSelectedArray = defaultSelected ? defaultSelected.split(',') : []
+const DebugInterface = (props: DebugInterfaceProps) => {
+  const currentlySelected = debugStrings.filter(str => debug.enabled(str))
 
-  const [selectedStrings, setSelected] = useState<string[]>(defaultSelectedArray)
+  const [selectedStrings, setSelected] = useState<string[]>(currentlySelected)
+
+  const select = useCallback(
+    (namespaces: string[]) => {
+      const namespaceStr = namespaces.join(',')
+      debug.enable(namespaceStr)
+
+      setSelected(debugStrings.filter(str => debug.enabled(str)))
+    },
+    [setSelected],
+  )
 
   return (
     <DarkModeWrapper>
@@ -98,24 +113,6 @@ const DebugInterface = () => {
               }}
             >
               Transport Console
-            </Button>
-            <Button
-              fill
-              intent="warning"
-              className="bp3-outlined"
-              large
-              icon="refresh"
-              onClick={() => {
-                localStorage.setItem(
-                  'debug',
-                  selectedStrings
-                    .filter(selectedString => debugStrings.includes(selectedString)) // remove ones set by not us
-                    .join(','),
-                )
-                window.location.reload()
-              }}
-            >
-              Apply Filters {'&'} Restart
             </Button>
             <Button
               fill
@@ -149,11 +146,11 @@ const DebugInterface = () => {
                             onChange={() => {
                               if (selectedStrings.includes(debugString)) {
                                 // remove it from the list
-                                setSelected(selectedStrings.filter(selectedString => selectedString !== debugString))
+                                select(selectedStrings.filter(selectedString => selectedString !== debugString))
                                 return
                               }
 
-                              setSelected([...selectedStrings, debugString])
+                              select([...selectedStrings, debugString])
                             }}
                           >
                             {debugString}
