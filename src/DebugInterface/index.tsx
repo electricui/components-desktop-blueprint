@@ -1,172 +1,95 @@
 import './index.css'
 
-import { Button, Checkbox } from '@blueprintjs/core'
-import React, { useCallback, useState } from 'react'
+import { Alignment, Button, Navbar, Tab, Tabs } from '@blueprintjs/core'
+import React, { useState } from 'react'
 
 import { DarkModeWrapper } from '../DarkModeWrapper'
+import { DebugChannels } from './debug-channels'
 import { DeviceManager } from '@electricui/core'
 import { DeviceManagerProxyServer } from '@electricui/components-core'
-import debug from 'debug'
+import { IconNames } from '@blueprintjs/icons'
 import { ipcRenderer } from 'electron'
-
-const debugOptions = [
-  {
-    categoryTitle: 'Protocol',
-    strings: [
-      'electricui-protocol-cobs',
-      'electricui-protocol-binary-cobs:pipelines',
-      'electricui-protocol-binary-fifo-queue:queue',
-      'electricui-protocol-binary:heartbeats',
-      'electricui-protocol-binary:decoder',
-      'electricui-protocol-binary:encoder',
-      'electricui-protocol-binary-large-packet-handler:decoder',
-      'electricui-protocol-binary-large-packet-handler:encoder',
-      'electricui-protocol-binary:deliverability-manager',
-      'electricui-protocol-binary:hint-validator-handshake',
-      'electricui-protocol-binary:query-manager',
-      'electricui-protocol-binary:connection-handshake',
-    ],
-  },
-  {
-    categoryTitle: 'Transports',
-    strings: [
-      'electricui-transport-node-ble:transport',
-      'electricui-transport-node-hid:transport',
-      'electricui-transport-node-ble:hint-producer',
-      'electricui-transport-node-serial:hint-producer',
-      'electricui-transport-node-serial:usb-hint-transformer',
-      'electricui-transport-node-serial:transport',
-      'electricui-transport-node-serial:bandwidth-metadata',
-      'electricui-transport-node-websocket:transport',
-    ],
-  },
-  {
-    categoryTitle: 'Core',
-    strings: [
-      'electricui-core:connection-interface',
-      'electricui-core:connection',
-      'electricui-core:device',
-      'electricui-core:device-manager',
-      'electricui-core:discovery-manager',
-      'electricui-core:validation-worker',
-      'electricui-core:router-log-ratio:result',
-      'electricui-core:router-log-ratio:calculations',
-    ],
-  },
-  {
-    categoryTitle: 'Build Tools',
-    strings: [
-      'electricui-build-tools',
-      'electricui-build-tools:main-client-hmr',
-      'electricui-build-tools:dev-runner',
-      'electricui-build-tools:clean',
-    ],
-  },
-  {
-    categoryTitle: 'Components Core',
-    strings: ['electricui-components-core:proxy-client', 'electricui-components-core:device-manager-proxy'],
-  },
-  {
-    categoryTitle: 'Utilities',
-    strings: ['utility-ipc:server'],
-  },
-]
-
-const debugStrings = debugOptions
-  .map(opt => opt.strings)
-  .reduce((all, strings) => all.concat(strings), [])
-  .sort()
 
 interface DebugInterfaceProps {
   proxyServer: DeviceManagerProxyServer
   deviceManager: DeviceManager
 }
 
-const DebugInterface = (props: DebugInterfaceProps) => {
-  const currentlySelected = debugStrings.filter(str => debug.enabled(str))
-
-  const [selectedStrings, setSelected] = useState<string[]>(currentlySelected)
-
-  const select = useCallback(
-    (namespaces: string[]) => {
-      const namespaceStr = namespaces.join(',')
-      debug.enable(namespaceStr)
-
-      setSelected(debugStrings.filter(str => debug.enabled(str)))
-    },
-    [setSelected],
-  )
+export const DebugInterface = (props: DebugInterfaceProps) => {
+  const [selectedTab, setSelectedTab] = useState<string | number>('debug_channels')
 
   return (
     <DarkModeWrapper>
-      <div className="debug-page">
-        <div className="debug-header">
-          <div className="debug-header-buttons">
-            <Button
-              fill
-              intent="success"
-              className="bp3-outlined"
-              large
-              icon="applications"
-              onClick={() => {
-                ipcRenderer.send('open-debug-window-dev-tools')
-              }}
-            >
-              Transport Console
-            </Button>
-            <Button
-              fill
-              intent="primary"
-              className="bp3-outlined"
-              large
-              icon="document-open"
-              onClick={() => {
-                ipcRenderer.send('open-debugging-docs')
-              }}
-            >
-              Debugging Docs
-            </Button>
+      <div className="debug-header">
+        <Navbar style={{ background: 'transparent', boxShadow: 'none' }}>
+          <div style={{ margin: '0 auto', width: '100%' }}>
+            <Navbar.Group align={Alignment.LEFT}>
+              <Button
+                minimal
+                large
+                icon={IconNames.FILTER}
+                text="Debug Log Channels"
+                onClick={() => {
+                  setSelectedTab('debug_channels')
+                }}
+                active={selectedTab === 'debug_channels'}
+                style={{ marginRight: '0.5em' }}
+              />
+              <Button
+                minimal
+                disabled
+                large
+                icon={IconNames.PROPERTIES}
+                text="Device State"
+                onClick={() => {
+                  setSelectedTab('device_state')
+                }}
+                active={selectedTab === 'device_state'}
+                style={{ marginRight: '0.5em' }}
+              />
+              <Button
+                disabled
+                minimal
+                large
+                icon={IconNames.SATELLITE}
+                text="Connection States"
+                onClick={() => {
+                  setSelectedTab('connection_states')
+                }}
+                active={selectedTab === 'connection_states'}
+              />
+            </Navbar.Group>
+            <Navbar.Group align={Alignment.RIGHT}>
+              <Button
+                intent="success"
+                className="bp3-outlined"
+                large
+                minimal
+                icon="applications"
+                onClick={() => {
+                  ipcRenderer.send('open-debug-window-dev-tools')
+                }}
+                style={{ marginRight: '0.5em' }}
+              >
+                Open Transport Console
+              </Button>
+              <Button
+                intent="primary"
+                className="bp3-outlined"
+                large
+                minimal
+                icon="document-open"
+                onClick={() => {
+                  ipcRenderer.send('open-debugging-docs')
+                }}
+              >
+                Open Debugging Docs
+              </Button>
+            </Navbar.Group>
           </div>
-        </div>
-        <div className="debug-content">
-          <div style={{ padding: '0 2em' }}>
-            <h1>Transport Debugger</h1>
-            <p>Use this interface to filter the transport-manager&apos;s runtime debug output.</p>
-            <p>Filter modifications require a restart of the transport-manager and will disconnect from all devices.</p>
-            <div>
-              <div className="optionslist">
-                {debugOptions.map(debugGroup => (
-                  <div className="option" key={debugGroup.categoryTitle}>
-                    <h3>{debugGroup.categoryTitle}</h3>
-                    <ul>
-                      {debugGroup.strings.map(debugString => (
-                        <li style={{ listStyle: 'none' }} key={debugString}>
-                          <Checkbox
-                            checked={selectedStrings.includes(debugString)}
-                            onChange={() => {
-                              if (selectedStrings.includes(debugString)) {
-                                // remove it from the list
-                                select(selectedStrings.filter(selectedString => selectedString !== debugString))
-                                return
-                              }
-
-                              select([...selectedStrings, debugString])
-                            }}
-                          >
-                            {debugString}
-                          </Checkbox>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        </Navbar>
       </div>
+      <div className="debug-content">{selectedTab === 'debug_channels' ? <DebugChannels /> : null}</div>
     </DarkModeWrapper>
   )
 }
-
-export default DebugInterface
