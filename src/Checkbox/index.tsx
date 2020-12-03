@@ -140,7 +140,6 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
     handleWriting(true)
   }, [value.checked])
-
   const rest = removeElectricProps(props, ['checked', 'unchecked', 'writer', 'accessor'])
 
   return <Checkbox onChange={onChange} {...rest} {...value} />
