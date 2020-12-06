@@ -14,9 +14,9 @@
     "manifest.json"
   ],
   "dependencies": {
-    "@blueprintjs/core": "^3.22.0",
-    "@blueprintjs/icons": "^3.12.0",
-    "@blueprintjs/select": "^3.14.3",
+    "@blueprintjs/core": "^3.36.0",
+    "@blueprintjs/icons": "^3.23.0",
+    "@blueprintjs/select": "^3.15.0",
     "@electricui/components-core": "^0.7.34",
     "@electricui/components-desktop": "^0.7.34",
     "@electricui/core": "^0.7.31",
