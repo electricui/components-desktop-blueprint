@@ -37,6 +37,7 @@ const debugOptions = [
   {
     categoryTitle: 'Core',
     strings: [
+      'electricui-core:cancellation-token',
       'electricui-core:connection-interface',
       'electricui-core:connection',
       'electricui-core:device',
