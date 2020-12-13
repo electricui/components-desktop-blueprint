@@ -35,7 +35,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                 active={selectedTab === 'debug_channels'}
                 style={{ marginRight: '0.5em' }}
               />
-              <Button
+              {/* <Button
                 minimal
                 disabled
                 large
@@ -57,7 +57,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                   setSelectedTab('connection_states')
                 }}
                 active={selectedTab === 'connection_states'}
-              />
+              /> */}
             </Navbar.Group>
             <Navbar.Group align={Alignment.RIGHT}>
               <Button
