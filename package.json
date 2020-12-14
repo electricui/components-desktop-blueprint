@@ -1,6 +1,6 @@
 {
   "name": "@electricui/components-desktop-blueprint",
-  "version": "0.7.35-prerelease.5",
+  "version": "0.7.35-prerelease.6",
   "description": "ElectricUI Desktop Blueprint Components",
   "electricui-dev": true,
   "author": "Electric UI <support@electricui.com> (https://electricui.com)",
@@ -20,7 +20,7 @@
     "@electricui/components-core": "^0.7.35-prerelease.4",
     "@electricui/components-desktop": "^0.7.35-prerelease.4",
     "@electricui/core": "^0.7.35-prerelease.4",
-    "@electricui/core-timeseries": "^0.7.35-prerelease.5",
+    "@electricui/core-timeseries": "^0.7.35-prerelease.6",
     "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",
     "debug": "^4.3.1",
