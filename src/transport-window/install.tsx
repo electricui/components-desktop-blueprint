@@ -18,44 +18,25 @@ export function setupProxyAndDebugInterface(
 ) {
   let server = setupProxyServer(deviceManager)
 
-  // This is from the perspective of the transport managers index file, since we've stolen their module.hot reference.
-  // hot.accept('./config', () => {
-  //   console.log('Hot reloading device manager configuration...')
-  //   console.log('Tearing down old proxy server')
-
-  //   // Prepare the device manager proxy server for a hot reload
-  //   const dataBundle = server.prepareForHotReload()
-
-  //   console.log('Setting up new proxy server')
-
-  //   // Setup the new proxy server
-  //   server = setupProxyServer(deviceManager)
-  //   server.setDataForHotReload(dataBundle)
-
-  //   ReactDOM.render(<DebugInterface proxyServer={server} deviceManager={deviceManager} />, element)
-  // })
-
   const ComponentToRender = Component ?? DebugInterface
 
   ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} />, element)
 
+  // On refresh.
   return (element2: Element | DocumentFragment, deviceManager2: DeviceManager) => {
-    // Shut down old device manager, old proxy server
+    // console.log('Setting up new proxy server for device manager', deviceManager2.uuid, '(was', deviceManager.uuid, ')')
 
-    // Turn on new device manager, new proxy server
+    // Grab the hot reload data
+    const mutableHotReloadData = {}
+    server.requestDataForHotReload(mutableHotReloadData)
 
-    // Connect to new devices
+    // generate a new proxy server
+    server = setupProxyServer(deviceManager2)
+
+    // Apply the hot reload data
+    server.provideDataForHotReload(mutableHotReloadData)
 
     // Re-render
-
-    const dataBundle = server.prepareForHotReload()
-
-    console.log(
-      'hot handler in our control',
-      element === element2 ? 'same elements' : 'elements changed',
-      deviceManager === deviceManager2 ? 'same device mangaer' : 'device manager changed',
-    )
-
-    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} />, element)
+    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager2} />, element2)
   }
 }

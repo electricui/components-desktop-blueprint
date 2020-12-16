@@ -59,7 +59,11 @@ const debugOptions = [
   },
   {
     categoryTitle: 'Components Core',
-    strings: ['electricui-components-core:proxy-client', 'electricui-components-core:device-manager-proxy'],
+    strings: [
+      'electricui-components-core:proxy-client',
+      'electricui-components-core:device-manager-proxy',
+      'electricui-components-core:pings',
+    ],
   },
   {
     categoryTitle: 'Utilities',
