@@ -4,7 +4,6 @@ import { Box, Composition } from 'atomic-layout'
 import { Button, Classes, Icon, NonIdealState, Tag } from '@blueprintjs/core'
 import {
   ConsecutivePollFailureMessage,
-  Poll,
   useConnectionMetadataKey,
   useConnectionState,
   useDeadline,
@@ -16,12 +15,14 @@ import {
   useDeviceHandshakeState,
   useDeviceIDList,
   useDeviceMetadataKey,
+  usePollForDevices,
 } from '@electricui/components-core'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import posed, { PoseGroup } from 'react-pose'
 
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
+import { CancellationToken } from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -297,6 +298,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
 const Connections = (props: ConnectionsProps) => {
   const deviceIDs = useDeviceIDList()
+  const { poll, polling } = usePollForDevices()
 
   const { maxWidth, style } = props
 
@@ -327,22 +329,18 @@ const Connections = (props: ConnectionsProps) => {
       {deviceIDs.length === 0 ? <NoDevices noDevicesText={props.noDevicesText} /> : null}
       <PoseGroup>{list}</PoseGroup>
 
-      <Poll>
-        {(onClick, polling, deviceManagerReady) => (
-          <Button
-            onClick={onClick}
-            disabled={polling || !deviceManagerReady}
-            fill
-            style={{
-              width: maxWidth,
-              margin: '2em auto 0 auto',
-            }}
-            loading={polling}
-          >
-            Refresh
-          </Button>
-        )}
-      </Poll>
+      <Button
+        onClick={poll}
+        disabled={polling}
+        fill
+        style={{
+          width: maxWidth,
+          margin: '2em auto 0 auto',
+        }}
+        loading={polling}
+      >
+        Refresh
+      </Button>
     </div>
   )
 }
