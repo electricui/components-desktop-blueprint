@@ -4,7 +4,7 @@ import { Accessor, deepObjectEquality, useWriteState } from '@electricui/compone
 import { IRadioGroupProps, IRadioProps, Radio, RadioGroup } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
-import { removeElectricProps, useAsyncThrow, useDeadline, useHardwareState } from '@electricui/components-core'
+import { useAsyncThrow, useDeadline, useContainedState } from '@electricui/components-core'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
@@ -77,7 +77,7 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
   const { children, writer: writerProp, accessor, ...radioGroupProps } = props
   const radioProps = propsToRadioProps(props)
 
-  const accessedState = useHardwareState(props.accessor)
+  const accessedState = useContainedState(accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()

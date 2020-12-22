@@ -4,7 +4,7 @@ import {
   deepObjectEquality,
   useAsyncThrow,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   useWriteState,
 } from '@electricui/components-core'
 import { Button, IMenuItemProps, MenuItem } from '@blueprintjs/core'
@@ -101,7 +101,7 @@ function renderDefaultItem<T>(item: DropdownOptionProps<T>, itemProps: IItemRend
  * @props DropdownProps
  */
 export function Dropdown<T>(props: DropdownProps<T>) {
-  const hardwareState = useHardwareState<T>(props.accessor)
+  const hardwareState = useContainedState<T>(props.accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()

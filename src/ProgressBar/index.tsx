@@ -1,8 +1,4 @@
-import {
-  Accessor,
-  removeElectricProps,
-  useHardwareState,
-} from '@electricui/components-core'
+import { Accessor, useContainedState } from '@electricui/components-core'
 import { IProgressBarProps, ProgressBar } from '@blueprintjs/core'
 
 import { Omit } from 'utility-types'
@@ -37,9 +33,8 @@ interface ProgressBarProps extends UpstreamProgressBarProps {
  * @props ProgressBarProps
  */
 export default function ElectricProgressBar(props: ProgressBarProps) {
-  const { min, max, stripes } = props
-  const value = useHardwareState(props.accessor)
-  const rest = removeElectricProps(props, ['min', 'max', 'accessor'])
+  const { min, max, accessor, stripes, ...rest } = props
+  const value = useContainedState(accessor)
 
   const minWithDefault = min ?? 0
   const maxWithDefault = max ?? 1

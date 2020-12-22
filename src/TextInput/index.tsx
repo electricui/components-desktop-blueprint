@@ -5,7 +5,7 @@ import {
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
 import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
@@ -53,7 +53,7 @@ interface TextInputProps extends UpstreamTextInputProps {
  */
 function ElectricTextInput(props: TextInputProps) {
   const [focused, setFocused] = useState(false)
-  const hardwareState = useHardwareState<string>(props.accessor)
+  const hardwareState = useContainedState<string>(props.accessor)
   const [localState, setLocalState] = useState<string>(hardwareState ?? '')
   const [generateStaging, commitStaged] = useCommitStateStaged()
   const pushMessageIDs = usePushMessageIDs()

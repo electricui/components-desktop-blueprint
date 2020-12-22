@@ -5,7 +5,7 @@ import {
   deepObjectEquality,
   useAsyncThrow,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   useWriteState,
 } from '@electricui/components-core'
 import { ISwitchProps, Switch } from '@blueprintjs/core'
@@ -114,7 +114,7 @@ function ElectricSwitch<T>(props: SwitchProps<T>) {
 
   // this will cause a re-update every time the messageID changes,
   // even if it doesn't cause a checked or unchecked state change.
-  const accessedState = useHardwareState(props.accessor)
+  const accessedState = useContainedState(accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()

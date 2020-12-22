@@ -5,7 +5,7 @@ import {
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
 import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
@@ -179,9 +179,9 @@ function ElectricSlider(props: SliderProps) {
 
   let isValid = true
 
-  // As long as we have the same amount of handles, this will call the same amount of useInterfaceState hooks
-  const hardwareState = handleProps.map(handleProp => {
-    const value = useHardwareState(handleProp.accessor)
+  // As long as we have the same amount of handles, this will call the same amount of useContainedState hooks
+  const containedState = handleProps.map(handleProp => {
+    const value = useContainedState(handleProp.accessor)
 
     if (typeof value !== 'number') {
       isValid = false
@@ -286,15 +286,15 @@ function ElectricSlider(props: SliderProps) {
 
   // Calculate which state to display
   const stateToDisplay = (useLocalState
-    ? hardwareState.map((hardwareState, index) => {
+    ? containedState.map((containedState, index) => {
         // we're focused, so grab the local state if we can instead
         if (localState) {
           return localState[index]
         }
 
-        return hardwareState
+        return containedState
       })
-    : hardwareState) as number[] // nothing will be null by now, we bailed with the isValid check
+    : containedState) as number[] // nothing will be null by now, we bailed with the isValid check
 
   return (
     <MultiSlider onChange={handleChange} onRelease={handleRelease} {...sliderProps}>

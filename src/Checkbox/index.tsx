@@ -3,7 +3,7 @@ import {
   deepObjectEquality,
   useAsyncThrow,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   useWriteState,
 } from '@electricui/components-core'
 import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
@@ -91,7 +91,7 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
   // this will cause a re-update every time the messageID changes,
   // even if it doesn't cause a checked or unchecked state change.
-  const accessedState = useHardwareState(props.accessor)
+  const accessedState = useContainedState(accessor)
   const writeState = useWriteState()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()

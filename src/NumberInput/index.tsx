@@ -5,7 +5,7 @@ import {
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
-  useHardwareState,
+  useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
 import { INumericInputProps, NumericInput } from '@blueprintjs/core'
@@ -50,7 +50,7 @@ interface NumberInputProps extends UpstreamNumberInputProps {
  */
 function ElectricNumberInput(props: NumberInputProps) {
   const [focused, setFocused] = useState(false)
-  const hardwareState = useHardwareState<number>(props.accessor)
+  const hardwareState = useContainedState<number>(props.accessor)
   const [localState, setLocalState] = useState<number>(hardwareState ?? 0)
   const [generateStaging, commitStaged] = useCommitStateStaged()
   const pushMessageIDs = usePushMessageIDs()
