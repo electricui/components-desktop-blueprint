@@ -1,14 +1,7 @@
 import { Button, IButtonProps } from '@blueprintjs/core'
 import React, { ReactNode, useCallback } from 'react'
 // import { getDependencyProps } from '../../utils'
-import {
-  StateTree,
-  removeElectricProps,
-  useAsyncThrow,
-  useDeadline,
-  useSendCallback,
-  useWriteState,
-} from '@electricui/components-core'
+import { StateTree, useAsyncThrow, useDeadline, useSendCallback, useWriteState } from '@electricui/components-core'
 
 import { Draft } from 'immer'
 import { generateWriteErrHandler } from 'src/utils'
@@ -58,16 +51,12 @@ export default function ElectricButton(props: ElectricButtonProps) {
 
       // If we have a writer, call it now
       if (props.writer) {
-        writeState(props.writer, !props.noAck, cancellationToken).catch(
-          generateWriteErrHandler(asyncThrow),
-        )
+        writeState(props.writer, !props.noAck, cancellationToken).catch(generateWriteErrHandler(asyncThrow))
       }
 
       // If there is a callback to call after our write, do it now
       if (props.callback) {
-        sendCallback(props.callback, !props.noAck, cancellationToken).catch(
-          generateWriteErrHandler(asyncThrow),
-        )
+        sendCallback(props.callback, !props.noAck, cancellationToken).catch(generateWriteErrHandler(asyncThrow))
       }
 
       // If there's a regular JS onClick handler, call it
@@ -79,7 +68,8 @@ export default function ElectricButton(props: ElectricButtonProps) {
   )
 
   const disabled = props.disabled
-  const rest = removeElectricProps(props, ['writer', 'noAck'])
+
+  const { writer, noAck, ...rest } = props
 
   return <Button onClick={allOnClick} {...rest} disabled={disabled} />
 }

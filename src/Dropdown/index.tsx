@@ -130,7 +130,7 @@ export function Dropdown<T>(props: DropdownProps<T>) {
     }
 
     return 'Select an option'
-  }, [placeholder])
+  }, [placeholder, selectedOption])
 
   // the writer
   const writer = useMemo(() => {

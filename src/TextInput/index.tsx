@@ -2,7 +2,6 @@ import {} from '@electricui/build-rollup-config'
 
 import {
   Accessor,
-  removeElectricProps,
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
@@ -61,14 +60,14 @@ function ElectricTextInput(props: TextInputProps) {
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
 
-  const textProps = removeElectricProps(props, ['writer'])
+  const { writer: writerProp, ...textProps } = props
 
   const lastUpdateID = useRef(0)
   const lastPushedUpdateID = useRef(0)
 
   const writer = useMemo(() => {
-    if (props.writer) {
-      return props.writer
+    if (writerProp) {
+      return writerProp
     }
 
     if (typeof props.accessor === 'string') {
@@ -78,7 +77,7 @@ function ElectricTextInput(props: TextInputProps) {
     }
 
     throw new Error("If the TextBox's accessor isn't a MessageID string, a writer must be provided")
-  }, [props.writer, props.accessor])
+  }, [writerProp, props.accessor])
 
   const performWrite = useCallback(
     throttle(
@@ -120,7 +119,7 @@ function ElectricTextInput(props: TextInputProps) {
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       unstable_batchedUpdates(() => {
-        let value = event.target.value
+        let value = (event.currentTarget as any).value
 
         if (props.maxLength && value.length >= props.maxLength) {
           value = value.slice(0, props.maxLength - 1)

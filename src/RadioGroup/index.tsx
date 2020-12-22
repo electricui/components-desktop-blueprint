@@ -74,6 +74,7 @@ function propsToRadioProps<T>(props: RadioGroupProps<T>): Array<RadioProps<T>> {
  * @props RadioGroupProps
  */
 function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
+  const { children, writer: writerProp, accessor, ...radioGroupProps } = props
   const radioProps = propsToRadioProps(props)
 
   const accessedState = useHardwareState(props.accessor)
@@ -90,22 +91,19 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
     }
   }
 
-  const radioGroupProps = removeElectricProps(props, ['children', 'writer', 'accessor'])
-
   const writer = useMemo(() => {
-    if (props.writer) {
-      return props.writer
+    if (writerProp) {
+      return writerProp
     }
 
-    if (typeof props.accessor === 'string') {
-      const accessor = props.accessor
+    if (typeof accessor === 'string') {
       return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
         staging[accessor] = value
       }
     }
 
     throw new Error("If the RadioGroup's accessor isn't a MessageID string, a writer must be provided")
-  }, [props.writer, props.accessor])
+  }, [writerProp, accessor])
 
   const handleWriting = useCallback(
     (value: T) => {
@@ -123,9 +121,9 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
   )
 
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const index = event.currentTarget.value
+    const index = (event.currentTarget as any).value
 
-    const radio = radioProps[index as any] as RadioProps<T>
+    const radio = radioProps[index] as RadioProps<T>
 
     if (radio) {
       handleWriting(radio.value)
@@ -137,7 +135,7 @@ function ElectricRadioGroup<T>(props: RadioGroupProps<T>) {
   return (
     <RadioGroup onChange={handleChange} {...radioGroupProps} selectedValue={selected === -1 ? undefined : selected}>
       {radioProps.map((radioPropList, index) => {
-        const cleanedPropList = removeElectricProps(radioPropList, ['value'])
+        const { value, ...cleanedPropList } = radioPropList
 
         return <Radio {...cleanedPropList} value={index} key={index} />
       })}

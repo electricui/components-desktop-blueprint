@@ -11,7 +11,8 @@
     "declaration": true,
     "baseUrl": ".",
     "outDir": "./lib",
-    "jsx": "react"
+    "jsx": "react",
+    "lib": ["DOM"]
   },
   "include": ["./src/**/*", "index.ts"]
 }

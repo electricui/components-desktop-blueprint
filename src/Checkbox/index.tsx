@@ -1,7 +1,6 @@
 import {
   Accessor,
   deepObjectEquality,
-  removeElectricProps,
   useAsyncThrow,
   useDeadline,
   useHardwareState,
@@ -88,6 +87,8 @@ function valueFromCheckedUnchecked(checked: boolean | null, unchecked: boolean |
  * @props CheckboxPropsFunctionalAccessor
  */
 function ElectricCheckbox<T>(props: CheckboxProps<T>) {
+  const { checked, unchecked, writer: writerProp, accessor, ...rest } = props
+
   // this will cause a re-update every time the messageID changes,
   // even if it doesn't cause a checked or unchecked state change.
   const accessedState = useHardwareState(props.accessor)
@@ -103,19 +104,18 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
   // the writer
   const writer = useMemo(() => {
-    if (props.writer) {
-      return props.writer
+    if (writerProp) {
+      return writerProp
     }
 
-    if (typeof props.accessor === 'string') {
-      const accessor = props.accessor
+    if (typeof accessor === 'string') {
       return (staging: Draft<ElectricUIDeveloperState>, value: T) => {
         staging[accessor] = value
       }
     }
 
     throw new Error("If the Checkbox's accessor isn't a MessageID string, a writer must be provided")
-  }, [props.writer, props.accessor])
+  }, [writerProp, accessor])
 
   const handleWriting = useCallback(
     (writeChecked: boolean) => {
@@ -140,7 +140,6 @@ function ElectricCheckbox<T>(props: CheckboxProps<T>) {
 
     handleWriting(true)
   }, [value.checked])
-  const rest = removeElectricProps(props, ['checked', 'unchecked', 'writer', 'accessor'])
 
   return <Checkbox onChange={onChange} {...rest} {...value} />
 }

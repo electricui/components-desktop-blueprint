@@ -1,8 +1,7 @@
 import {} from '@electricui/build-rollup-config'
 
 import {
-  FunctionalAccessorCommittedAndPushed,
-  removeElectricProps,
+  FunctionalAccessor,
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
@@ -45,7 +44,7 @@ interface SliderHandleProps extends CommonHandleProps {
    *
    * This accessor is only for the interface state to prevent 'jumping' behaviour.
    */
-  accessor: FunctionalAccessorCommittedAndPushed<number>
+  accessor: FunctionalAccessor<number>
   /**
    * If all the Slider's SliderHandles' Accessors are merely messageIDs, this name is optional.
    * If any Accessor is functional, then all SliderHandles need a name for their Accessor.
@@ -72,10 +71,7 @@ type SliderValues = {
   [key: string]: number
 }
 
-type SliderPropsNoEventHandlers = Omit<
-  IMultiSliderProps,
-  'onChange' | 'onRelease'
->
+type SliderPropsNoEventHandlers = Omit<IMultiSliderProps, 'onChange' | 'onRelease'>
 
 interface CommonSliderProps extends SliderPropsNoEventHandlers {
   /**
@@ -98,10 +94,7 @@ interface SliderPropsWithWriter extends CommonSliderProps {
    * If all the SliderHandles' Accessors are merely messageIDs, this Writer is optional.
    * If any Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer: (
-    staging: Draft<ElectricUIDeveloperState>,
-    sliderValues: SliderValues,
-  ) => void
+  writer: (staging: Draft<ElectricUIDeveloperState>, sliderValues: SliderValues) => void
 }
 
 /**
@@ -112,17 +105,12 @@ interface SliderPropsAutomaticWriter extends CommonSliderProps {
    * A Slider handle or an array of slider handles.
    * @type <Slider.SliderHandle /> | <Slider.SliderHandle />[]
    */
-  children:
-    | React.ReactElement<SliderHandlePropsStringAccessor>[]
-    | React.ReactElement<SliderHandlePropsStringAccessor>
+  children: React.ReactElement<SliderHandlePropsStringAccessor>[] | React.ReactElement<SliderHandlePropsStringAccessor>
   /**
    * If all the SliderHandles' Accessors are merely messageIDs, this Writer is optional.
    * If any Accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: (
-    staging: Draft<ElectricUIDeveloperState>,
-    sliderValues: SliderValues,
-  ) => void
+  writer?: (staging: Draft<ElectricUIDeveloperState>, sliderValues: SliderValues) => void
 }
 
 type SliderProps = SliderPropsWithWriter | SliderPropsAutomaticWriter
@@ -137,9 +125,7 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   return handleProps.map(props => {
     if (typeof props.accessor !== 'string') {
       if (typeof props.name === 'undefined') {
-        throw new Error(
-          'If a Slider Handle Accessor is a function it needs a name',
-        )
+        throw new Error('If a Slider Handle Accessor is a function it needs a name')
       }
 
       return props.name
@@ -149,10 +135,7 @@ function handlePropsToAccessorKey(handleProps: Array<HandleProps>) {
   })
 }
 
-function convertArrayValuesToHashmap(
-  handleProps: Array<HandleProps>,
-  values: number[],
-) {
+function convertArrayValuesToHashmap(handleProps: Array<HandleProps>, values: number[]) {
   const childAccessorKeys = handlePropsToAccessorKey(handleProps)
 
   const sliderValues: { [key: string]: number } = {}
@@ -165,10 +148,7 @@ function convertArrayValuesToHashmap(
   return sliderValues
 }
 
-const defaultWriter = (
-  staging: Draft<ElectricUIDeveloperState>,
-  sliderValues: SliderValues,
-) => {
+const defaultWriter = (staging: Draft<ElectricUIDeveloperState>, sliderValues: SliderValues) => {
   for (const messageID of Object.keys(sliderValues)) {
     staging[messageID] = sliderValues[messageID]
   }
@@ -189,7 +169,7 @@ function ElectricSlider(props: SliderProps) {
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
 
-  const sliderProps = removeElectricProps(props, ['children', 'writer'])
+  const { children, writer: writerProp, ...sliderProps } = props
 
   const handleProps = propsToHandleProps(props)
   const childAccessorKeys = handlePropsToAccessorKey(handleProps)
@@ -211,12 +191,12 @@ function ElectricSlider(props: SliderProps) {
   })
 
   const writer = useMemo(() => {
-    if (props.writer) {
-      return props.writer
+    if (writerProp) {
+      return writerProp
     }
 
     return defaultWriter
-  }, [props.writer])
+  }, [writerProp])
 
   const performWrite = useCallback(
     throttle(
@@ -249,11 +229,9 @@ function ElectricSlider(props: SliderProps) {
         const thisPushID = lastUpdateID.current
 
         // Only ack on release
-        const pushPromise = pushMessageIDs(
-          Array.from(messageIDsNeedAcking.current),
-          release,
-          cancellationToken,
-        ).catch(generateWriteErrHandler(asyncThrow))
+        const pushPromise = pushMessageIDs(Array.from(messageIDsNeedAcking.current), release, cancellationToken).catch(
+          generateWriteErrHandler(asyncThrow),
+        )
 
         // Clear the messageIDs to ack on release
         if (release) {
@@ -319,21 +297,11 @@ function ElectricSlider(props: SliderProps) {
     : hardwareState) as number[] // nothing will be null by now, we bailed with the isValid check
 
   return (
-    <MultiSlider
-      onChange={handleChange}
-      onRelease={handleRelease}
-      {...sliderProps}
-    >
+    <MultiSlider onChange={handleChange} onRelease={handleRelease} {...sliderProps}>
       {handleProps.map((handlePropList, index) => {
         const { accessor, name, ...restHandle } = handlePropList
         const val = stateToDisplay[index]
-        return (
-          <MultiSlider.Handle
-            {...restHandle}
-            value={val}
-            key={childAccessorKeys[index]}
-          />
-        )
+        return <MultiSlider.Handle {...restHandle} value={val} key={childAccessorKeys[index]} />
       })}
     </MultiSlider>
   )

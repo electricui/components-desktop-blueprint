@@ -2,7 +2,6 @@ import {} from '@electricui/build-rollup-config'
 
 import {
   Accessor,
-  removeElectricProps,
   useAsyncThrow,
   useCommitStateStaged,
   useDeadline,
@@ -58,7 +57,7 @@ function ElectricNumberInput(props: NumberInputProps) {
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
 
-  const numericInputProps = removeElectricProps(props, ['writer', 'clampValueOnBlur'])
+  const { writer: writerProp, clampValueOnBlur, ...numericInputProps } = props
 
   const lastUpdateID = useRef(0)
   const lastPushedUpdateID = useRef(0)
@@ -66,8 +65,8 @@ function ElectricNumberInput(props: NumberInputProps) {
   const [lastPushedUpdateIDState, setLastPushedUpdateID] = useState(0)
 
   const writer = useMemo(() => {
-    if (props.writer) {
-      return props.writer
+    if (writerProp) {
+      return writerProp
     }
 
     if (typeof props.accessor === 'string') {
@@ -77,7 +76,7 @@ function ElectricNumberInput(props: NumberInputProps) {
     }
 
     throw new Error("If the NumberInput's accessor isn't a MessageID string, a writer must be provided")
-  }, [props.writer, props.accessor])
+  }, [writerProp, props.accessor])
 
   const performWrite = useCallback(
     throttle(
