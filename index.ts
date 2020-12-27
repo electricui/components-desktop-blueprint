@@ -26,6 +26,7 @@ export { default as RefreshSpinner } from './src/RefreshIndicator/spinner'
 export { DebugInterface } from './src/DebugInterface'
 export { Dropdown } from './src/Dropdown'
 export { setupProxyAndDebugInterface } from './src/transport-window/install'
+export { DeviceLoadingScreen } from './src/DeviceLoadingScreen'
 
 import './normalize.css'
 import './src/monospace.css'
