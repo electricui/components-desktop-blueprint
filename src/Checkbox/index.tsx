@@ -11,7 +11,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
 
 type UpstreamCheckboxProps = Omit<ICheckboxProps, 'checked' | 'onChange' | 'defaultChecked'>
 

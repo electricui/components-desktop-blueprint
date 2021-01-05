@@ -4,7 +4,7 @@ import React, { ReactNode, useCallback } from 'react'
 import { StateTree, useAsyncThrow, useDeadline, useSendCallback, useWriteState } from '@electricui/components-core'
 
 import { Draft } from 'immer'
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
 
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation

@@ -14,7 +14,7 @@ import React, { useCallback, useMemo } from 'react'
 import { Draft } from 'immer'
 import { Omit } from 'utility-types'
 import classnames from 'classnames'
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
 
 type UpstreamSwitchProps = Omit<ISwitchProps, 'checked' | 'onChange' | 'defaultChecked'>
 

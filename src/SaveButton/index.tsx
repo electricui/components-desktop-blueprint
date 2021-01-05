@@ -1,12 +1,8 @@
 import { Button, IButtonProps } from '@blueprintjs/core'
 import React, { Component, ReactNode, useCallback } from 'react'
-import {
-  useAsyncThrow,
-  useDeadline,
-  useSaveContainer,
-} from '@electricui/components-core'
+import { useAsyncThrow, useDeadline, useSaveContainer } from '@electricui/components-core'
 
-import { generateWriteErrHandler } from 'src/utils'
+import { generateWriteErrHandler } from '../utils'
 
 /**
  * Remove the IButtonProps ones we don't want to show in the documentation
