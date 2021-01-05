@@ -56,7 +56,7 @@ export default function ElectricButton(props: ElectricButtonProps) {
 
       // If there is a callback to call after our write, do it now
       if (props.callback) {
-        sendCallback(props.callback, !props.noAck, cancellationToken).catch(generateWriteErrHandler(asyncThrow))
+        sendCallback(props.callback, cancellationToken, !props.noAck).catch(generateWriteErrHandler(asyncThrow))
       }
 
       // If there's a regular JS onClick handler, call it
