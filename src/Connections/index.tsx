@@ -105,24 +105,32 @@ const useConnectWithTimeout = (
   const disconnect = useDeviceDisconnect(deviceID)
   const getDeadline = useDeadline()
 
-  const connectWithCBs = useCallback(() => {
+  const connectWithCBs = useCallback(async () => {
     preConnect(deviceID)
 
     const connectCancellationToken = getDeadline()
 
-    connect(connectCancellationToken)
-      .then(() => {
-        return postHandshake(deviceID)
-      })
-      .catch(err => {
-        console.log('caught error in connections page', err)
+    try {
+      await connect(connectCancellationToken)
 
-        const disconnectCancellationToken = getDeadline()
-        onFailure(deviceID, err)
-        return disconnect(disconnectCancellationToken).catch(errDisconnect => {
-          console.log('Could not disconnect after failed connection!', errDisconnect)
-        })
-      })
+      postHandshake(deviceID)
+    } catch (err) {
+      if (connectCancellationToken.caused(err)) {
+        console.log('Connection was cancelled')
+      } else {
+        console.log('Connection failed:', err)
+      }
+
+      onFailure(deviceID, err)
+
+      const disconnectCancellationToken = getDeadline()
+
+      try {
+        return disconnect(disconnectCancellationToken)
+      } catch (errDisconnect) {
+        console.log('Could not disconnect after failed connection!', errDisconnect)
+      }
+    }
   }, [deviceID])
 
   return connectWithCBs
