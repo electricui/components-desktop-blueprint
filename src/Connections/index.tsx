@@ -22,7 +22,7 @@ import posed, { PoseGroup } from 'react-pose'
 
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
-import { CancellationToken } from '@electricui/core'
+import { CancellationToken, CONNECTION_STATE } from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -221,8 +221,12 @@ const DeviceLine = (props: DeviceLineProps) => {
       return
     }
 
-    // otherwise a connection is requested, so do the post handshake hook
-    props.postHandshake(deviceID)
+    // If a connection is requested and we've connected, just run the post handshake hook
+    if (connectionState === CONNECTION_STATE.CONNECTED) {
+      props.postHandshake(deviceID)
+    }
+
+    // Otherwise we're probably still connecting, do nothing
   }, [connectionHashes.length, connectionRequested])
 
   // Device Card Pose
@@ -269,7 +273,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
         {/* The connection card */}
         <div
-          onClick={() => cardClick()}
+          onClick={cardClick}
           style={{
             padding: 20,
           }}
