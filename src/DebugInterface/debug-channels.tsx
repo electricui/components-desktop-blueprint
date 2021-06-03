@@ -18,7 +18,11 @@ const debugOptions = [
       'electricui-protocol-binary:deliverability-manager',
       'electricui-protocol-binary:hint-validator-handshake',
       'electricui-protocol-binary:query-manager',
-      'electricui-protocol-binary:connection-handshake',
+      'electricui-protocol-binary:connection-handshake:events',
+      'electricui-protocol-binary:connection-handshake:state-transitions',
+      'electricui-protocol-binary:connection-handshake:progress-updates',
+      'electricui-protocol-binary:connection-handshake:outgoing',
+      'electricui-protocol-binary:connection-handshake:general',
     ],
   },
   {
