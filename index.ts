@@ -30,7 +30,3 @@ export { DeviceLoadingScreen } from './src/DeviceLoadingScreen'
 
 import './normalize.css'
 import './src/monospace.css'
-
-// To fix yarn v2 bug with storybook
-export { DeviceIDContext as __DO_NOT_USE_INTERNAL_DeviceIDContext } from '@electricui/components-core'
-export { DeviceManagerProxyContext as __DO_NOT_USE_INTERNAL_DeviceManagerProxyContext } from '@electricui/components-core'

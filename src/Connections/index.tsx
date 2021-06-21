@@ -3,7 +3,6 @@ import './connection-page.css'
 import { Box, Composition } from 'atomic-layout'
 import { Button, Classes, Icon, NonIdealState, Tag } from '@blueprintjs/core'
 import {
-  ConsecutivePollFailureMessage,
   useConnectionMetadataKey,
   useConnectionState,
   useDeadline,
@@ -22,7 +21,7 @@ import posed, { PoseGroup } from 'react-pose'
 
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
-import { CancellationToken, CONNECTION_STATE } from '@electricui/core'
+import { CancellationToken, CONNECTION_STATE, DeviceID } from '@electricui/core'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -57,9 +56,9 @@ const DeviceInnerCard = posed.div({
 
 export type ConnectionsProps = {
   maxWidth?: number
-  preConnect: (deviceID: string) => void
-  postHandshake: (deviceID: string) => void
-  onFailure: (deviceID: string, err: Error) => void
+  preConnect: (deviceID: DeviceID) => void
+  postHandshake: (deviceID: DeviceID) => void
+  onFailure: (deviceID: DeviceID, err: Error) => void
   style: React.CSSProperties
   internalCardComponent: React.ReactNode
   noDevicesText?: string
@@ -72,34 +71,25 @@ interface NoDevicesProps {
 const NoDevices = (props: NoDevicesProps) => {
   return (
     <NoFoundDiv key="nodevices">
-      <NonIdealState
-        title="No devices found"
-        description={
-          <ConsecutivePollFailureMessage>
-            {noIncreases =>
-              noIncreases >= 3 ? <div>{props.noDevicesText ?? 'Unable to detect any new devices.'}</div> : null
-            }
-          </ConsecutivePollFailureMessage>
-        }
-      />
+      <NonIdealState title="No devices found" />
     </NoFoundDiv>
   )
 }
 
 export type DeviceLineProps = {
-  deviceID: string
+  deviceID: DeviceID
   maxWidth: number
-  preConnect: (deviceID: string) => void
-  postHandshake: (deviceID: string) => void
-  onFailure: (deviceID: string, err: Error) => void
+  preConnect: (deviceID: DeviceID) => void
+  postHandshake: (deviceID: DeviceID) => void
+  onFailure: (deviceID: DeviceID, err: Error) => void
   internalCardComponent?: React.ReactNode
 }
 
 const useConnectWithTimeout = (
-  deviceID: string,
-  preConnect: (deviceID: string) => void,
-  postHandshake: (deviceID: string) => void,
-  onFailure: (deviceID: string, err: Error) => void,
+  deviceID: DeviceID,
+  preConnect: (deviceID: DeviceID) => void,
+  postHandshake: (deviceID: DeviceID) => void,
+  onFailure: (deviceID: DeviceID, err: Error) => void,
 ) => {
   const connect = useDeviceConnect(deviceID)
   const disconnect = useDeviceDisconnect(deviceID)
@@ -123,10 +113,8 @@ const useConnectWithTimeout = (
 
       onFailure(deviceID, err)
 
-      const disconnectCancellationToken = getDeadline()
-
       try {
-        return disconnect(disconnectCancellationToken)
+        return disconnect()
       } catch (errDisconnect) {
         console.log('Could not disconnect after failed connection!', errDisconnect)
       }
@@ -137,7 +125,7 @@ const useConnectWithTimeout = (
 }
 
 export type CardInternalsProps = {
-  deviceID: string
+  deviceID: DeviceID
 }
 
 const CardInternals = (props: CardInternalsProps) => {
@@ -165,7 +153,7 @@ const CardInternals = (props: CardInternalsProps) => {
 }
 
 type ConnectionHashProps = {
-  deviceID: string
+  deviceID: DeviceID
   connectionHash: string
 }
 
@@ -260,7 +248,7 @@ const DeviceLine = (props: DeviceLineProps) => {
         {connectionRequested && connectionState === 'CONNECTED' ? (
           <Button
             intent="danger"
-            onClick={() => disconnect(getDeadline())}
+            onClick={() => disconnect()}
             style={{
               position: 'absolute',
               right: 0,

@@ -62,11 +62,12 @@ const debugOptions = [
     ],
   },
   {
-    categoryTitle: 'Components Core',
+    categoryTitle: 'IPC',
     strings: [
-      'electricui-components-core:proxy-client',
-      'electricui-components-core:device-manager-proxy',
-      'electricui-components-core:pings',
+      'electricui-core-device-manager-proxy:client',
+      'electricui-core-device-manager-proxy:server',
+      'electricui-core-device-manager-proxy:client-pings',
+      'electricui-core-device-manager-proxy:server-pings',
     ],
   },
   {

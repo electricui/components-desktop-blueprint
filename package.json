@@ -24,6 +24,7 @@
     "@electricui/components-core": "^0.8.9",
     "@electricui/components-desktop": "^0.8.9",
     "@electricui/core": "^0.8.9",
+    "@electricui/core-device-manager-proxy": "^0.8.9",
     "@electricui/core-timeseries": "^0.8.9",
     "atomic-layout": "^0.13.0",
     "classnames": "^2.2.6",

@@ -1,10 +1,6 @@
 import { Alert, IconName, Intent } from '@blueprintjs/core'
 import React, { ReactNode } from 'react'
-import {
-  useDeadline,
-  useDeviceDisconnect,
-  useDeviceHasAcceptableConnection,
-} from '@electricui/components-core'
+import { useDeadline, useDeviceDisconnect, useDeviceHasAcceptableConnection } from '@electricui/components-core'
 
 interface DisconnectionModalProps {
   /** A function that navigates to the connections screen. */
@@ -37,7 +33,6 @@ const DisconnectionModal = ({
 }: DisconnectionModalProps) => {
   const disconnect = useDeviceDisconnect()
   const hasAcceptableConnection = useDeviceHasAcceptableConnection()
-  const getDeadline = useDeadline()
 
   return (
     <Alert
@@ -49,7 +44,7 @@ const DisconnectionModal = ({
       onCancel={navigateToConnectionsScreen}
       onConfirm={() => {
         navigateToConnectionsScreen()
-        disconnect(getDeadline())
+        disconnect()
       }}
     >
       {children}
@@ -61,10 +56,7 @@ DisconnectionModal.defaultProps = {
   backText: 'Go to the Connection Screen',
   disconnectText: 'Disconnect',
   children: (
-    <p>
-      Connection has been lost with your device. If we successfully reconnect
-      this dialog will be dismissed.
-    </p>
+    <p>Connection has been lost with your device. If we successfully reconnect this dialog will be dismissed.</p>
   ),
 }
 
