@@ -6,12 +6,10 @@ import React, { useState } from 'react'
 import { DarkModeWrapper } from '../DarkModeWrapper'
 import { DebugChannels } from './debug-channels'
 import { DeviceManager } from '@electricui/core'
-import { DeviceManagerProxyServer } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
 import { ipcRenderer } from 'electron'
 
 interface DebugInterfaceProps {
-  proxyServer: DeviceManagerProxyServer
   deviceManager: DeviceManager
 }
 

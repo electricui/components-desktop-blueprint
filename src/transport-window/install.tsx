@@ -1,4 +1,4 @@
-import { DeviceManagerProxyServer, setupProxyServer } from '@electricui/components-core'
+import { DeviceManagerProxyServer, setupProxyServer } from '@electricui/core-device-manager-proxy'
 
 import { DebugInterface } from '../DebugInterface'
 import { DeviceManager } from '@electricui/core'
