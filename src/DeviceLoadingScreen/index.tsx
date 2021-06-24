@@ -1,7 +1,11 @@
-import { useDeviceHandshakeProgressIDs, useDeviceHandshakeProgress } from '@electricui/components-core'
-import { NonIdealState, ProgressBar } from '@blueprintjs/core'
+import {
+  useDeviceHandshakeProgressIDs,
+  useDeviceHandshakeProgress,
+  useDeviceDisconnect,
+} from '@electricui/components-core'
+import { Button, NonIdealState, ProgressBar } from '@blueprintjs/core'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 
 interface HandshakeCardProps {
   handshakeID: string
@@ -30,6 +34,13 @@ function HandshakeCard(props: HandshakeCardProps) {
 
 export const DeviceLoadingScreen = () => {
   const handshakeIDs = useDeviceHandshakeProgressIDs()
+  const disconnect = useDeviceDisconnect()
+
+  const disconnectCallback = useCallback(() => {
+    disconnect().catch(err => {
+      console.error('Caught error when trying to disconnect', err)
+    })
+  }, [disconnect])
 
   return (
     <NonIdealState
@@ -40,6 +51,8 @@ export const DeviceLoadingScreen = () => {
           {handshakeIDs.map(handshakeID => (
             <HandshakeCard key={handshakeID} handshakeID={handshakeID} />
           ))}
+
+          <Button intent="danger" onClick={disconnectCallback}></Button>
         </React.Fragment>
       }
     />
