@@ -296,7 +296,7 @@ const DeviceLine = (props: DeviceLineProps) => {
   )
 }
 
-const Connections = (props: ConnectionsProps) => {
+export const Connections = (props: ConnectionsProps) => {
   const deviceIDs = useDeviceIDList()
   const { poll, polling } = usePollForDevices()
 
@@ -344,5 +344,3 @@ const Connections = (props: ConnectionsProps) => {
     </div>
   )
 }
-
-export default Connections
