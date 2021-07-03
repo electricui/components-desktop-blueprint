@@ -21,7 +21,8 @@ import posed, { PoseGroup } from 'react-pose'
 
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
-import { CancellationToken, CONNECTION_STATE, DeviceID } from '@electricui/core'
+import { CONNECTION_STATE, DeviceID } from '@electricui/core'
+import { CancellationToken } from '@electricui/async-utilities'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },

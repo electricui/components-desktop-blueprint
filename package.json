@@ -18,6 +18,7 @@
     "manifest.json"
   ],
   "dependencies": {
+    "@electricui/async-utilities": "^0.8.8",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/icons": "^3.23.0",
     "@blueprintjs/select": "^3.15.0",
