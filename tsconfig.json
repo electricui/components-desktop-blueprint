@@ -14,5 +14,5 @@
     "jsx": "react",
     "lib": ["DOM"]
   },
-  "include": ["./src/**/*", "index.ts"]
+  "include": ["./src/**/*", "index.ts", "./benchmark/**/*"]
 }
