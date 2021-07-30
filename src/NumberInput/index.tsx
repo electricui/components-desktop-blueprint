@@ -49,15 +49,15 @@ interface NumberInputProps extends UpstreamNumberInputProps {
  * @props NumberInputProps
  */
 function ElectricNumberInput(props: NumberInputProps) {
+  const { writer: writerProp, clampValueOnBlur, accessor, ...numericInputProps } = props
+
   const [focused, setFocused] = useState(false)
-  const hardwareState = useContainedState<number>(props.accessor)
+  const hardwareState = useContainedState<number>(accessor)
   const [localState, setLocalState] = useState<number>(hardwareState ?? 0)
   const [generateStaging, commitStaged] = useCommitStateStaged()
   const pushMessageIDs = usePushMessageIDs()
   const asyncThrow = useAsyncThrow()
   const getDeadline = useDeadline()
-
-  const { writer: writerProp, clampValueOnBlur, ...numericInputProps } = props
 
   const lastUpdateID = useRef(0)
   const lastPushedUpdateID = useRef(0)
@@ -69,14 +69,14 @@ function ElectricNumberInput(props: NumberInputProps) {
       return writerProp
     }
 
-    if (typeof props.accessor === 'string') {
+    if (typeof accessor === 'string') {
       return (staging: Draft<ElectricUIDeveloperState>, value: number) => {
-        staging[props.accessor as string] = value
+        staging[accessor as string] = value
       }
     }
 
     throw new Error("If the NumberInput's accessor isn't a MessageID string, a writer must be provided")
-  }, [writerProp, props.accessor])
+  }, [writerProp, accessor])
 
   const performWrite = useCallback(
     throttle(
