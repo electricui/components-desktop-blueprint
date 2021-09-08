@@ -22,6 +22,7 @@ function HandshakeCard(props: HandshakeCardProps) {
     <div
       style={{
         minWidth: 400,
+        marginBottom: 20,
       }}
     >
       {currentTask}
@@ -51,8 +52,15 @@ export const DeviceLoadingScreen = () => {
           {handshakeIDs.map(handshakeID => (
             <HandshakeCard key={handshakeID} handshakeID={handshakeID} />
           ))}
-
-          <Button intent="danger" onClick={disconnectCallback}></Button>
+          <div
+            style={{
+              minWidth: 400,
+            }}
+          >
+            <Button intent="warning" onClick={disconnectCallback} fill>
+              Cancel
+            </Button>
+          </div>
         </React.Fragment>
       }
     />
