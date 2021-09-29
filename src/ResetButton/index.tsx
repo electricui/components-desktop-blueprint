@@ -1,4 +1,4 @@
-import { Button, IButtonProps } from '@blueprintjs/core'
+import { Button, ButtonProps as IButtonProps } from '@blueprintjs/core'
 import React, { Component, ReactNode } from 'react'
 
 import { useSaveContainer } from '@electricui/components-core'

@@ -1,4 +1,4 @@
-import { Button, IButtonProps } from '@blueprintjs/core'
+import { Button, ButtonProps as IButtonProps } from '@blueprintjs/core'
 import React, { ReactNode, useCallback } from 'react'
 // import { getDependencyProps } from '../../utils'
 import { StateTree, useAsyncThrow, useDeadline, useSendCallback, useWriteState } from '@electricui/components-core'

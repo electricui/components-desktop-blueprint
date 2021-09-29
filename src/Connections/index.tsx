@@ -16,13 +16,12 @@ import {
   useDeviceMetadataKey,
   usePollForDevices,
 } from '@electricui/components-core'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import posed, { PoseGroup } from 'react-pose'
 
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
 import { CONNECTION_STATE, DeviceID } from '@electricui/core'
-import { CancellationToken } from '@electricui/async-utilities'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },

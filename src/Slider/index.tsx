@@ -8,7 +8,7 @@ import {
   useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
-import { IHandleProps, IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
+import { HandleProps as IHandleProps, MultiSliderProps as IMultiSliderProps, MultiSlider } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
@@ -285,16 +285,18 @@ function ElectricSlider(props: SliderProps) {
   const useLocalState = focused || lastUpdateID.current !== lastPushedUpdateID.current // prettier-ignore
 
   // Calculate which state to display
-  const stateToDisplay = (useLocalState
-    ? containedState.map((containedState, index) => {
-        // we're focused, so grab the local state if we can instead
-        if (localState) {
-          return localState[index]
-        }
+  const stateToDisplay = (
+    useLocalState
+      ? containedState.map((containedState, index) => {
+          // we're focused, so grab the local state if we can instead
+          if (localState) {
+            return localState[index]
+          }
 
-        return containedState
-      })
-    : containedState) as number[] // nothing will be null by now, we bailed with the isValid check
+          return containedState
+        })
+      : containedState
+  ) as number[] // nothing will be null by now, we bailed with the isValid check
 
   return (
     <MultiSlider onChange={handleChange} onRelease={handleRelease} {...sliderProps}>

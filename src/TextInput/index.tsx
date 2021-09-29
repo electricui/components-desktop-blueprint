@@ -8,7 +8,7 @@ import {
   useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
-import { IInputGroupProps, InputGroup } from '@blueprintjs/core'
+import { InputGroupProps as IInputGroupProps, InputGroup } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Draft } from 'immer'

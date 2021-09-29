@@ -8,7 +8,7 @@ import {
   useContainedState,
   useWriteState,
 } from '@electricui/components-core'
-import { ISwitchProps, Switch } from '@blueprintjs/core'
+import { SwitchProps as ISwitchProps, Switch } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'

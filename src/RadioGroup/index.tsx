@@ -1,7 +1,7 @@
 import {} from '@electricui/build-rollup-config'
 
 import { Accessor, deepObjectEquality, useWriteState } from '@electricui/components-core'
-import { IRadioGroupProps, IRadioProps, Radio, RadioGroup } from '@blueprintjs/core'
+import { RadioGroupProps as IRadioGroupProps, RadioProps as IRadioProps, Radio, RadioGroup } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 import { useAsyncThrow, useDeadline, useContainedState } from '@electricui/components-core'

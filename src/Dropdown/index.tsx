@@ -7,8 +7,8 @@ import {
   useContainedState,
   useWriteState,
 } from '@electricui/components-core'
-import { Button, IMenuItemProps, MenuItem } from '@blueprintjs/core'
-import { IItemRendererProps, ISelectProps, ItemRenderer, Select } from '@blueprintjs/select'
+import { Button, MenuItemProps as IMenuItemProps, MenuItem } from '@blueprintjs/core'
+import { IItemRendererProps, SelectProps as ISelectProps, ItemRenderer, Select } from '@blueprintjs/select'
 import React, { useCallback, useMemo } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 

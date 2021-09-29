@@ -6,7 +6,7 @@ import {
   useContainedState,
   useWriteState,
 } from '@electricui/components-core'
-import { Checkbox, ICheckboxProps } from '@blueprintjs/core'
+import { Checkbox, CheckboxProps as ICheckboxProps } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'

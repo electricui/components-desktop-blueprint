@@ -8,7 +8,7 @@ import {
   useContainedState,
   usePushMessageIDs,
 } from '@electricui/components-core'
-import { INumericInputProps, NumericInput } from '@blueprintjs/core'
+import { NumericInputProps as INumericInputProps, NumericInput } from '@blueprintjs/core'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Draft } from 'immer'

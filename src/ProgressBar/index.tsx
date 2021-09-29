@@ -1,5 +1,5 @@
 import { Accessor, useContainedState } from '@electricui/components-core'
-import { IProgressBarProps, ProgressBar } from '@blueprintjs/core'
+import { ProgressBarProps as IProgressBarProps, ProgressBar } from '@blueprintjs/core'
 
 import { Omit } from 'utility-types'
 import React from 'react'
