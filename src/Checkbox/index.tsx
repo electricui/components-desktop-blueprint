@@ -21,7 +21,7 @@ interface CommonCheckboxProps<T> extends UpstreamCheckboxProps {
    */
   checked: T
   /**
-   * The checked value
+   * The unchecked value
    */
   unchecked: T
 }
