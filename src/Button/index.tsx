@@ -36,6 +36,12 @@ interface ElectricButtonProps extends IButtonProps {
 
   /** Whether this button should use large styles. */
   large?: boolean;
+
+  /** Whether this button should use minimal styles. */
+  minimal?: boolean;
+
+  /** Whether this button should use small styles. */
+  small?: boolean;
 }
 
 /**
