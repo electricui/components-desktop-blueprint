@@ -10,7 +10,7 @@ import { Checkbox, CheckboxProps as ICheckboxProps } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'
-import { Omit } from 'utility-types'
+
 import { generateWriteErrHandler } from '../utils'
 
 type UpstreamCheckboxProps = Omit<ICheckboxProps, 'checked' | 'onChange' | 'defaultChecked'>

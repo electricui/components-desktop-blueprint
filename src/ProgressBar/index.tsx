@@ -1,7 +1,6 @@
 import { Accessor, useContainedState } from '@electricui/components-core'
 import { ProgressBarProps as IProgressBarProps, ProgressBar } from '@blueprintjs/core'
 
-import { Omit } from 'utility-types'
 import React from 'react'
 
 type UpstreamProgressBarProps = Omit<IProgressBarProps, 'value' | 'stripes'>

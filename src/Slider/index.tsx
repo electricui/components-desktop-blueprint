@@ -13,7 +13,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
 
 import { Draft } from 'immer'
-import { Omit } from 'utility-types'
+
 import throttle from 'lodash.throttle'
 import { unstable_batchedUpdates } from 'react-dom'
 

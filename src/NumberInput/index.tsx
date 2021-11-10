@@ -12,7 +12,7 @@ import { NumericInputProps as INumericInputProps, NumericInput } from '@blueprin
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Draft } from 'immer'
-import { Omit } from 'utility-types'
+
 import { generateWriteErrHandler } from '../utils'
 import throttle from 'lodash.throttle'
 import { unstable_batchedUpdates } from 'react-dom'

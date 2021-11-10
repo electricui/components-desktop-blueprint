@@ -7,7 +7,6 @@ import { generateWriteErrHandler, isElementOfType } from '../utils'
 import { useAsyncThrow, useDeadline, useContainedState } from '@electricui/components-core'
 
 import { Draft } from 'immer'
-import { Omit } from 'utility-types'
 
 type UpstreamRadioProps = Omit<IRadioProps, 'checked' | 'defaultChecked' | 'onChange' | 'value'>
 

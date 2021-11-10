@@ -12,7 +12,6 @@ import { SwitchProps as ISwitchProps, Switch } from '@blueprintjs/core'
 import React, { useCallback, useMemo } from 'react'
 
 import { Draft } from 'immer'
-import { Omit } from 'utility-types'
 import classnames from 'classnames'
 import { generateWriteErrHandler } from '../utils'
 
