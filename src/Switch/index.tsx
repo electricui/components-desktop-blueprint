@@ -26,6 +26,10 @@ interface CommonSwitchProps<T> extends UpstreamSwitchProps {
    * The unchecked value
    */
   unchecked: T
+  /**
+   * JSX label for the control
+   */
+  children?: React.ReactNode
 }
 
 interface SwitchPropsSimpleAccessor<T> extends CommonSwitchProps<T> {

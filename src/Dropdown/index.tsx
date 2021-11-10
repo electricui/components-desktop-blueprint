@@ -66,6 +66,18 @@ interface DropdownOptionProps<T> extends IMenuItemProps {
    * The text to display for the option.
    */
   text: string
+  /**
+   * Right-aligned label text content, useful for displaying hotkeys.
+   *
+   * This prop actually supports JSX elements, but TypeScript will throw an error because
+   * `HTMLAttributes` only allows strings. Use `labelElement` to supply a JSX element in TypeScript.
+   */
+  label?: string;
+
+  /**
+  * Right-aligned label content, useful for displaying hotkeys.
+  */
+  labelElement?: React.ReactNode;
 }
 
 /**

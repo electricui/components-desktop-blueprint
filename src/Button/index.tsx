@@ -1,4 +1,4 @@
-import { Button, ButtonProps as IButtonProps } from '@blueprintjs/core'
+import { Button, ButtonProps as IButtonProps, Intent } from '@blueprintjs/core'
 import React, { ReactNode, useCallback } from 'react'
 // import { getDependencyProps } from '../../utils'
 import { StateTree, useAsyncThrow, useDeadline, useSendCallback, useWriteState } from '@electricui/components-core'
@@ -27,6 +27,15 @@ interface ElectricButtonProps extends IButtonProps {
 
   /** If the button should display a disabled state and not send output. */
   disabled?: boolean
+
+  /** Whether this button should expand to fill its container. */
+  fill?: boolean;
+
+  /** Visual intent color to apply to element. */
+  intent?: Intent;
+
+  /** Whether this button should use large styles. */
+  large?: boolean;
 }
 
 /**
