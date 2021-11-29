@@ -15,6 +15,7 @@ import {
   useDeviceIDList,
   useDeviceMetadataKey,
   usePollForDevices,
+  useDeviceConnectionError,
 } from '@electricui/components-core'
 import React, { useCallback } from 'react'
 import posed, { PoseGroup } from 'react-pose'
@@ -36,30 +37,44 @@ const DeviceCard = posed.div({
   },
 })
 
-const DeviceInnerCard = posed.div({
-  CONNECTING: {
+enum InnerCardStates {
+  'CONNECTING' = 'CONNECTING',
+  'CONNECTED' = 'CONNECTED',
+  'DISCONNECTING' = 'DISCONNECTING',
+  'DISCONNECTED' = 'DISCONNECTED',
+  'DISCOVERING' = 'DISCOVERING',
+  'ERRORED' = 'ERRORED',
+}
+
+const InnerCardPoses = {
+  [InnerCardStates.CONNECTING]: {
     borderRight: '2px solid rgba(72, 175, 240, 1)',
   },
-  CONNECTED: {
+  [InnerCardStates.CONNECTED]: {
     borderRight: '2px solid rgba(61, 204, 145, 1)',
   },
-  DISCONNECTING: {
+  [InnerCardStates.DISCONNECTING]: {
     borderRight: '2px solid rgba(255, 115, 115, 0.5)',
   },
-  DISCONNECTED: {
+  [InnerCardStates.DISCONNECTED]: {
     borderRight: '2px solid rgba(61, 204, 145, 0)',
   },
-  DISCOVERING: {
+  [InnerCardStates.DISCOVERING]: {
     borderRight: '2px solid rgba(194, 116, 194, 0.5)',
   },
-})
+  [InnerCardStates.ERRORED]: {
+    borderRight: '2px solid rgba(204, 61, 61, 1)',
+  },
+}
+
+const DeviceInnerCard = posed.div(InnerCardPoses)
 
 export type ConnectionsProps = {
   maxWidth?: number
   preConnect: (deviceID: DeviceID) => void
   postHandshake: (deviceID: DeviceID) => void
   onFailure: (deviceID: DeviceID, err: Error) => void
-  style: React.CSSProperties
+  style?: React.CSSProperties
   internalCardComponent: React.ReactNode
   noDevicesText?: string
 }
@@ -168,7 +183,7 @@ const ConnectionHash = (props: ConnectionHashProps) => {
   return (
     <Tag
       round
-      intent={connectionRequested && connectionState === 'CONNECTED' ? 'success' : 'none'}
+      intent={connectionRequested && connectionState === CONNECTION_STATE.CONNECTED ? 'success' : 'none'}
       style={{ marginLeft: 4 }}
     >
       {connectionName}
@@ -180,20 +195,13 @@ const DeviceLine = (props: DeviceLineProps) => {
   const deviceID = props.deviceID
   const maxWidth = props.maxWidth
 
-  // If they provide an internal card component, wrap it in a device ID context and render it, otherwise provide defaults
-  const InternalCard = props.internalCardComponent ? (
-    <DeviceIDContextProvider deviceID={deviceID}>{props.internalCardComponent}</DeviceIDContextProvider>
-  ) : (
-    <CardInternals deviceID={deviceID} />
-  )
-
   const connectionHashes = useDeviceConnectionHashes(deviceID)
   const disconnect = useDeviceDisconnect(deviceID)
   const connectionRequested = useDeviceConnectionRequested(deviceID)
   const connectionState = useDeviceConnectionState(deviceID)
-  const getDeadline = useDeadline()
 
   const handshakeState = useDeviceHandshakeState(deviceID)
+  const lastError = useDeviceConnectionError(deviceID)
 
   const connect = useConnectWithTimeout(deviceID, props.preConnect, props.postHandshake, props.onFailure)
 
@@ -219,17 +227,38 @@ const DeviceLine = (props: DeviceLineProps) => {
 
   // Device Card Pose
   let deviceInnerCardPose: string = connectionState
-  if (!connectionRequested && (connectionState === 'CONNECTED' || connectionState === 'CONNECTING')) {
-    deviceInnerCardPose = 'DISCOVERING'
+  if (
+    !connectionRequested &&
+    (connectionState === CONNECTION_STATE.CONNECTED || connectionState === CONNECTION_STATE.CONNECTING)
+  ) {
+    deviceInnerCardPose = InnerCardStates.DISCOVERING
   }
 
   // Handshake errors
-
   let errorMessage = null
 
   if (handshakeState === 'failed') {
-    errorMessage = <Tag intent="danger">A handshake error occurred</Tag>
+    errorMessage = (
+      <Tag intent="danger" style={{ maxWidth: maxWidth }}>
+        A handshake error occurred
+      </Tag>
+    )
+    deviceInnerCardPose = InnerCardStates.ERRORED
+  } else if (lastError !== null) {
+    errorMessage = (
+      <Tag intent="danger" style={{ maxWidth: maxWidth }}>
+        {lastError}
+      </Tag>
+    )
+    deviceInnerCardPose = InnerCardStates.ERRORED
   }
+
+  // If they provide an internal card component, wrap it in a device ID context and render it, otherwise provide defaults
+  const InternalCard = props.internalCardComponent ? (
+    <DeviceIDContextProvider deviceID={deviceID}>{props.internalCardComponent}</DeviceIDContextProvider>
+  ) : (
+    <CardInternals deviceID={deviceID} />
+  )
 
   return (
     <DeviceCard key={deviceID} style={{ maxWidth: maxWidth, margin: '0 auto' }}>
@@ -245,7 +274,7 @@ const DeviceLine = (props: DeviceLineProps) => {
         }}
       >
         {/* The disconnect button */}
-        {connectionRequested && connectionState === 'CONNECTED' ? (
+        {connectionRequested && connectionState === CONNECTION_STATE.CONNECTED ? (
           <Button
             intent="danger"
             onClick={() => disconnect()}
@@ -286,10 +315,11 @@ const DeviceLine = (props: DeviceLineProps) => {
                     <ConnectionHash deviceID={deviceID} connectionHash={connectionHash} key={connectionHash} />
                   ))}
                 </div>
-                <div>{errorMessage}</div>
               </div>
             </Box>
           </Composition>
+
+          {errorMessage}
         </div>
       </DeviceInnerCard>
     </DeviceCard>
@@ -322,7 +352,7 @@ export const Connections = (props: ConnectionsProps) => {
         margin: '0 auto',
         maxWidth: maxWidthWithDefault + 50,
         position: 'relative',
-        ...style,
+        ...(style ?? {}),
       }}
       className="eui-connections-list"
     >
