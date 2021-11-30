@@ -71,6 +71,15 @@ const debugOptions = [
     ],
   },
   {
+    categoryTitle: 'Timeseries',
+    strings: [
+      'electricui-core-timeseries:electron-ipc-remote-query-manager',
+      'electricui-core-timeseries:message-data-source',
+      'electricui-core-timeseries:electron-ipc-remote-query-executor',
+    ],
+  },
+
+  {
     categoryTitle: 'Utilities',
     strings: ['utility-ipc:server'],
   },
