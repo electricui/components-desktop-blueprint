@@ -29,9 +29,7 @@ import { isElementOfType } from '../utils'
 
 export interface StatisticsProps {
   /** The Statistic components to evenly space. If the Statistic components are not direct children, remember to set their inGroupOf prop so that they are spaced evenly.*/
-  children:
-    | React.ReactElement<StatisticProps>[]
-    | React.ReactElement<StatisticProps>
+  children: React.ReactElement<StatisticProps>[] | React.ReactElement<StatisticProps>
 
   /** The intent for the statistics, is overwritten by color. */
   intent?: Exclude<Intent, 'none'>
@@ -55,6 +53,9 @@ export interface StatisticProps {
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a number. Takes precedence over the value prop.
    */
   accessor?: Accessor
+
+  /** The number of digits to display after the decimal point, if using an accessor, 2 by default. */
+  precision?: number
 
   /** The label text. */
   label?: string | number | ReactNode
@@ -92,6 +93,9 @@ export interface StatisticValueProps {
    */
   accessor?: Accessor
 
+  /** The number of digits to display after the decimal point, if using an accessor, 2 by default. */
+  precision?: number
+
   /** An optional prefix for the value. */
   prefix?: string | ReactNode
 
@@ -120,7 +124,7 @@ const StatisticValue = (props: StatisticValueProps) => {
 
   let val = props.children
   if (props.accessor) {
-    val = <Printer accessor={props.accessor} />
+    val = <Printer accessor={props.accessor} precision={props.precision} />
   }
 
   return (
@@ -155,7 +159,7 @@ const Statistic = (props: StatisticProps) => {
 
   let val = props.value
   if (props.accessor) {
-    val = <Printer accessor={props.accessor} />
+    val = <Printer accessor={props.accessor} precision={props.precision} />
   }
 
   if (props.children) {
@@ -168,11 +172,7 @@ const Statistic = (props: StatisticProps) => {
   } else {
     return (
       <div className="eui statistic" style={mixedStyle}>
-        <StatisticValue
-          suffix={props.suffix}
-          prefix={props.prefix}
-          accessor={props.accessor}
-        >
+        <StatisticValue suffix={props.suffix} prefix={props.prefix} accessor={props.accessor}>
           {val}
         </StatisticValue>
         <StatisticLabel>{props.label}</StatisticLabel>
@@ -194,16 +194,16 @@ Statistic.displayName = 'Statistic'
 
 function hasStatisticChildren(props: StatisticsProps) {
   return (
-    React.Children.map(props.children, child =>
-      isElementOfType(child, Statistic) ? child.props : null,
-    ).filter(child => child !== null).length > 0
+    React.Children.map(props.children, child => (isElementOfType(child, Statistic) ? child.props : null)).filter(
+      child => child !== null,
+    ).length > 0
   )
 }
 
 function propsToStatisticProps(props: StatisticsProps) {
-  return React.Children.map(props.children, child =>
-    isElementOfType(child, Statistic) ? child.props : null,
-  ).filter(child => child !== null) as Array<StatisticProps>
+  return React.Children.map(props.children, child => (isElementOfType(child, Statistic) ? child.props : null)).filter(
+    child => child !== null,
+  ) as Array<StatisticProps>
 }
 
 /**
