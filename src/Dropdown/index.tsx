@@ -7,7 +7,7 @@ import {
   useContainedState,
   useWriteState,
 } from '@electricui/components-core'
-import { Button, MenuItemProps as IMenuItemProps, MenuItem } from '@blueprintjs/core'
+import { Button, MenuItemProps as IMenuItemProps, MenuItem, IconName } from '@blueprintjs/core'
 import { IItemRendererProps, SelectProps as ISelectProps, ItemRenderer, Select } from '@blueprintjs/select'
 import React, { useCallback, useMemo } from 'react'
 import { generateWriteErrHandler, isElementOfType } from '../utils'
@@ -41,6 +41,14 @@ interface DropdownProps<T> extends UpstreamSelectPropsProps<DropdownOptionProps<
   placeholder?: ((selectedItem: DropdownOptionProps<T> | null) => string) | string
 
   /**
+   * A function that takes the currently selected item and returns the placeholder text.
+   * It can also take a string.
+   *
+   * Can be used to display the name of the current selected item in addition for example.
+   */
+  placeholderIcon?: ((selectedItem: DropdownOptionProps<T> | null) => IconName | undefined) | IconName
+
+  /**
    * This function can be used to render custom menu items.
    *
    * It takes an item (with a value and text string) and an object that contains modifiers such as whether the item is `active` or not.
@@ -72,12 +80,12 @@ interface DropdownOptionProps<T> extends IMenuItemProps {
    * This prop actually supports JSX elements, but TypeScript will throw an error because
    * `HTMLAttributes` only allows strings. Use `labelElement` to supply a JSX element in TypeScript.
    */
-  label?: string;
+  label?: string
 
   /**
-  * Right-aligned label content, useful for displaying hotkeys.
-  */
-  labelElement?: React.ReactNode;
+   * Right-aligned label content, useful for displaying hotkeys.
+   */
+  labelElement?: React.ReactNode
 }
 
 /**
@@ -119,7 +127,7 @@ export function Dropdown<T>(props: DropdownProps<T>) {
   const getDeadline = useDeadline()
 
   // Filter the props we need and the props we'll pass down.
-  const { accessor: _1, writer: _2, children: _3, placeholder, ...rest } = props
+  const { accessor: _1, writer: _2, children: _3, placeholder, placeholderIcon, ...rest } = props
 
   const items = propsToDropdownOptionProps(props)
 
@@ -143,6 +151,18 @@ export function Dropdown<T>(props: DropdownProps<T>) {
 
     return 'Select an option'
   }, [placeholder, selectedOption])
+
+  const placeholderIconResolved = useMemo(() => {
+    if (typeof placeholderIcon === 'function') {
+      return placeholderIcon(selectedOption)
+    }
+
+    if (typeof placeholderIcon === 'string') {
+      return placeholderIcon
+    }
+
+    return undefined
+  }, [placeholderIcon, selectedOption])
 
   // the writer
   const writer = useMemo(() => {
@@ -183,7 +203,7 @@ export function Dropdown<T>(props: DropdownProps<T>) {
   )
 
   if (items.length === 0) {
-    return <Button text={'No Options'} rightIcon="double-caret-vertical" />
+    return <Button text={placeholderText} rightIcon="double-caret-vertical" icon={placeholderIconResolved} />
   }
 
   return (
@@ -196,7 +216,7 @@ export function Dropdown<T>(props: DropdownProps<T>) {
       onItemSelect={onItemSelect}
       activeItem={selectedOption}
     >
-      <Button text={placeholderText} rightIcon="double-caret-vertical" />
+      <Button text={placeholderText} rightIcon="double-caret-vertical" icon={placeholderIconResolved} />
     </Select>
   )
 }
