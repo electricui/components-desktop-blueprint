@@ -1,6 +1,6 @@
 import './index.css'
 
-import { Alignment, Button, Navbar, Tab, Tabs } from '@blueprintjs/core'
+import { Alignment, Button, Classes, Navbar, Tab, Tabs } from '@blueprintjs/core'
 import React, { useState } from 'react'
 
 import { DarkModeWrapper } from '../DarkModeWrapper'
@@ -60,7 +60,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
             <Navbar.Group align={Alignment.RIGHT}>
               <Button
                 intent="success"
-                className="bp3-outlined"
+                className={Classes.OUTLINED}
                 large
                 minimal
                 icon="applications"
@@ -73,7 +73,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
               </Button>
               <Button
                 intent="primary"
-                className="bp3-outlined"
+                className={Classes.OUTLINED}
                 large
                 minimal
                 icon="document-open"

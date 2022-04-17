@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet'
 import React, { useLayoutEffect } from 'react'
 import { useDarkMode } from '@electricui/components-desktop'
+import { Classes } from '@blueprintjs/core'
 
 export type DarkModeWrapperProps = {
   children: React.ReactNode
@@ -25,7 +26,7 @@ export const DarkModeWrapper = (props: DarkModeWrapperProps) => {
   return (
     <React.Fragment>
       <Helmet>
-        <body className={isDark ? 'bp3-dark' : ''} />
+        <body className={isDark ? Classes.DARK : ''} />
         {/* tell Chromium we know how to render dark mode */}
         <meta name="color-scheme" content="light dark" />
       </Helmet>

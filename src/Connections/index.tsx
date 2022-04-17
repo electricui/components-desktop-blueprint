@@ -23,6 +23,7 @@ import posed, { PoseGroup } from 'react-pose'
 import { DeviceIDContextProvider } from '@electricui/components-core'
 import { IconNames } from '@blueprintjs/icons'
 import { CONNECTION_STATE, DeviceID } from '@electricui/core'
+import classNames from 'classnames'
 
 const NoFoundDiv = posed.div({
   enter: { y: 0, opacity: 1 },
@@ -265,8 +266,8 @@ const DeviceLine = (props: DeviceLineProps) => {
       <DeviceInnerCard
         className={
           connectionHashes.length === 0
-            ? 'bp3-card bp3-elevation-0 disabled-card'
-            : 'bp3-card bp3-interactive bp3-elevation-1'
+            ? `${Classes.CARD} ${Classes.ELEVATION_0} disabled-card`
+            : `${Classes.CARD} ${Classes.ELEVATION_1} ${Classes.INTERACTIVE}`
         }
         pose={deviceInnerCardPose}
         style={{
