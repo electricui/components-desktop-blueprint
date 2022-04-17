@@ -18,9 +18,6 @@
     "manifest.json"
   ],
   "dependencies": {
-    "@blueprintjs/core": "^3.50.4",
-    "@blueprintjs/icons": "^3.30.2",
-    "@blueprintjs/select": "^3.18.6",
     "@electricui/async-utilities": "workspace:*",
     "@electricui/components-core": "workspace:*",
     "@electricui/components-desktop": "workspace:*",
@@ -36,6 +33,9 @@
     "react-helmet": "^5.2.1"
   },
   "devDependencies": {
+    "@blueprintjs/core": "^3.50.4",
+    "@blueprintjs/icons": "^3.30.2",
+    "@blueprintjs/select": "^3.18.6",
     "@electricui/build-rollup-config": "workspace:*",
     "@electricui/jest-config": "workspace:*",
     "@types/chai": "^4.1.7",
@@ -65,6 +65,9 @@
     "typescript": "4.3.2"
   },
   "peerDependencies": {
+    "@blueprintjs/core": ">=3.50.4",
+    "@blueprintjs/icons": ">=3.30.2",
+    "@blueprintjs/select": ">=3.18.6",
     "electron": "13.1.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
