@@ -79,6 +79,7 @@ const debugOptions = [
       'electricui-core-timeseries:queryable-messageid-provider',
       'electricui-core-timeseries:persistence-engine-memory',
       'electricui-core-timeseries:remote-queryable',
+      'electricui-core-dataflow:timestride-decimation',
     ],
   },
 
