@@ -76,6 +76,7 @@ const debugOptions = [
       'electricui-core-timeseries:electron-ipc-remote-query-manager',
       'electricui-core-timeseries:message-data-source',
       'electricui-core-timeseries:electron-ipc-remote-query-executor',
+      'electricui-core-timeseries:queryable-messageid-provider',
     ],
   },
 
