@@ -32,3 +32,4 @@ export { DeviceLoadingScreen } from './src/DeviceLoadingScreen'
 
 import './normalize.css'
 import './src/monospace.css'
+export { ChartColors } from './src/colors'

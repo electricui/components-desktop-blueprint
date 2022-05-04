@@ -3,7 +3,7 @@ import './index.css'
 import React, { ReactNode } from 'react'
 
 import { Accessor } from '@electricui/components-core'
-import { INTENT_COLOR_MAP } from './../colors'
+import { INTENT_COLOR_MAP } from '../intent-color-map'
 import { Intent } from '@blueprintjs/core'
 import { Printer } from '@electricui/components-desktop'
 import { isElementOfType } from '../utils'
