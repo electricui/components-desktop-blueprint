@@ -224,7 +224,7 @@ const DeviceLine = (props: DeviceLineProps) => {
     }
 
     // Otherwise we're probably still connecting, do nothing
-  }, [connectionHashes.length, connectionRequested])
+  }, [connectionHashes.length, connectionRequested, connectionState, props.postHandshake])
 
   // Device Card Pose
   let deviceInnerCardPose: string = connectionState
