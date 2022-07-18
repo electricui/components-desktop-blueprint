@@ -71,7 +71,7 @@ const debugOptions = [
     ],
   },
   {
-    categoryTitle: 'Timeseries',
+    categoryTitle: 'Charts, Timeseries, DataFlow',
     strings: [
       'electricui-core-timeseries:electron-ipc-remote-query-manager',
       'electricui-core-timeseries:message-data-source',
@@ -83,9 +83,9 @@ const debugOptions = [
       'electricui-core-timeseries:shared-frontier',
       'electricui-core-dataflow:timestride-decimation',
       'electricui-core-dataflow:dataflow',
+      'electricui-core-charts:container',
     ],
   },
-
   {
     categoryTitle: 'Utilities',
     strings: ['utility-ipc:server'],
