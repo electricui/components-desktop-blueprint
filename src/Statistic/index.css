@@ -193,7 +193,7 @@
 }
 .eui.horizontal.statistic > .text.value,
 .eui.horizontal.statistics > .statistic > .text.value {
-  min-height: 0em !important;
+  min-height: 0em;
 }
 .eui.horizontal.statistics .statistic > .value .icon,
 .eui.horizontal.statistic > .value .icon {
@@ -234,83 +234,83 @@
 /* Mini */
 .eui.mini.statistics .statistic > .value,
 .eui.mini.statistic > .value {
-  font-size: 1.5rem !important;
+  font-size: 1.5rem;
 }
 .eui.mini.horizontal.statistics .statistic > .value,
 .eui.mini.horizontal.statistic > .value {
-  font-size: 1.5rem !important;
+  font-size: 1.5rem;
 }
 .eui.mini.statistics .statistic > .text.value,
 .eui.mini.statistic > .text.value {
-  font-size: 1rem !important;
+  font-size: 1rem;
 }
 
 /* Tiny */
 .eui.tiny.statistics .statistic > .value,
 .eui.tiny.statistic > .value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 .eui.tiny.horizontal.statistics .statistic > .value,
 .eui.tiny.horizontal.statistic > .value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 .eui.tiny.statistics .statistic > .text.value,
 .eui.tiny.statistic > .text.value {
-  font-size: 1rem !important;
+  font-size: 1rem;
 }
 
 /* Small */
 .eui.small.statistics .statistic > .value,
 .eui.small.statistic > .value {
-  font-size: 3rem !important;
+  font-size: 3rem;
 }
 .eui.small.horizontal.statistics .statistic > .value,
 .eui.small.horizontal.statistic > .value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 .eui.small.statistics .statistic > .text.value,
 .eui.small.statistic > .text.value {
-  font-size: 1rem !important;
+  font-size: 1rem;
 }
 
 /* Medium */
 .eui.statistics .statistic > .value,
 .eui.statistic > .value {
-  font-size: 4rem !important;
+  font-size: 4rem;
 }
 .eui.horizontal.statistics .statistic > .value,
 .eui.horizontal.statistic > .value {
-  font-size: 3rem !important;
+  font-size: 3rem;
 }
 .eui.statistics .statistic > .text.value,
 .eui.statistic > .text.value {
-  font-size: 2rem !important;
+  font-size: 2rem;
 }
 
 /* Large */
 .eui.large.statistics .statistic > .value,
 .eui.large.statistic > .value {
-  font-size: 5rem !important;
+  font-size: 5rem;
 }
 .eui.large.horizontal.statistics .statistic > .value,
 .eui.large.horizontal.statistic > .value {
-  font-size: 4rem !important;
+  font-size: 4rem;
 }
 .eui.large.statistics .statistic > .text.value,
 .eui.large.statistic > .text.value {
-  font-size: 2.5rem !important;
+  font-size: 2.5rem;
 }
 
 /* Huge */
 .eui.huge.statistics .statistic > .value,
 .eui.huge.statistic > .value {
-  font-size: 6rem !important;
+  font-size: 6rem;
 }
 .eui.huge.horizontal.statistics .statistic > .value,
 .eui.huge.horizontal.statistic > .value {
-  font-size: 5rem !important;
+  font-size: 5rem;
 }
 .eui.huge.statistics .statistic > .text.value,
 .eui.huge.statistic > .text.value {
-  font-size: 2.5rem !important;
+  font-size: 2.5rem;
 }
