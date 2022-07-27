@@ -103,7 +103,7 @@ function ElectricTextInput(props: TextInputProps) {
         // We already caught the promise, don't catch it again
         // eslint-disable-next-line promise/catch-or-return
         pushPromise.finally(() => {
-          // When it's received by hardware, update our last push finished ID asyncronously, hold the focussed state until then
+          // When it's received by hardware, update our last push finished ID asynchronously, hold the focussed state until then
           lastPushedUpdateID.current = thisPushID
         })
       },
