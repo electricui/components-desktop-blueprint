@@ -83,6 +83,7 @@ const debugOptions = [
       'electricui-core-timeseries:shared-frontier',
       'electricui-core-dataflow:dataflow',
       'electricui-core-charts:container',
+      'electricui-core-charts:query',
     ],
   },
   {
