@@ -38,6 +38,7 @@
     "@blueprintjs/select": "^3.18.6",
     "@electricui/build-rollup-config": "workspace:*",
     "@electricui/jest-config": "workspace:*",
+    "@jest/globals": "^26.6.2",
     "@types/chai": "^4.1.7",
     "@types/chai-subset": "^1.3.2",
     "@types/classnames": "^2.2.7",
@@ -53,6 +54,8 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "electron": "13.1.7",
+    "jest": "^27.0.6",
+    "jest-circus": "^27.0.6",
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
     "react": "17.0.2",
@@ -60,6 +63,7 @@
     "react-pose": "^4.0.8",
     "rollup": "2.51.2",
     "sinon": "^7.2.7",
+    "ts-jest": "^27.0.3",
     "ts-node": "^9.0.0",
     "tslib": "^2.0.3",
     "typescript": "4.3.2"
@@ -80,7 +84,7 @@
     "prepack": "silversmith prepack",
     "build": "rm -rf ./lib && rollup -c",
     "postpack": "silversmith postpack",
-    "test": "export TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' && mocha --require ts-node/register \"test/**/*.ts\" && export TS_NODE_COMPILER_OPTIONS=\"\"",
-    "coverage": "export TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\"}' && nyc mocha- -require ts-node/register \"test/**/*.ts\" && export TS_NODE_COMPILER_OPTIONS=\"\""
+    "test": "jest",
+    "coverage": "jest --collectCoverage"
   }
 }
