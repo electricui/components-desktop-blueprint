@@ -52,12 +52,12 @@ interface RadioGroupProps<T> extends UpstreamRadioGroupProps {
   /**
    * Either a string that denotes the messageID or a function that takes the device's state tree and returns a string or number for use in the RadioGroup.
    */
-  accessor: Accessor
+  accessor: Accessor<T>
   /**
    * If the accessor is merely a messageID, this Writer is optional.
    * If the accessor is functional, then this writer must be used to mutate the StateTree for writing to the device.
    */
-  writer?: (staging: Draft<ElectricUIDeveloperState>, value: T) => void
+  writer?: (staging: Draft<ElectricUIDeveloperState>, value: any) => void
 }
 
 function propsToRadioProps<T>(props: RadioGroupProps<T>): Array<RadioProps<T>> {
