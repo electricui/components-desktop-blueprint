@@ -84,7 +84,7 @@
     "prepack": "silversmith prepack",
     "build": "rm -rf ./lib && rollup -c",
     "postpack": "silversmith postpack",
-    "test": "jest",
+    "test": "jest --runInBand",
     "coverage": "jest --collectCoverage"
   }
 }
