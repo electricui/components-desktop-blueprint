@@ -61,7 +61,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-pose": "^4.0.8",
-    "rollup": "2.51.2",
+    "rollup": "3.2.5",
     "sinon": "^7.2.7",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
@@ -82,7 +82,7 @@
   },
   "scripts": {
     "prepack": "silversmith prepack",
-    "build": "rm -rf ./lib && rollup -c",
+    "build": "rm -rf ./lib && rollup -c --bundleConfigAsCjs",
     "postpack": "silversmith postpack",
     "test": "jest --runInBand",
     "coverage": "jest --collectCoverage"
