@@ -354,6 +354,7 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
         <ButtonGroup>
           {connectionHashes.map(connectionHash => (
             <ConnectionStateButton
+              key={connectionHash}
               connectionHash={connectionHash}
               active={selectedConnection === connectionHash}
               setSelectedConnection={setSelectedConnection}
@@ -447,6 +448,7 @@ export function DeviceState() {
       <ButtonGroup>
         {deviceIDs.map(deviceID => (
           <DeviceStateButton
+            key={deviceID}
             deviceID={deviceID}
             active={selectedDevice === deviceID}
             setSelectedDevice={setSelectedDevice}
