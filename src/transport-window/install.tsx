@@ -5,6 +5,7 @@ import { DeviceManager } from '@electricui/core'
 // Take a DeviceManager and a root and begin the render process for React
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { Store } from 'redux'
 
 interface DebugInterfaceProps {
   proxyServer: DeviceManagerProxyServer
@@ -14,13 +15,14 @@ interface DebugInterfaceProps {
 export function setupProxyAndDebugInterface(
   element: Element | DocumentFragment,
   deviceManager: DeviceManager,
+  store: Store,
   Component?: React.FC<DebugInterfaceProps>,
 ) {
   let server = setupProxyServer(deviceManager)
 
   const ComponentToRender = Component ?? DebugInterface
 
-  ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} />, element)
+  ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} store={store} />, element)
 
   // On refresh.
   return (element2: Element | DocumentFragment, deviceManager2: DeviceManager) => {
@@ -37,6 +39,6 @@ export function setupProxyAndDebugInterface(
     server.provideDataForHotReload(mutableHotReloadData)
 
     // Re-render
-    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager2} />, element2)
+    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager2} store={store} />, element2)
   }
 }

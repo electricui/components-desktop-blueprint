@@ -3,14 +3,22 @@ import './index.css'
 import { Alignment, Button, Classes, Navbar, Tab, Tabs } from '@blueprintjs/core'
 import React, { useState } from 'react'
 
+import { Composition } from 'atomic-layout'
 import { DarkModeWrapper } from '../DarkModeWrapper'
 import { DebugChannels } from './debug-channels'
 import { DeviceManager } from '@electricui/core'
 import { IconNames } from '@blueprintjs/icons'
 import { ipcRenderer } from 'electron'
+import { DeviceState } from './device-state'
+
+import { DeviceManagerProxyContext, EventConnector } from '@electricui/components-core'
+import { Provider } from 'react-redux'
+import { Store } from 'redux'
+import { ReactReduxContext } from '@electricui/core-redux-state'
 
 interface DebugInterfaceProps {
   deviceManager: DeviceManager
+  store: Store
 }
 
 export const DebugInterface = (props: DebugInterfaceProps) => {
@@ -33,9 +41,8 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                 active={selectedTab === 'debug_channels'}
                 style={{ marginRight: '0.5em' }}
               />
-              {/* <Button
+              <Button
                 minimal
-                disabled
                 large
                 icon={IconNames.PROPERTIES}
                 text="Device State"
@@ -45,6 +52,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                 active={selectedTab === 'device_state'}
                 style={{ marginRight: '0.5em' }}
               />
+              {/* 
               <Button
                 disabled
                 minimal
@@ -87,7 +95,17 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
           </div>
         </Navbar>
       </div>
-      <div className="debug-content">{selectedTab === 'debug_channels' ? <DebugChannels /> : null}</div>
+      <div className="debug-content">
+        <Provider store={props.store} context={ReactReduxContext}>
+          <DeviceManagerProxyContext.Provider
+            value={{ foundTransportManager: true, deviceManager: props.deviceManager }}
+          >
+            {selectedTab === 'debug_channels' ? <DebugChannels /> : null}
+            {selectedTab === 'device_state' ? <DeviceState /> : null}
+            <EventConnector />
+          </DeviceManagerProxyContext.Provider>
+        </Provider>
+      </div>
     </DarkModeWrapper>
   )
 }
