@@ -12,13 +12,10 @@ import { ipcRenderer } from 'electron'
 import { DeviceState } from './device-state'
 
 import { DeviceManagerProxyContext, EventConnector } from '@electricui/components-core'
-import { Provider } from 'react-redux'
-import { Store } from 'redux'
-import { ReactReduxContext } from '@electricui/core-redux-state'
+import { StateProvider } from '@electricui/components-core'
 
 interface DebugInterfaceProps {
   deviceManager: DeviceManager
-  store: Store
 }
 
 export const DebugInterface = (props: DebugInterfaceProps) => {
@@ -96,7 +93,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
         </Navbar>
       </div>
       <div className="debug-content">
-        <Provider store={props.store} context={ReactReduxContext}>
+        <StateProvider>
           <DeviceManagerProxyContext.Provider
             value={{ foundTransportManager: true, deviceManager: props.deviceManager }}
           >
@@ -104,7 +101,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
             {selectedTab === 'device_state' ? <DeviceState /> : null}
             <EventConnector />
           </DeviceManagerProxyContext.Provider>
-        </Provider>
+        </StateProvider>
       </div>
     </DarkModeWrapper>
   )

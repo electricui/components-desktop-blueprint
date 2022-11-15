@@ -15,14 +15,13 @@ interface DebugInterfaceProps {
 export function setupProxyAndDebugInterface(
   element: Element | DocumentFragment,
   deviceManager: DeviceManager,
-  store: Store,
   Component?: React.FC<DebugInterfaceProps>,
 ) {
   let server = setupProxyServer(deviceManager)
 
   const ComponentToRender = Component ?? DebugInterface
 
-  ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} store={store} />, element)
+  ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager} />, element)
 
   // On refresh.
   return (element2: Element | DocumentFragment, deviceManager2: DeviceManager) => {
@@ -39,6 +38,6 @@ export function setupProxyAndDebugInterface(
     server.provideDataForHotReload(mutableHotReloadData)
 
     // Re-render
-    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager2} store={store} />, element2)
+    ReactDOM.render(<ComponentToRender proxyServer={server} deviceManager={deviceManager2} />, element2)
   }
 }
