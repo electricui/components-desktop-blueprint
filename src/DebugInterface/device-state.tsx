@@ -113,19 +113,7 @@ function ConnectionMetadataInfo(props: { connectionHash: ConnectionHash; metadat
     }
   }, [deviceManager, setUpdateRate, isStale])
 
-  if (isStale) {
-    return <span style={{ color: '#dc5656' }}>(update {'>'}5s old)</span>
-  }
-
-  if (updateRate === null || !Number.isFinite(updateRate)) {
-    return null
-  }
-
-  if (updateRate > 1000) {
-    return <span style={{ color: '#d456dc' }}>(updating at {(updateRate / 1000).toFixed(2)}kHz)</span>
-  }
-
-  return <span style={{ color: '#d456dc' }}>(updating at {updateRate.toFixed(2)}hz)</span>
+  return <DebugStateRateInformation updateRateHz={updateRate} isStale={isStale} />
 }
 
 function ConnectionInformation(props: { connectionHash: ConnectionHash }) {
@@ -171,6 +159,86 @@ function ConnectionInformation(props: { connectionHash: ConnectionHash }) {
       )}
     </>
   )
+}
+
+export function DebugStateMockTree(props: {
+  data: {
+    [key: string]: {
+      value: any
+      isStale: boolean
+      updateRateHz: number | null
+    }
+  }
+  shouldExpandNode?: (keyPath: (string | number)[], data: any, level: number) => boolean
+}) {
+  const light = !useDarkMode()
+
+  const obj: {
+    [key: string]: any
+  } = {}
+
+  for (const key of Object.keys(props.data)) {
+    obj[key] = props.data[key].value
+  }
+
+  return (
+    <JSONTree
+      data={obj}
+      theme={theme}
+      invertTheme={light}
+      hideRoot
+      getItemString={(type, data, itemType, itemString, keyPath) => {
+        return (
+          <span>
+            {itemType} {itemString}{' '}
+            {keyPath.length === 1 ? (
+              <DebugStateRateInformation
+                isStale={props.data[keyPath[0]]?.isStale}
+                updateRateHz={props.data[keyPath[0]]?.updateRateHz}
+              />
+            ) : null}
+          </span>
+        )
+      }}
+      valueRenderer={function (valueAsString, value, ...keyPath) {
+        let str = valueAsString
+
+        // Unsure why this doesn't natively support BigInts
+        if (valueAsString === `<BigInt>`) {
+          str = <span style={{ color: light ? '#ad6728' : '#dc9656' }}>{`${String(value)}n`}</span>
+        }
+
+        return (
+          <span style={{ fontFamily: 'monospace' }}>
+            {str}{' '}
+            {keyPath.length === 1 ? (
+              <DebugStateRateInformation
+                isStale={props.data[keyPath[0]]?.isStale}
+                updateRateHz={props.data[keyPath[0]]?.updateRateHz}
+              />
+            ) : null}
+          </span>
+        )
+      }}
+      shouldExpandNode={props.shouldExpandNode}
+    />
+  )
+}
+
+export function DebugStateRateInformation(props: { isStale: boolean; updateRateHz: number | null }) {
+  if (props.isStale) {
+    return <span style={{ color: '#dc5656' }}>(update {'>'}5s old)</span>
+  }
+
+  if (props.updateRateHz === null || !Number.isFinite(props.updateRateHz)) {
+    return null
+  }
+
+  if (props.updateRateHz > 1000) {
+    return <span style={{ color: '#d456dc' }}>(updating at {(props.updateRateHz / 1000).toFixed(2)}kHz)</span>
+  }
+
+  return <span style={{ color: '#d456dc' }}>(updating at {props.updateRateHz.toFixed(2)}hz)</span>
 }
 
 function DeviceMessageIDInfo(props: { deviceID: DeviceID; messageID: string }) {
@@ -232,19 +300,7 @@ function DeviceMessageIDInfo(props: { deviceID: DeviceID; messageID: string }) {
     }
   }, [deviceManager, setUpdateRate, isStale])
 
-  if (isStale) {
-    return <span style={{ color: '#dc5656' }}>(update {'>'}5s old)</span>
-  }
-
-  if (updateRate === null || !Number.isFinite(updateRate)) {
-    return null
-  }
-
-  if (updateRate > 1000) {
-    return <span style={{ color: '#d456dc' }}>(updating at {(updateRate / 1000).toFixed(2)}kHz)</span>
-  }
-
-  return <span style={{ color: '#d456dc' }}>(updating at {updateRate.toFixed(2)}hz)</span>
+  return <DebugStateRateInformation updateRateHz={updateRate} isStale={isStale} />
 }
 
 function ConnectionStateButton(props: {
@@ -303,7 +359,9 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
 
   const light = !useDarkMode()
   const connectionHashes = useDeviceConnectionHashes(props.deviceID)
-  const [selectedConnection, setSelectedConnection] = useState<ConnectionHash | null>(null)
+  const [selectedConnection, setSelectedConnection] = useState<ConnectionHash | null>(
+    connectionHashes[0] ? connectionHashes[0] : null,
+  )
   const connectionExists = useSelector(state =>
     Boolean(
       selectedConnection && // A connection must be selected
@@ -321,6 +379,20 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
           theme={theme}
           invertTheme={light}
           hideRoot
+          getItemString={(type, data, itemType, itemString, keyPath) => {
+            return (
+              <span>
+                {itemType} {itemString}{' '}
+                {keyPath.length === 1 ? (
+                  <DeviceMessageIDInfo
+                    deviceID={props.deviceID}
+                    messageID={String(keyPath[0])}
+                    key={`${props.deviceID}/${keyPath[0]}`}
+                  />
+                ) : null}
+              </span>
+            )
+          }}
           valueRenderer={function (valueAsString, value, ...keyPath) {
             let str = valueAsString
 
@@ -332,11 +404,13 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
             return (
               <span style={{ fontFamily: 'monospace' }}>
                 {str}{' '}
-                <DeviceMessageIDInfo
-                  deviceID={props.deviceID}
-                  messageID={String(keyPath[0])}
-                  key={`${props.deviceID}/${keyPath[0]}`}
-                />
+                {keyPath.length === 1 ? (
+                  <DeviceMessageIDInfo
+                    deviceID={props.deviceID}
+                    messageID={String(keyPath[0])}
+                    key={`${props.deviceID}/${keyPath[0]}`}
+                  />
+                ) : null}
               </span>
             )
           }}
@@ -438,9 +512,9 @@ function DeviceStateButton(props: {
   )
 }
 
-export function DeviceState() {
+export function DebugDeviceState() {
   const deviceIDs = useDeviceIDList()
-  const [selectedDevice, setSelectedDevice] = useState<DeviceID | null>(null)
+  const [selectedDevice, setSelectedDevice] = useState<DeviceID | null>(deviceIDs[0] ? deviceIDs[0] : null)
 
   return (
     <>

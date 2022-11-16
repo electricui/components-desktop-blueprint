@@ -25,6 +25,7 @@ export { default as RefreshIndicator } from './src/RefreshIndicator'
 export { default as RefreshSpinner } from './src/RefreshIndicator/spinner'
 export { DebugInterface } from './src/DebugInterface'
 export { DebugChannels } from './src/DebugInterface/debug-channels'
+export { DebugDeviceState, DebugStateMockTree } from './src/DebugInterface/device-state'
 
 export { Dropdown } from './src/Dropdown'
 export { setupProxyAndDebugInterface } from './src/transport-window/install'

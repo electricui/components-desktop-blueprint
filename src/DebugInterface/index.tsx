@@ -9,7 +9,7 @@ import { DebugChannels } from './debug-channels'
 import { DeviceManager } from '@electricui/core'
 import { IconNames } from '@blueprintjs/icons'
 import { ipcRenderer } from 'electron'
-import { DeviceState } from './device-state'
+import { DebugDeviceState } from './device-state'
 
 import { DeviceManagerProxyContext, EventConnector } from '@electricui/components-core'
 import { StateProvider } from '@electricui/components-core'
@@ -98,7 +98,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
             value={{ foundTransportManager: true, deviceManager: props.deviceManager }}
           >
             {selectedTab === 'debug_channels' ? <DebugChannels /> : null}
-            {selectedTab === 'device_state' ? <DeviceState /> : null}
+            {selectedTab === 'device_state' ? <DebugDeviceState /> : null}
             <EventConnector />
           </DeviceManagerProxyContext.Provider>
         </StateProvider>
