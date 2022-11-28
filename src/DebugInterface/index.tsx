@@ -32,7 +32,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                 minimal
                 large
                 icon={IconNames.FILTER}
-                text="Debug Log Channels"
+                text="Log Channels"
                 onClick={() => {
                   setSelectedTab('debug_channels')
                 }}
