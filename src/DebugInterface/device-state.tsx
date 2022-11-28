@@ -116,7 +116,7 @@ function ConnectionMetadataInfo(props: { connectionHash: ConnectionHash; metadat
   return <DebugStateRateInformation updateRateHz={updateRate} isStale={isStale} />
 }
 
-function ConnectionInformation(props: { connectionHash: ConnectionHash }) {
+export function ConnectionInformation(props: { connectionHash: ConnectionHash }) {
   const connectionState = useSelector(state => state.electricui.connections[props.connectionHash])
   const light = !useDarkMode()
 
@@ -303,7 +303,7 @@ function DeviceMessageIDInfo(props: { deviceID: DeviceID; messageID: string }) {
   return <DebugStateRateInformation updateRateHz={updateRate} isStale={isStale} />
 }
 
-function ConnectionStateButton(props: {
+export function ConnectionStateButton(props: {
   connectionHash: ConnectionHash
   active: boolean
   setSelectedConnection: (connectionHash: ConnectionHash | null) => void
@@ -313,7 +313,7 @@ function ConnectionStateButton(props: {
   const transportKey = useConnectionTransportKey(props.connectionHash)
   const connectionName = useConnectionMetadataKey(props.connectionHash, 'name')
 
-  const name = connectionName ?? transportKey
+  const name = connectionName ?? transportKey ?? 'unknown transport key'
 
   let intent: Intent = Intent.NONE
 
