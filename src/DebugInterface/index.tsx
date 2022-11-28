@@ -10,6 +10,7 @@ import { DeviceManager } from '@electricui/core'
 import { IconNames } from '@blueprintjs/icons'
 import { ipcRenderer } from 'electron'
 import { DebugDeviceState } from './device-state'
+import { DebugDanglingConnections } from './dangling-connections'
 
 import { DeviceManagerProxyContext, EventConnector } from '@electricui/components-core'
 import { StateProvider } from '@electricui/components-core'
@@ -47,6 +48,17 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
                   setSelectedTab('device_state')
                 }}
                 active={selectedTab === 'device_state'}
+                style={{ marginRight: '0.5em' }}
+              />
+              <Button
+                minimal
+                large
+                icon={IconNames.SWITCH}
+                text="Dangling Connections"
+                onClick={() => {
+                  setSelectedTab('dangling_connections')
+                }}
+                active={selectedTab === 'dangling_connections'}
                 style={{ marginRight: '0.5em' }}
               />
               {/* 
@@ -99,6 +111,7 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
           >
             {selectedTab === 'debug_channels' ? <DebugChannels /> : null}
             {selectedTab === 'device_state' ? <DebugDeviceState /> : null}
+            {selectedTab === 'dangling_connections' ? <DebugDanglingConnections /> : null}
             <EventConnector />
           </DeviceManagerProxyContext.Provider>
         </StateProvider>
