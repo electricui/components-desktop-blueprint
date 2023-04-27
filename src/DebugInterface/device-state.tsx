@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { IconNames } from '@blueprintjs/icons'
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
@@ -26,14 +26,6 @@ import { ConnectionHash, CONNECTION_STATE, DeviceID, MANAGER_EVENTS, Message } f
 import { timing } from '@electricui/timing'
 import { FixedQueue } from '@electricui/timeseries'
 
-function valueSupportBigInt(valueAsString: string, value: unknown, ...keyPath: (string | number)[]) {
-  if (valueAsString === `<BigInt>`) {
-    return `${String(value)}n`
-  }
-
-  return valueAsString
-}
-
 const theme = {
   base00: '#181818',
   base01: '#282828',
@@ -51,6 +43,22 @@ const theme = {
   base0D: '#7cafc2',
   base0E: '#ba8baf',
   base0F: '#a16946',
+}
+
+function renderValue(value: any, valueAsString: string, light: boolean) {
+  let str: ReactNode = valueAsString
+
+  // If it's a number, and not an integer, give it at most 2 digits after the decimal
+  if (typeof value === 'number' && !Number.isInteger(value)) {
+    str = value.toFixed(2)
+  }
+
+  // Unsure why this doesn't natively support BigInts
+  if (valueAsString === `<BigInt>`) {
+    str = <span style={{ color: light ? '#ad6728' : '#dc9656' }}>{`${String(value)}n`}</span>
+  }
+
+  return str
 }
 
 function ConnectionMetadataInfo(props: { connectionHash: ConnectionHash; metadataKey: string | number }) {
@@ -141,10 +149,12 @@ export function ConnectionInformation(props: { connectionHash: ConnectionHash })
           theme={theme}
           invertTheme={light}
           hideRoot
-          valueRenderer={function (valueAsString, value, ...keyPath) {
+          valueRenderer={(valueAsString, value, ...keyPath) => {
+            const str = renderValue(value, valueAsString, light)
+
             return (
               <span style={{ fontFamily: 'monospace' }}>
-                {valueAsString}{' '}
+                {str}{' '}
                 <ConnectionMetadataInfo
                   connectionHash={props.connectionHash}
                   metadataKey={keyPath[0]}
@@ -201,12 +211,7 @@ export function DebugStateMockTree(props: {
         )
       }}
       valueRenderer={function (valueAsString, value, ...keyPath) {
-        let str = valueAsString
-
-        // Unsure why this doesn't natively support BigInts
-        if (valueAsString === `<BigInt>`) {
-          str = <span style={{ color: light ? '#ad6728' : '#dc9656' }}>{`${String(value)}n`}</span>
-        }
+        const str = renderValue(value, valueAsString, light)
 
         return (
           <span style={{ fontFamily: 'monospace' }}>
@@ -393,13 +398,8 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
               </span>
             )
           }}
-          valueRenderer={function (valueAsString, value, ...keyPath) {
-            let str = valueAsString
-
-            // Unsure why this doesn't natively support BigInts
-            if (valueAsString === `<BigInt>`) {
-              str = <span style={{ color: light ? '#ad6728' : '#dc9656' }}>{`${String(value)}n`}</span>
-            }
+          valueRenderer={(valueAsString, value, ...keyPath) => {
+            const str = renderValue(value, valueAsString, light)
 
             return (
               <span style={{ fontFamily: 'monospace' }}>
@@ -418,7 +418,13 @@ function DeviceInformation(props: { deviceID: DeviceID }) {
       </DeviceIDContextProvider>
       <h3>Device Metadata:</h3>
       {Object.keys(deviceMetadata).length > 0 ? (
-        <JSONTree data={deviceMetadata} valueRenderer={valueSupportBigInt} theme={theme} invertTheme={light} hideRoot />
+        <JSONTree
+          data={deviceMetadata}
+          valueRenderer={(valueAsString, value) => renderValue(value, valueAsString, light)}
+          theme={theme}
+          invertTheme={light}
+          hideRoot
+        />
       ) : (
         'No metadata'
       )}
