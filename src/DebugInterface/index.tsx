@@ -20,7 +20,7 @@ interface DebugInterfaceProps {
 }
 
 export const DebugInterface = (props: DebugInterfaceProps) => {
-  const [selectedTab, setSelectedTab] = useState<string | number>('debug_channels')
+  const [selectedTab, setSelectedTab] = useState<string | number>('device_state')
 
   return (
     <DarkModeWrapper>
@@ -31,23 +31,23 @@ export const DebugInterface = (props: DebugInterfaceProps) => {
               <Button
                 minimal
                 large
-                icon={IconNames.FILTER}
-                text="Log Channels"
-                onClick={() => {
-                  setSelectedTab('debug_channels')
-                }}
-                active={selectedTab === 'debug_channels'}
-                style={{ marginRight: '0.5em' }}
-              />
-              <Button
-                minimal
-                large
                 icon={IconNames.PROPERTIES}
                 text="Device State"
                 onClick={() => {
                   setSelectedTab('device_state')
                 }}
                 active={selectedTab === 'device_state'}
+                style={{ marginRight: '0.5em' }}
+              />
+              <Button
+                minimal
+                large
+                icon={IconNames.FILTER}
+                text="Log Channels"
+                onClick={() => {
+                  setSelectedTab('debug_channels')
+                }}
+                active={selectedTab === 'debug_channels'}
                 style={{ marginRight: '0.5em' }}
               />
               <Button

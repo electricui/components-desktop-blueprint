@@ -520,7 +520,12 @@ function DeviceStateButton(props: {
 
 export function DebugDeviceState() {
   const deviceIDs = useDeviceIDList()
-  const [selectedDevice, setSelectedDevice] = useState<DeviceID | null>(deviceIDs[0] ? deviceIDs[0] : null)
+  let [selectedDevice, setSelectedDevice] = useState<DeviceID | null>(null)
+
+  // If there's only one device, and none have been selected, force it to be selected.
+  if (selectedDevice === null && deviceIDs.length === 1) {
+    selectedDevice = deviceIDs[0]
+  }
 
   return (
     <>
