@@ -72,9 +72,9 @@ const DeviceInnerCard = posed.div(InnerCardPoses)
 
 export type ConnectionsProps = {
   maxWidth?: number
-  preConnect: (deviceID: DeviceID) => void
-  postHandshake: (deviceID: DeviceID) => void
-  onFailure: (deviceID: DeviceID, err: Error) => void
+  preConnect?: (deviceID: DeviceID) => void
+  postHandshake?: (deviceID: DeviceID) => void
+  onFailure?: (deviceID: DeviceID, err: Error) => void
   style?: React.CSSProperties
   internalCardComponent: React.ReactNode
   noDevicesText?: string
@@ -95,31 +95,31 @@ const NoDevices = (props: NoDevicesProps) => {
 export type DeviceLineProps = {
   deviceID: DeviceID
   maxWidth: number
-  preConnect: (deviceID: DeviceID) => void
-  postHandshake: (deviceID: DeviceID) => void
-  onFailure: (deviceID: DeviceID, err: Error) => void
+  preConnect?: (deviceID: DeviceID) => void
+  postHandshake?: (deviceID: DeviceID) => void
+  onFailure?: (deviceID: DeviceID, err: Error) => void
   internalCardComponent?: React.ReactNode
 }
 
 const useConnectWithTimeout = (
   deviceID: DeviceID,
-  preConnect: (deviceID: DeviceID) => void,
-  postHandshake: (deviceID: DeviceID) => void,
-  onFailure: (deviceID: DeviceID, err: Error) => void,
+  preConnect?: (deviceID: DeviceID) => void,
+  postHandshake?: (deviceID: DeviceID) => void,
+  onFailure?: (deviceID: DeviceID, err: Error) => void,
 ) => {
   const connect = useDeviceConnect(deviceID)
   const disconnect = useDeviceDisconnect(deviceID)
   const getDeadline = useDeadline()
 
   const connectWithCBs = useCallback(async () => {
-    preConnect(deviceID)
+    preConnect?.(deviceID)
 
     const connectCancellationToken = getDeadline()
 
     try {
       await connect(connectCancellationToken)
 
-      postHandshake(deviceID)
+      postHandshake?.(deviceID)
     } catch (err) {
       if (connectCancellationToken.caused(err)) {
         console.log('Connection was cancelled')
@@ -127,7 +127,7 @@ const useConnectWithTimeout = (
         console.log('Connection failed:', err)
       }
 
-      onFailure(deviceID, err)
+      onFailure?.(deviceID, err)
 
       try {
         return disconnect()
@@ -220,7 +220,7 @@ const DeviceLine = (props: DeviceLineProps) => {
 
     // If a connection is requested and we've connected, just run the post handshake hook
     if (connectionState === CONNECTION_STATE.CONNECTED) {
-      props.postHandshake(deviceID)
+      props.postHandshake?.(deviceID)
     }
 
     // Otherwise we're probably still connecting, do nothing
