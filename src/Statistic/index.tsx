@@ -172,7 +172,7 @@ const Statistic = (props: StatisticProps) => {
   } else {
     return (
       <div className="eui statistic" style={mixedStyle}>
-        <StatisticValue suffix={props.suffix} prefix={props.prefix} accessor={props.accessor}>
+        <StatisticValue suffix={props.suffix} prefix={props.prefix} accessor={props.accessor} precision={props.precision}>
           {val}
         </StatisticValue>
         <StatisticLabel>{props.label}</StatisticLabel>
